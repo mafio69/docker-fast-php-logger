@@ -1,0 +1,16 @@
+{
+    "name": "mafio69/docker-fast-logger",
+    "description": "Docker dev environment with fast-php-logger pre-installed",
+    "require": {
+        "php": ">=8.1",
+        "mafio69/fast-php-logger": "^0.9"
+    },
+    "autoload": {
+        "psr-4": {
+            "App\\": "app/"
+        }
+    },
+    "config": {
+        "optimize-autoloader": true
+    }
+}

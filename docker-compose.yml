@@ -1,0 +1,39 @@
+services:
+  php:
+    build: .
+    ports:
+      - "8080:80"
+    volumes:
+      - ./app:/var/www/html/app          # your PHP code
+      - ./logs:/var/www/html/logs        # log files
+      - ./docker/php.ini:/usr/local/etc/php/conf.d/custom.ini
+    environment:
+      APP_ENV: development
+      DB_HOST: db
+      DB_PORT: 3306
+      DB_DATABASE: app
+      DB_USERNAME: app
+      DB_PASSWORD: secret
+    depends_on:
+      db:
+        condition: service_healthy
+
+  db:
+    image: mysql:8.0
+    environment:
+      MYSQL_DATABASE: app
+      MYSQL_USER: app
+      MYSQL_PASSWORD: secret
+      MYSQL_ROOT_PASSWORD: root
+    ports:
+      - "3306:3306"
+    volumes:
+      - db_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "app", "-psecret"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  db_data:

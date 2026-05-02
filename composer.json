@@ -1,5 +1,5 @@
 {
-    "name": "mafio69/docker-fast-logger",
+    "name": "mafio69/docker-fast-php-logger",
     "description": "Docker dev environment with fast-php-logger pre-installed",
     "require": {
         "php": ">=8.1",

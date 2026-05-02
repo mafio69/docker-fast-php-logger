@@ -68,7 +68,7 @@ try {
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>docker-fast-logger</title>
+    <title>docker-fast-php-logger</title>
     <style>
         body { font-family: monospace; background: #1e1e1e; color: #d4d4d4; padding: 2rem; }
         h1   { color: #4ec9b0; }
@@ -78,7 +78,7 @@ try {
     </style>
 </head>
 <body>
-    <h1>docker-fast-logger</h1>
+    <h1>docker-fast-php-logger</h1>
     <p>PHP: <span class="ok"><?= PHP_VERSION ?></span></p>
     <p>ENV: <span class="ok"><?= htmlspecialchars($_ENV['APP_ENV'] ?? 'unknown') ?></span></p>
     <p>DB:  <span class="<?= str_starts_with($dbStatus, 'connected') ? 'ok' : 'err' ?>"><?= htmlspecialchars($dbStatus) ?></span></p>

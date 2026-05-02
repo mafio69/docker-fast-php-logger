@@ -1,4 +1,4 @@
-# docker-fast-logger
+# docker-fast-php-logger
 
 > PHP dev environment with [fast-php-logger](https://github.com/mafio69/php-logger) pre-installed.
 > Mount your code, run one command, start logging.
@@ -6,8 +6,8 @@
 ## Quick start
 
 ```sh
-git clone https://github.com/mafio69/docker-fast-logger.git
-cd docker-fast-logger
+git clone https://github.com/mafio69/docker-fast-php-logger.git
+cd docker-fast-php-logger
 docker compose up --build
 ```
 
@@ -50,7 +50,7 @@ Logs appear in `./logs/YYYY/MM/YYYY-MM-DD.log` on your host machine.
 ## Structure
 
 ```
-docker-fast-logger/
+docker-fast-php-logger/
 ├── app/              ← mount your project here (or use the example)
 ├── logs/             ← log files written here (host-accessible)
 ├── docker/

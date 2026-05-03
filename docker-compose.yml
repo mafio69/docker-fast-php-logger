@@ -5,10 +5,11 @@ services:
       - "8080:80"
     volumes:
       - ./app:/var/www/html/app          # your PHP code
-      - ./logs:/var/www/html/logs        # log files
+      - ./logs:/var/www/html/logs        # log files (host-accessible)
       - ./docker/php.ini:/usr/local/etc/php/conf.d/custom.ini
     environment:
       APP_ENV: development
+      LOG_DIR: /var/www/html/logs
       DB_HOST: db
       DB_PORT: 3306
       DB_DATABASE: app

@@ -1,15 +1,17 @@
 {
     "name": "mafio69/docker-fast-php-logger",
-    "description": "Docker dev environment with fast-php-logger pre-installed",
+    "description": "Docker dev environment with fast-php-logger and fast-php-log-viewer pre-installed",
     "require": {
         "php": ">=8.1",
-        "mafio69/fast-php-logger": "^0.9"
+        "mafio69/fast-php-logger": "^0.9",
+        "mafio69/fast-php-log-viewer": "^0.9"
     },
-    "autoload": {
-        "psr-4": {
-            "App\\": "app/"
+    "repositories": [
+        {
+            "type": "vcs",
+            "url": "https://github.com/mafio69/fast-php-log-viewer"
         }
-    },
+    ],
     "config": {
         "optimize-autoloader": true
     }

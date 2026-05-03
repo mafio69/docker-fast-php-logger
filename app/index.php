@@ -82,6 +82,6 @@ try {
     <p>PHP: <span class="ok"><?= PHP_VERSION ?></span></p>
     <p>ENV: <span class="ok"><?= htmlspecialchars($_ENV['APP_ENV'] ?? 'unknown') ?></span></p>
     <p>DB:  <span class="<?= str_starts_with($dbStatus, 'connected') ? 'ok' : 'err' ?>"><?= htmlspecialchars($dbStatus) ?></span></p>
-    <p>Logs written to <code>./logs/</code> — check the files or open the log viewer.</p>
+    <p>Logs written to <code>./logs/</code> — <a href="/logs.php" style="color:#4ec9b0">open log viewer →</a></p>
 </body>
 </html>

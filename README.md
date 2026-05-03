@@ -1,7 +1,8 @@
 # docker-fast-php-logger
 
-> PHP dev environment with [fast-php-logger](https://github.com/mafio69/php-logger) pre-installed.
-> Mount your code, run one command, start logging.
+> PHP dev environment with [fast-php-logger](https://github.com/mafio69/fast-php-logger)
+> and [fast-php-log-viewer](https://github.com/mafio69/fast-php-log-viewer) pre-installed.
+> Part of the **fast-php-\*** suite.
 
 ## Quick start
 
@@ -11,7 +12,10 @@ cd docker-fast-php-logger
 docker compose up --build
 ```
 
-Open http://localhost:8080 — PHP + MySQL running, logger configured, logs in `./logs/`.
+| URL | What |
+|---|---|
+| `http://localhost:8080` | Your PHP app |
+| `http://localhost:8080/logs` | Log viewer UI |
 
 ## How to use with your own project
 
@@ -31,16 +35,18 @@ require_once '/var/www/html/vendor/autoload.php';
 
 $logger = \Mariusz\Logger\DualLogger::create('/var/www/html/logs');
 $logger->info('Hello from my app');
-$logger->warning('Something off', ['user' => 'jan@example.com', 'token' => 'abc123']);
+$logger->warning('Something off', ['user' => 'jan@example.com']);
 ```
 
-Logs appear in `./logs/YYYY/MM/YYYY-MM-DD.log` on your host machine.
+Logs appear in `./logs/YYYY/MM/YYYY-MM-DD.log` on your host.
+Open `http://localhost:8080/logs` to browse them in the viewer.
 
 ## Environment variables
 
 | Variable | Default | Description |
 |----------|---------|-------------|
 | `APP_ENV` | `development` | Application environment |
+| `LOG_DIR` | `/var/www/html/logs` | Log directory (used by viewer) |
 | `DB_HOST` | `db` | MySQL host |
 | `DB_PORT` | `3306` | MySQL port |
 | `DB_DATABASE` | `app` | Database name |
@@ -53,42 +59,19 @@ Logs appear in `./logs/YYYY/MM/YYYY-MM-DD.log` on your host machine.
 docker-fast-php-logger/
 ├── app/              ← mount your project here (or use the example)
 ├── logs/             ← log files written here (host-accessible)
+├── viewer/
+│   └── index.php     ← viewer entry point (served at /logs)
 ├── docker/
 │   └── php.ini       ← dev PHP config
 ├── Dockerfile
 ├── docker-compose.yml
-└── composer.json     ← fast-php-logger pre-installed
+└── composer.json     ← pulls fast-php-logger + fast-php-log-viewer from GitHub
 ```
 
----
+## fast-php-* suite
 
-## Roadmap
-
-### v0.9 — current
-- [x] PHP 8.3 + Apache
-- [x] fast-php-logger pre-installed via Composer
-- [x] MySQL 8.0 with healthcheck
-- [x] Volume mounts for app code and logs
-- [x] Dev php.ini (errors on, opcache off)
-- [x] Example `index.php` showing all log levels + DB connection
-
-### v1.0 — log viewer
-- [ ] Built-in log viewer at `http://localhost:8080/logs`
-- [ ] List log files by date
-- [ ] Parse and display log entries in a table
-- [ ] Filter by level (DEBUG / INFO / WARNING / ERROR / CRITICAL)
-- [ ] Filter by date range
-- [ ] Color-coded levels
-- [ ] Zero JS frameworks — vanilla PHP + HTML
-
-### v1.1 — DX improvements
-- [ ] `make up` / `make logs` / `make shell` shortcuts
-- [ ] Auto-detect `composer.json` in mounted app and run `composer install`
-- [ ] PostgreSQL variant (`docker-compose.postgres.yml`)
-- [ ] Redis service option
-
-### v1.2 — log viewer enhancements
-- [ ] Search by message text
-- [ ] Expand JSON context inline
-- [ ] Tail mode — auto-refresh last N entries
-- [ ] Download log file button
+| Package | Description |
+|---|---|
+| [fast-php-logger](https://github.com/mafio69/fast-php-logger) | PSR-3 file logger |
+| [fast-php-log-viewer](https://github.com/mafio69/fast-php-log-viewer) | Log viewer UI |
+| [docker-fast-logger](https://github.com/mafio69/docker-fast-logger) | This repo — Docker environment |

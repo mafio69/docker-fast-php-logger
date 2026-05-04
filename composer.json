@@ -4,7 +4,7 @@
     "require": {
         "php": ">=8.1",
         "mafio69/fast-php-logger": "^0.9",
-        "mafio69/fast-php-log-viewer": "^0.9"
+        "mafio69/fast-php-log-viewer": "^1.0"
     },
     "repositories": [
         {

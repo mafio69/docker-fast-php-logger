@@ -7,6 +7,43 @@
     "content-hash": "081306740bafc492f31990b0ccc233db",
     "packages": [
         {
+            "name": "mafio69/fast-php-log-viewer",
+            "version": "v1.0.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/mafio69/fast-php-log-viewer.git",
+                "reference": "d8003338b989b7556b4950d15fbdc4307893bcc7"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/mafio69/fast-php-log-viewer/zipball/d8003338b989b7556b4950d15fbdc4307893bcc7",
+                "reference": "d8003338b989b7556b4950d15fbdc4307893bcc7",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=8.1"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Mariusz\\LogViewer\\": "src/"
+                }
+            },
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Mariusz"
+                }
+            ],
+            "description": "Standalone log viewer for fast-php-logger. Drop-in single file or Composer package.",
+            "support": {
+                "source": "https://github.com/mafio69/fast-php-log-viewer/tree/master"
+            },
+            "time": "2026-05-04T06:56:00+00:00"
+        },
+        {
             "name": "mafio69/fast-php-logger",
             "version": "v0.9.1",
             "source": {

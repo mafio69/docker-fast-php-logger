@@ -26,7 +26,7 @@ Alias /logs /var/www/html/viewer\n\
 WORKDIR /var/www/html
 
 # Install packages from GitHub — vendor stays inside the image
-COPY composer.json ./
+COPY composer.json composer.lock ./
 RUN composer install --no-interaction --prefer-dist --optimize-autoloader --no-dev
 
 # Copy viewer entry point

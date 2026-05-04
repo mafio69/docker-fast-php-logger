@@ -7,6 +7,8 @@ services:
       - ./app:/var/www/html/app          # your PHP code
       - ./logs:/var/www/html/logs        # log files (host-accessible)
       - ./docker/php.ini:/usr/local/etc/php/conf.d/custom.ini
+      - ../PhpstormProjects/fast-php-log-viewer/src:/var/www/html/vendor/mafio69/fast-php-log-viewer/src
+      - ../PhpstormProjects/fast-php-log-viewer/index.php:/var/www/html/vendor/mafio69/fast-php-log-viewer/index.php
     environment:
       APP_ENV: development
       LOG_DIR: /var/www/html/logs

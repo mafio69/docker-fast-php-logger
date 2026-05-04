@@ -13,6 +13,8 @@
         }
     ],
     "config": {
-        "optimize-autoloader": true
+        "optimize-autoloader": true,
+        "preferred-install": "dist",
+        "github-protocols": ["https"]
     }
 }

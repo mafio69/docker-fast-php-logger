@@ -25,17 +25,17 @@ Alias /logs /var/www/html/viewer\n\
 
 WORKDIR /var/www/html
 
-# Trust the build directory for git (avoids "dubious ownership" error)
+# Trust the build directory for git
 RUN git config --global --add safe.directory /var/www/html \
     && git config --global --add safe.directory /opt/project
 
-# Pre-trust GitHub's SSH host key (avoids interactive prompt if SSH is used)
-RUN mkdir -p ~/.ssh \
-    && ssh-keyscan github.com >> ~/.ssh/known_hosts 2>/dev/null
-
 # Install packages from GitHub — vendor stays inside the image
-COPY composer.json composer.lock ./
-RUN composer install --no-interaction --prefer-dist --optimize-autoloader --no-dev
+COPY composer.json ./
+COPY packages/ ./packages/
+ARG GITHUB_TOKEN
+RUN composer config --global github-oauth.github.com "$GITHUB_TOKEN" && \
+    COMPOSER_ALLOW_SUPERUSER=1 \
+    composer install --no-interaction --prefer-dist --optimize-autoloader --no-dev
 
 # Copy viewer entry point
 COPY viewer/ /var/www/html/viewer/

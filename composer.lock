@@ -8,16 +8,16 @@
     "packages": [
         {
             "name": "mafio69/fast-php-log-viewer",
-            "version": "1.0.3",
+            "version": "1.0.4",
             "source": {
                 "type": "git",
                 "url": "https://github.com/mafio69/fast-php-log-viewer.git",
-                "reference": "dcb5b0cc24273bb0ca5bcd68f11fe4d4393e0474"
+                "reference": "5ffdfdc247c0771cba72e735240d7342e8e94b2b"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/mafio69/fast-php-log-viewer/zipball/dcb5b0cc24273bb0ca5bcd68f11fe4d4393e0474",
-                "reference": "dcb5b0cc24273bb0ca5bcd68f11fe4d4393e0474",
+                "url": "https://api.github.com/repos/mafio69/fast-php-log-viewer/zipball/5ffdfdc247c0771cba72e735240d7342e8e94b2b",
+                "reference": "5ffdfdc247c0771cba72e735240d7342e8e94b2b",
                 "shasum": ""
             },
             "require": {
@@ -56,10 +56,10 @@
             ],
             "description": "Standalone log viewer for fast-php-logger. Drop-in single file or Composer package.",
             "support": {
-                "source": "https://github.com/mafio69/fast-php-log-viewer/tree/v1.0.3",
+                "source": "https://github.com/mafio69/fast-php-log-viewer/tree/v1.0.4",
                 "issues": "https://github.com/mafio69/fast-php-log-viewer/issues"
             },
-            "time": "2026-05-04T07:26:03+00:00"
+            "time": "2026-05-04T08:08:04+00:00"
         },
         {
             "name": "mafio69/fast-php-logger",

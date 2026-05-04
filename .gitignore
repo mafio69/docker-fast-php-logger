@@ -1,4 +1,5 @@
 vendor/
+packages/
 logs/*
 !logs/.gitkeep
 .env

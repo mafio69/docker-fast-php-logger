@@ -1,11 +1,14 @@
 services:
   php:
-    build: .
+    build:
+      context: .
+      args:
+        GITHUB_TOKEN: ${GIT_ACCES_TOKEN}
     ports:
       - "8080:80"
     volumes:
-      - ./app:/var/www/html/app          # your PHP code
-      - ./logs:/var/www/html/logs        # log files (host-accessible)
+      - ./app:/var/www/html/app
+      - ./logs:/var/www/html/logs
       - ./docker/php.ini:/usr/local/etc/php/conf.d/custom.ini
       - ../PhpstormProjects/fast-php-log-viewer/src:/var/www/html/vendor/mafio69/fast-php-log-viewer/src
       - ../PhpstormProjects/fast-php-log-viewer/index.php:/var/www/html/vendor/mafio69/fast-php-log-viewer/index.php

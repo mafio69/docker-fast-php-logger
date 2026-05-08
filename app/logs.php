@@ -1,23 +1,56 @@
 <?php
 declare(strict_types=1);
 
-$logsDir = __DIR__ . '/../logs';
+$directories = [
+    'App logs'  => __DIR__ . '/../logs',
+    'PHP errors' => dirname(ini_get('error_log') ?: '/var/www/html/logs/php-errors.log'),
+    '/var/www/logs' => '/var/www/logs',
+    'Home'      => getenv('HOME') ?: '/root',
+];
+
+$dirKey = $_GET['dir'] ?? 'App logs';
+if (!isset($directories[$dirKey])) $dirKey = 'App logs';
+$logsDir = $directories[$dirKey];
 
 $allFiles = [];
-foreach (glob($logsDir . '/*/*/*.log') ?: [] as $f) {
-    $allFiles[basename($f, '.log')] = $f;
+foreach (glob($logsDir . '/{*.log,*.php,*/*.log,*/*.php,*/*/*.log,*/*/*.php}', GLOB_BRACE) ?: [] as $file) {
+    $rel = substr($file, strlen($logsDir) + 1);
+    $allFiles[$rel] = $file;
 }
 krsort($allFiles);
 
 $today    = date('Y-m-d');
+$selectedFile = $_GET['file'] ?? '';
 $dateFrom = $_GET['from'] ?? $today;
 $dateTo   = $_GET['to']   ?? $today;
 if ($dateFrom > $dateTo) [$dateFrom, $dateTo] = [$dateTo, $dateFrom];
 
+function loadLogFile(string $path): array {
+    $lines = file($path, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES) ?: [];
+    // Strip Sellasist PHP header
+    if ($lines && str_starts_with($lines[0], '<?php')) {
+        array_shift($lines);
+    }
+    return $lines;
+}
+
 $lines = [];
-foreach ($allFiles as $date => $file) {
-    if ($date >= $dateFrom && $date <= $dateTo) {
-        $lines = array_merge($lines, file($file, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES) ?: []);
+$loadedFiles = [];
+if ($selectedFile !== '' && isset($allFiles[$selectedFile])) {
+    $lines = loadLogFile($allFiles[$selectedFile]);
+    $loadedFiles[] = $selectedFile;
+} else {
+    foreach ($allFiles as $rel => $file) {
+        $base = basename($rel, '.log');
+        if (preg_match('/^\d{4}-\d{2}-\d{2}$/'  , $base) && $base >= $dateFrom && $base <= $dateTo) {
+            $lines = array_merge($lines, loadLogFile($file));
+            $loadedFiles[] = $rel;
+        }
+    }
+    if (empty($lines) && !empty($allFiles)) {
+        $selectedFile = array_key_first($allFiles);
+        $lines = loadLogFile($allFiles[$selectedFile]);
+        $loadedFiles[] = $selectedFile;
     }
 }
 usort($lines, fn($a, $b) => strncmp($b, $a, 19));
@@ -43,8 +76,11 @@ $levelColors = [
     'CRITICAL' => '#ff5f5f',
 ];
 
-$minDate = array_key_last($allFiles)  ?? $today;
-$maxDate = array_key_first($allFiles) ?? $today;
+$dateFiles = array_filter(array_keys($allFiles), fn($r) => preg_match('/\d{4}-\d{2}-\d{2}/', basename($r, '.log')));
+$dates = array_map(fn($r) => basename($r, '.log'), $dateFiles);
+sort($dates);
+$minDate = reset($dates) ?: $today;
+$maxDate = end($dates) ?: $today;
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -58,7 +94,7 @@ $maxDate = array_key_first($allFiles) ?? $today;
   /* ── Sidebar ── */
   #sidebar { width: 210px; min-width: 210px; background: #111; border-right: 1px solid #2a2a2a; display: flex; flex-direction: column; overflow-y: auto; }
   .s-section { padding: 12px; border-bottom: 1px solid #1e1e1e; }
-  .s-label { font-size: 10px; color: #444; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; }
+  .s-label { font-size: 13px; color: #5ba0d0; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; font-weight: 600; }
   .s-row { display: flex; align-items: center; justify-content: space-between; gap: 6px; margin-bottom: 6px; }
   .s-row:last-child { margin-bottom: 0; }
   .s-row span { color: #555; font-size: 11px; white-space: nowrap; }
@@ -114,6 +150,25 @@ $maxDate = array_key_first($allFiles) ?? $today;
 <div id="sidebar">
 
   <div class="s-section">
+    <div class="s-label">Katalog</div>
+    <select id="f-dir" class="t-input" onchange="applyDir(this.value)">
+      <?php foreach ($directories as $name => $path): ?>
+      <option value="<?= htmlspecialchars($name) ?>"<?= $dirKey === $name ? " selected" : "" ?>><?= htmlspecialchars($name) ?> (<?= $path ?>)</option>
+      <?php endforeach; ?>
+    </select>
+  </div>
+
+  <div class="s-section">
+    <div class="s-label">Plik</div>
+    <select id="f-file" class="t-input" onchange="applyFile(this.value)">
+      <option value="">— wybierz —</option>
+      <?php foreach ($allFiles as $rel => $path): ?>
+      <option value="<?= htmlspecialchars($rel) ?>"<?= $selectedFile === $rel ? ' selected' : '' ?>><?= htmlspecialchars($rel) ?> (<?= number_format(filesize($path) / 1024, 1) ?> KB)</option>
+      <?php endforeach; ?>
+    </select>
+  </div>
+
+  <div class="s-section">
     <div class="s-label">Zakres dat</div>
     <div class="s-row"><span>Od</span><input type="date" id="f-from" class="t-input" value="<?= $dateFrom ?>" min="<?= $minDate ?>" max="<?= $maxDate ?>"></div>
     <div class="s-row"><span>Do</span><input type="date" id="f-to"   class="t-input" value="<?= $dateTo ?>"   min="<?= $minDate ?>" max="<?= $maxDate ?>"></div>
@@ -150,6 +205,7 @@ $maxDate = array_key_first($allFiles) ?? $today;
 </div>
 
 <div id="main">
+<?php if ($loadedFiles): ?><div style="padding:6px 12px;background:#23241f;color:#aaa;font-size:12px;">📄 <?= htmlspecialchars(implode(', ', $loadedFiles)) ?> (<?= count($lines) ?> wpisów)</div><?php endif; ?>
   <?php if (empty($lines)): ?>
     <div id="empty">Brak wpisów dla wybranego zakresu.</div>
   <?php else: foreach ($lines as $line):
@@ -236,10 +292,21 @@ function toggleSort() {
   sorted.forEach(r => main.appendChild(r));
 }
 
+function applyDir(val) {
+  location.href = "?dir=" + encodeURIComponent(val);
+}
+
+function applyFile(val) {
+  const dir = document.getElementById("f-dir").value;
+  const base = "?dir=" + encodeURIComponent(dir);
+  location.href = val ? base + "&file=" + val : base;
+}
+
 function applyDates() {
   const from = document.getElementById('f-from').value;
   const to   = document.getElementById('f-to').value;
-  if (from) location.href = '?from=' + from + '&to=' + (to || from);
+  const dir = document.getElementById("f-dir").value;
+  if (from) location.href = '?dir=' + encodeURIComponent(dir) + '&from=' + from + '&to=' + (to || from);
 }
 
 update();

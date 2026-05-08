@@ -1,4 +1,7 @@
-<?php
+<?php /** @noinspection ALL */
+/** @noinspection ALL */
+/** @noinspection ALL */
+/** @noinspection ALL */
 
 declare(strict_types=1);
 
@@ -9,9 +12,9 @@ use Psr\Log\LogLevel;
 
 // Logger is pre-configured — logs go to /var/www/html/logs
 $logger = DualLogger::create(
-    logDir:   __DIR__ . '/../logs',
-    minLevel: LogLevel::DEBUG,
-    timezone: $_ENV['APP_TIMEZONE'] ?? 'Europe/Warsaw',
+        logDir: __DIR__ . '/../logs',
+        minLevel: LogLevel::DEBUG,
+        timezone: $_ENV['APP_TIMEZONE'] ?? 'Europe/Warsaw',
 );
 
 // ── Demo: all log levels ──────────────────────────────────────────────────────
@@ -19,19 +22,22 @@ $logger = DualLogger::create(
 $logger->debug('App booted', ['php' => PHP_VERSION, 'env' => $_ENV['APP_ENV'] ?? 'unknown']);
 
 $logger->info('Request received', [
-    'method' => $_SERVER['REQUEST_METHOD'],
-    'uri'    => $_SERVER['REQUEST_URI'],
+        'method' => $_SERVER['REQUEST_METHOD'],
+        'uri' => $_SERVER['REQUEST_URI'],
 ]);
 
 $logger->warning('Login failed', [
-    'email'    => 'jan@example.com',   // → masked automatically
-    'token'    => 'abc123xyz',         // → masked automatically
-    'attempts' => 3,
+        'email' => 'jan@example.com',   // → masked automatically
+        'token' => 'abc123xyz',         // → masked automatically
+        'attempts' => 3,
 ]);
 
 $logger->error('Order failed', [
-    'order' => ['id' => 42, 'items' => 3],
-    'user'  => new class { public int $id = 7; public string $name = 'Jan'; },
+        'order' => ['id' => 42, 'items' => 3],
+        'user' => new class {
+            public int $id = 7;
+            public string $name = 'Jan';
+        },
 ]);
 
 try {
@@ -46,14 +52,14 @@ $dbStatus = 'not connected';
 
 try {
     $pdo = new PDO(
-        sprintf('mysql:host=%s;port=%s;dbname=%s;charset=utf8mb4',
-            $_ENV['DB_HOST']     ?? 'db',
-            $_ENV['DB_PORT']     ?? '3306',
-            $_ENV['DB_DATABASE'] ?? 'app',
-        ),
-        $_ENV['DB_USERNAME'] ?? 'app',
-        $_ENV['DB_PASSWORD'] ?? 'secret',
-        [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION],
+            sprintf('mysql:host=%s;port=%s;dbname=%s;charset=utf8mb4',
+                    $_ENV['DB_HOST'] ?? 'db',
+                    $_ENV['DB_PORT'] ?? '3306',
+                    $_ENV['DB_DATABASE'] ?? 'app',
+            ),
+            $_ENV['DB_USERNAME'] ?? 'app',
+            $_ENV['DB_PASSWORD'] ?? 'secret',
+            [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION],
     );
     $dbStatus = 'connected ✓';
     $logger->info('Database connected');
@@ -70,25 +76,44 @@ try {
     <meta charset="UTF-8">
     <title>docker-fast-php-logger</title>
     <style>
-        body { font-family: monospace; background: #1e1e1e; color: #d4d4d4; padding: 2rem; }
-        h1   { color: #4ec9b0; }
-        .ok  { color: #4ec9b0; }
-        .err { color: #f44747; }
-        p    { margin: .4rem 0; }
+        body {
+            font-family: monospace;
+            background: #1e1e1e;
+            color: #d4d4d4;
+            padding: 2rem;
+        }
+
+        h1 {
+            color: #4ec9b0;
+        }
+
+        .ok {
+            color: #4ec9b0;
+        }
+
+        .err {
+            color: #f44747;
+        }
+
+        p {
+            margin: .4rem 0;
+        }
     </style>
 </head>
 <body>
-    <h1>docker-fast-php-logger</h1>
-    <p>PHP: <span class="ok"><?= PHP_VERSION ?></span></p>
-    <p>ENV: <span class="ok"><?= htmlspecialchars($_ENV['APP_ENV'] ?? 'unknown') ?></span></p>
-    <p>DB:  <span class="<?= str_starts_with($dbStatus, 'connected') ? 'ok' : 'err' ?>"><?= htmlspecialchars($dbStatus) ?></span></p>
-    <p>Logs written to <code>./logs/</code></p>
+<h1>docker-fast-php-logger</h1>
+<p>PHP: <span class="ok"><?= PHP_VERSION ?></span></p>
+<p>ENV: <span class="ok"><?= htmlspecialchars($_ENV['APP_ENV'] ?? 'unknown') ?></span></p>
+<p>DB: <span
+            class="<?= str_starts_with($dbStatus, 'connected') ? 'ok' : 'err' ?>"><?= htmlspecialchars($dbStatus) ?></span>
+</p>
+<p>Logs written to <code>./logs/</code></p>
 
-    <h2 style="color:#569cd6; margin-top:2rem;">Nawigacja</h2>
-    <ul style="list-style:none; padding:0; line-height:2;">
-        <li>📋 <a href="http://app.local/logs" style="color:#4ec9b0">Log Viewer</a> — przeglądarka logów</li>
-        <li>📧 <a href="http://mail.local" style="color:#4ec9b0">Mailpit</a> — przechwycone maile</li>
-        <li>🐳 <a href="http://portainer.local" style="color:#4ec9b0">Portainer</a> — zarządzanie kontenerami</li>
-    </ul>
+<h2 style="color:#569cd6; margin-top:2rem;">Nawigacja</h2>
+<ul style="list-style:none; padding:0; line-height:2;">
+    <li>📋 <a href="http://app.local/logs" style="color:#4ec9b0">Log Viewer</a> — przeglądarka logów</li>
+    <li>📧 <a href="http://mail.local" style="color:#4ec9b0">Mailpit</a> — przechwycone maile</li>
+    <li>🐳 <a href="http://portainer.local" style="color:#4ec9b0">Portainer</a> — zarządzanie kontenerami</li>
+</ul>
 </body>
 </html>

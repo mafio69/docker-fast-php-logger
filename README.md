@@ -1,77 +1,113 @@
 # docker-fast-php-logger
 
-> PHP dev environment with [fast-php-logger](https://github.com/mafio69/fast-php-logger)
-> and [fast-php-log-viewer](https://github.com/mafio69/fast-php-log-viewer) pre-installed.
-> Part of the **fast-php-\*** suite.
+> Gotowe środowisko deweloperskie PHP + Apache + MySQL z preinstalowanymi pakietami
+> [fast-php-logger](https://github.com/mafio69/fast-php-logger) i
+> [fast-php-log-viewer](https://github.com/mafio69/fast-php-log-viewer).
+> Część zestawu **fast-php-\***.
 
-## Quick start
+---
+
+## Instalacja (dla nowego dewelopera)
 
 ```sh
 git clone https://github.com/mafio69/docker-fast-php-logger.git
 cd docker-fast-php-logger
-docker compose up --build
+bash setup.sh
+source ~/.bashrc
 ```
 
-| URL | What |
+**To wszystko.** Skrypt `setup.sh` zrobi resztę:
+- Zbuduje i uruchomi kontenery Docker
+- Doda domeny lokalne (app.local, mail.local, portainer.local)
+- Skonfiguruje PATH, aliasy i zmienne środowiskowe
+
+---
+
+## Adresy po instalacji
+
+| Adres | Co tam jest |
 |---|---|
-| `http://localhost:8080` | Your PHP app |
-| `http://localhost:8080/logs` | Log viewer UI |
+| http://app.local | Aplikacja PHP |
+| http://app.local/logs | Przeglądarka logów |
+| http://mail.local | Mailpit — przechwycone maile |
+| http://portainer.local | Portainer — zarządzanie kontenerami |
 
-## How to use with your own project
+Fallback (bez proxy): `http://localhost:8080`
 
-Mount your code instead of the example `app/`:
+---
 
-```yaml
-# docker-compose.yml
-volumes:
-  - /path/to/your/project:/var/www/html/app
-  - ./logs:/var/www/html/logs
+## Przydatne komendy
+
+```sh
+# Maskowanie wrażliwych danych w terminalu:
+TOKEN=$(mask "Podaj token")
+
+# Połączenie z MotherDuck:
+duckconnect
+
+# Restart kontenerów:
+docker compose restart
+
+# Logi PHP:
+docker compose logs -f php
+
+# Shell w kontenerze:
+docker compose exec php bash
+
+# Generowanie przykładowych logów:
+docker compose exec php php /var/www/html/app/seed_logs.php
 ```
 
-Then in your PHP code:
+---
 
-```php
-require_once '/var/www/html/vendor/autoload.php';
-
-$logger = \Mariusz\Logger\DualLogger::create('/var/www/html/logs');
-$logger->info('Hello from my app');
-$logger->warning('Something off', ['user' => 'jan@example.com']);
-```
-
-Logs appear in `./logs/YYYY/MM/YYYY-MM-DD.log` on your host.
-Open `http://localhost:8080/logs` to browse them in the viewer.
-
-## Environment variables
-
-| Variable | Default | Description |
-|----------|---------|-------------|
-| `APP_ENV` | `development` | Application environment |
-| `LOG_DIR` | `/var/www/html/logs` | Log directory (used by viewer) |
-| `DB_HOST` | `db` | MySQL host |
-| `DB_PORT` | `3306` | MySQL port |
-| `DB_DATABASE` | `app` | Database name |
-| `DB_USERNAME` | `app` | Database user |
-| `DB_PASSWORD` | `secret` | Database password |
-
-## Structure
+## Architektura
 
 ```
 docker-fast-php-logger/
-├── app/              ← mount your project here (or use the example)
-├── logs/             ← log files written here (host-accessible)
-├── viewer/
-│   └── index.php     ← viewer entry point (served at /logs)
-├── docker/
-│   └── php.ini       ← dev PHP config
-├── Dockerfile
-├── docker-compose.yml
-└── composer.json     ← pulls fast-php-logger + fast-php-log-viewer from GitHub
+├── app/                ← Twój kod PHP (live reload)
+├── logs/               ← Pliki logów (widoczne na hoście)
+├── viewer/             ← Log viewer (serwowany pod /logs)
+├── docker/             ← Konfiguracja PHP, Xdebug
+├── bin/mask            ← Narzędzie do maskowania danych w terminalu
+├── docs/              
+│   └── xdebug-guide.md ← Instrukcja konfiguracji debuggera
+├── setup.sh            ← Skrypt instalacyjny (uruchom raz)
+├── docker-compose.yml  ← Serwisy: php, db, proxy, mailpit, portainer
+└── .env                ← Tokeny i konfiguracja (nie commituj!)
 ```
 
-## fast-php-* suite
+---
 
-| Package | Description |
+## Serwisy Docker
+
+| Serwis | Obraz | Opis |
+|---|---|---|
+| php | PHP 8.3 + Apache + Xdebug | Aplikacja |
+| db | MySQL 8.0 | Baza danych |
+| proxy | nginx-proxy | Routing domen .local |
+| mailpit | Mailpit | Przechwytywanie maili |
+| portainer | Portainer CE | GUI do Dockera |
+
+---
+
+## Xdebug
+
+Xdebug jest zainstalowany i aktywny. Szczegóły konfiguracji: [docs/xdebug-guide.md](docs/xdebug-guide.md)
+
+---
+
+## Zestaw fast-php-*
+
+| Pakiet | Opis |
 |---|---|
-| [fast-php-logger](https://github.com/mafio69/fast-php-logger) | PSR-3 file logger |
-| [fast-php-log-viewer](https://github.com/mafio69/fast-php-log-viewer) | Log viewer UI |
-| [docker-fast-logger](https://github.com/mafio69/docker-fast-logger) | This repo — Docker environment |
+| [fast-php-logger](https://github.com/mafio69/fast-php-logger) | PSR-3 logger z anonimizacją |
+| [fast-php-log-viewer](https://github.com/mafio69/fast-php-log-viewer) | UI do przeglądania logów |
+| [docker-fast-logger](https://github.com/mafio69/docker-fast-php-logger) | To repo — środowisko Docker |
+
+---
+
+## Wymagania
+
+- Docker >= 24
+- Docker Compose >= 2.20
+- Token GitHub (`GIT_ACCES_TOKEN` w `.env`)

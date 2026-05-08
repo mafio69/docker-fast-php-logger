@@ -82,6 +82,13 @@ try {
     <p>PHP: <span class="ok"><?= PHP_VERSION ?></span></p>
     <p>ENV: <span class="ok"><?= htmlspecialchars($_ENV['APP_ENV'] ?? 'unknown') ?></span></p>
     <p>DB:  <span class="<?= str_starts_with($dbStatus, 'connected') ? 'ok' : 'err' ?>"><?= htmlspecialchars($dbStatus) ?></span></p>
-    <p>Logs written to <code>./logs/</code> — <a href="/logs.php" style="color:#4ec9b0">open log viewer →</a></p>
+    <p>Logs written to <code>./logs/</code></p>
+
+    <h2 style="color:#569cd6; margin-top:2rem;">Nawigacja</h2>
+    <ul style="list-style:none; padding:0; line-height:2;">
+        <li>📋 <a href="http://app.local/logs" style="color:#4ec9b0">Log Viewer</a> — przeglądarka logów</li>
+        <li>📧 <a href="http://mail.local" style="color:#4ec9b0">Mailpit</a> — przechwycone maile</li>
+        <li>🐳 <a href="http://portainer.local" style="color:#4ec9b0">Portainer</a> — zarządzanie kontenerami</li>
+    </ul>
 </body>
 </html>

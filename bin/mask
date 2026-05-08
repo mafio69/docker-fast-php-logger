@@ -1,0 +1,31 @@
+#!/bin/bash
+# mask - reads sensitive input, displays masked version, outputs real value to stdout/variable
+# Usage:
+#   TOKEN=$(mask "Enter token")
+#   echo "secret data" | mask
+#   mask < file_with_secret.txt
+
+mask_value() {
+    local val="$1"
+    local len=${#val}
+    if [ "$len" -le 2 ]; then
+        echo "**"
+    else
+        echo "${val:0:1}$(printf '%*s' $((len - 2)) '' | tr ' ' '*')${val: -1}"
+    fi
+}
+
+if [ -t 0 ]; then
+    # Interactive: read from terminal without echo
+    prompt="${1:-Enter sensitive value}"
+    read -s -p "$prompt: " input
+    echo ""
+    >&2 echo "  → $(mask_value "$input")"
+    echo "$input"
+else
+    # Pipe mode: read from stdin
+    while IFS= read -r line; do
+        >&2 echo "  → $(mask_value "$line")"
+        echo "$line"
+    done
+fi

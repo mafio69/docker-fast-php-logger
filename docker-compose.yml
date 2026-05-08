@@ -1,18 +1,29 @@
 services:
+  proxy:
+    image: nginxproxy/nginx-proxy:latest
+    ports:
+      - "80:80"
+    volumes:
+      - /var/run/docker.sock:/tmp/docker.sock:ro
+    restart: unless-stopped
+
   php:
     build:
       context: .
       args:
         GITHUB_TOKEN: ${GIT_ACCES_TOKEN}
+    env_file:
+      - .env
     ports:
       - "8080:80"
     volumes:
       - ./app:/var/www/html/app
       - ./logs:/var/www/html/logs
       - ./docker/php.ini:/usr/local/etc/php/conf.d/custom.ini
-      - ../PhpstormProjects/fast-php-log-viewer/src:/var/www/html/vendor/mafio69/fast-php-log-viewer/src
-      - ../PhpstormProjects/fast-php-log-viewer/index.php:/var/www/html/vendor/mafio69/fast-php-log-viewer/index.php
+      - ./docker/xdebug.ini:/usr/local/etc/php/conf.d/xdebug.ini
+      - ../PhpstormProjects/fast-php-log-viewer:/var/www/html/vendor/mafio69/fast-php-log-viewer
     environment:
+      VIRTUAL_HOST: app.local,logs.local
       APP_ENV: development
       LOG_DIR: /var/www/html/logs
       DB_HOST: db
@@ -20,6 +31,12 @@ services:
       DB_DATABASE: app
       DB_USERNAME: app
       DB_PASSWORD: secret
+      XDEBUG_MODE: debug
+      XDEBUG_CLIENT_HOST: host.docker.internal
+      motherduck_token: ${DUCK_TOKEN}
+      MAIL_HOST: ${MAIL_HOST}
+      MAIL_PORT: ${MAIL_PORT}
+      MAIL_FROM: ${MAIL_FROM}
     depends_on:
       db:
         condition: service_healthy
@@ -41,5 +58,25 @@ services:
       timeout: 5s
       retries: 10
 
+  portainer:
+    image: portainer/portainer-ce:latest
+    environment:
+      VIRTUAL_HOST: portainer.local
+      VIRTUAL_PORT: "9000"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - portainer_data:/data
+    restart: unless-stopped
+
+  mailpit:
+    image: axllent/mailpit:latest
+    environment:
+      VIRTUAL_HOST: mail.local
+      VIRTUAL_PORT: "8025"
+    ports:
+      - "1025:1025"
+    restart: unless-stopped
+
 volumes:
   db_data:
+  portainer_data:

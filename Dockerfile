@@ -2,9 +2,16 @@ FROM php:8.3-apache
 
 # System deps + PHP extensions
 RUN apt-get update && apt-get install -y \
-        git unzip curl libzip-dev libpng-dev libonig-dev libxml2-dev \
+        git unzip curl libzip-dev libpng-dev libonig-dev libxml2-dev wget \
     && docker-php-ext-install pdo pdo_mysql zip mbstring \
+    && wget -q https://github.com/duckdb/duckdb/releases/latest/download/duckdb_cli-linux-amd64.zip \
+    && unzip -q duckdb_cli-linux-amd64.zip -d /usr/local/bin \
+    && chmod +x /usr/local/bin/duckdb \
+    && rm duckdb_cli-linux-amd64.zip \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
+
+# Xdebug
+RUN pecl install xdebug && docker-php-ext-enable xdebug
 
 # Composer
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer

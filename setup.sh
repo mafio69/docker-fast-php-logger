@@ -9,7 +9,19 @@ echo "🚀 Konfiguracja docker-fast-php-logger..."
 
 PROJECT_DIR="$(cd "$(dirname "$0")" && pwd)"
 
-# ── 1. /etc/hosts (domeny .local) ─────────────────────────────
+# ── 1. Plik .env ──────────────────────────────────────────────
+echo ""
+echo "📌 Sprawdzam plik .env..."
+if [ -f "$PROJECT_DIR/.env" ]; then
+    echo "   ✓ .env istnieje"
+else
+    cp "$PROJECT_DIR/.env.example" "$PROJECT_DIR/.env"
+    echo "   ⚠ Skopiowano .env.example → .env"
+    echo "   ✏️  Uzupełnij .env i uruchom setup.sh ponownie."
+    exit 1
+fi
+
+# ── 2. /etc/hosts (domeny .local) ─────────────────────────────
 echo ""
 echo "📌 Dodaję domeny do /etc/hosts..."
 if grep -q "app.local" /etc/hosts 2>/dev/null; then
@@ -20,7 +32,7 @@ else
     echo "   ✓ Dodano: app.local logs.local portainer.local mail.local pma.local adminer.local"
 fi
 
-# ── 2. PATH (bin/mask) ────────────────────────────────────────
+# ── 3. PATH (bin/mask) ────────────────────────────────────────
 echo ""
 echo "📌 Dodaję bin/ do PATH..."
 if grep -q "docker-fast-php-logger/bin" ~/.bashrc 2>/dev/null; then
@@ -30,34 +42,13 @@ else
     echo "   ✓ Dodano $PROJECT_DIR/bin do PATH"
 fi
 
-# ── 3. DUCK_TOKEN ─────────────────────────────────────────────
-echo ""
-echo "📌 Eksportuję DUCK_TOKEN..."
-if grep -q "DUCK_TOKEN" ~/.bashrc 2>/dev/null; then
-    echo "   ✓ DUCK_TOKEN już wyeksportowany"
-else
-    DUCK_TOKEN=$(grep DUCK_TOKEN "$PROJECT_DIR/.env" | cut -d= -f2)
-    echo "export DUCK_TOKEN=\"$DUCK_TOKEN\"" >> ~/.bashrc
-    echo "   ✓ DUCK_TOKEN dodany do .bashrc"
-fi
-
-# ── 4. Alias duckconnect ──────────────────────────────────────
-echo ""
-echo "📌 Dodaję alias duckconnect..."
-if grep -q "duckconnect" ~/.bashrc 2>/dev/null; then
-    echo "   ✓ Alias już istnieje"
-else
-    echo 'alias duckconnect="duckdb \"md:my_db?motherduck_token=\$DUCK_TOKEN\""' >> ~/.bashrc
-    echo "   ✓ Alias duckconnect dodany"
-fi
-
-# ── 5. Docker build & up ──────────────────────────────────────
+# ── 4. Docker build & up ──────────────────────────────────────
 echo ""
 echo "📌 Buduję i uruchamiam kontenery..."
 cd "$PROJECT_DIR"
 docker compose up -d --build
 
-# ── 6. Podsumowanie ───────────────────────────────────────────
+# ── 5. Podsumowanie ───────────────────────────────────────────
 echo ""
 echo "═══════════════════════════════════════════════"
 echo "✅ Gotowe! Uruchom: source ~/.bashrc"
@@ -72,5 +63,4 @@ echo "   http://adminer.local    — Adminer"
 echo ""
 echo "🔧 Komendy:"
 echo "   mask          — maskowanie wrażliwych danych"
-echo "   duckconnect   — połączenie z MotherDuck"
 echo "═══════════════════════════════════════════════"

@@ -9,7 +9,7 @@ Preinstalowane: [fast-php-logger](https://github.com/mafio69/fast-php-logger) + 
 
 - Docker >= 24
 - Docker Compose >= 2.20
-- Plik `.env` z tokenem GitHub (dostaniesz od zespołu)
+- Plik `.env` (skopiuj `.env.example` i uzupełnij)
 
 ---
 
@@ -18,11 +18,13 @@ Preinstalowane: [fast-php-logger](https://github.com/mafio69/fast-php-logger) + 
 ```sh
 git clone https://github.com/mafio69/docker-fast-php-logger.git
 cd docker-fast-php-logger
-bash setup.sh
+bash setup.sh          # przy pierwszym uruchomieniu utworzy .env — uzupełnij
+bash setup.sh          # uruchom ponownie po uzupełnieniu .env
 source ~/.bashrc
 ```
 
 Skrypt `setup.sh` automatycznie:
+- Sprawdza `.env` (jeśli brak — kopiuje `.env.example` i prosi o uzupełnienie)
 - Buduje i uruchamia wszystkie kontenery
 - Dodaje domeny `.local` do `/etc/hosts`
 - Konfiguruje PATH, aliasy i zmienne środowiskowe
@@ -65,9 +67,6 @@ docker compose exec php php /var/www/html/app/seed_logs.php
 
 # Maskowanie danych w terminalu
 TOKEN=$(mask "Podaj token")
-
-# Połączenie z MotherDuck
-duckconnect
 ```
 
 ---
@@ -82,7 +81,7 @@ viewer/             ← Entry point log viewera (kopiowany do obrazu)
 docker/             ← php.ini, xdebug.ini, nginx-inject.conf
 bin/mask            ← Narzędzie do maskowania danych
 setup.sh            ← Instalacja (uruchom raz)
-.env                ← Tokeny — NIE commituj!
+.env                ← Konfiguracja lokalna — NIE commituj!
 ```
 
 ---

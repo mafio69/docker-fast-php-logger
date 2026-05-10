@@ -16,7 +16,7 @@ RUN pecl install xdebug && docker-php-ext-enable xdebug
 # Composer
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
-# Apache: app served from /var/www/html/app, viewer at /logs
+# Apache: app served from /var/www/html/app, viewer at /logs and logs.local
 RUN sed -i 's|/var/www/html|/var/www/html/app|g' /etc/apache2/sites-available/000-default.conf \
     && a2enmod rewrite alias
 
@@ -29,6 +29,19 @@ Alias /logs /var/www/html/viewer\n\
     Require all granted\n\
     DirectoryIndex index.php\n\
 </Directory>' >> /etc/apache2/sites-available/000-default.conf
+
+# VirtualHost for logs.local — serves viewer directly
+RUN echo '<VirtualHost *:80>\n\
+    ServerName logs.local\n\
+    DocumentRoot /var/www/html/viewer\n\
+    <Directory /var/www/html/viewer>\n\
+        Options -Indexes\n\
+        AllowOverride None\n\
+        Require all granted\n\
+        DirectoryIndex index.php\n\
+    </Directory>\n\
+</VirtualHost>' > /etc/apache2/sites-available/logs.conf \
+    && a2ensite logs
 
 WORKDIR /var/www/html
 

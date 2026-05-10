@@ -28,7 +28,9 @@ source ~/.bashrc
 | Adres | Co tam jest |
 |---|---|
 | http://app.local | Aplikacja PHP |
-| http://app.local/logs | Przeglądarka logów |
+| http://logs.local | Przeglądarka logów |
+| http://pma.local | phpMyAdmin — zarządzanie bazą |
+| http://adminer.local | Adminer — lekki DB manager |
 | http://mail.local | Mailpit — przechwycone maile |
 | http://portainer.local | Portainer — zarządzanie kontenerami |
 

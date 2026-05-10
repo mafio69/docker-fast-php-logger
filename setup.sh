@@ -16,8 +16,8 @@ if grep -q "app.local" /etc/hosts 2>/dev/null; then
     echo "   ✓ Domeny już dodane"
 else
     docker run --rm -v /etc/hosts:/etc/hosts alpine sh -c \
-        'echo "127.0.0.1 app.local logs.local portainer.local mail.local" >> /etc/hosts'
-    echo "   ✓ Dodano: app.local logs.local portainer.local mail.local"
+        'echo "127.0.0.1 app.local logs.local portainer.local mail.local pma.local adminer.local" >> /etc/hosts'
+    echo "   ✓ Dodano: app.local logs.local portainer.local mail.local pma.local adminer.local"
 fi
 
 # ── 2. PATH (bin/mask) ────────────────────────────────────────
@@ -64,9 +64,11 @@ echo "✅ Gotowe! Uruchom: source ~/.bashrc"
 echo ""
 echo "🌐 Adresy:"
 echo "   http://app.local        — aplikacja PHP"
-echo "   http://app.local/logs   — log viewer"
+echo "   http://logs.local       — log viewer"
 echo "   http://mail.local       — mailpit (poczta dev)"
 echo "   http://portainer.local  — zarządzanie kontenerami"
+echo "   http://pma.local        — phpMyAdmin"
+echo "   http://adminer.local    — Adminer"
 echo ""
 echo "🔧 Komendy:"
 echo "   mask          — maskowanie wrażliwych danych"

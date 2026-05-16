@@ -28,8 +28,8 @@ if grep -q "app.local" /etc/hosts 2>/dev/null; then
     echo "   ✓ Domeny już dodane"
 else
     docker run --rm -v /etc/hosts:/etc/hosts alpine sh -c \
-        'echo "127.0.0.1 app.local logs.local portainer.local mail.local pma.local adminer.local" >> /etc/hosts'
-    echo "   ✓ Dodano: app.local logs.local portainer.local mail.local pma.local adminer.local"
+        'echo "127.0.0.1 app.local logs.local portainer.local mail.local pma.local adminer.local mdviewer.local" >> /etc/hosts'
+    echo "   ✓ Dodano: app.local logs.local portainer.local mail.local pma.local adminer.local mdviewer.local"
 fi
 
 # ── 3. PATH (bin/mask) ────────────────────────────────────────
@@ -42,7 +42,16 @@ else
     echo "   ✓ Dodano $PROJECT_DIR/bin do PATH"
 fi
 
-# ── 4. Docker build & up ──────────────────────────────────────
+# ── 4. Zwolnij port 80 ────────────────────────────────────────
+echo ""
+echo "📌 Sprawdzam port 80..."
+PORT80=$(docker ps --filter "publish=80" --format "{{.ID}}" | head -1)
+if [ -n "$PORT80" ]; then
+    echo "   ⚠ Port 80 zajęty przez kontener $PORT80 — zatrzymuję..."
+    docker stop "$PORT80"
+fi
+
+# ── 5. Docker build & up ──────────────────────────────────────
 echo ""
 echo "📌 Buduję i uruchamiam kontenery..."
 cd "$PROJECT_DIR"

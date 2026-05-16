@@ -2,6 +2,10 @@
 
 declare(strict_types=1);
 
+set_error_handler(static function (int $severity, string $message, string $file, int $line): bool {
+    throw new ErrorException($message, 0, $severity, $file, $line);
+});
+
 require_once __DIR__ . '/../vendor/autoload.php';
 
 use Mariusz\Logger\DualLogger;
@@ -12,24 +16,40 @@ $configFile = __DIR__ . '/../config.json';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_GET['action'])) {
     header('Content-Type: application/json');
-    $input = json_decode(file_get_contents('php://input'), true) ?? [];
-    $config = file_exists($configFile) ? json_decode(file_get_contents($configFile), true) ?? [] : [];
+    try {
+        $raw = file_get_contents('php://input');
+        $input = json_decode($raw, true) ?? throw new RuntimeException('Invalid JSON input');
+        $config = file_exists($configFile) ? json_decode(file_get_contents($configFile), true) ?? [] : [];
 
-    match ($_GET['action']) {
-        'save_hosts' => $config['hosts'] = $input,
-        'save_app' => $config['app'] = $input,
-        default => null,
-    };
+        match ($_GET['action']) {
+            'save_hosts' => $config['hosts'] = $input,
+            'save_app' => $config['app'] = $input,
+            default => throw new RuntimeException("Unknown action: {$_GET['action']}"),
+        };
 
-    file_put_contents($configFile, json_encode($config, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES));
-    echo json_encode(['ok' => true]);
+        if (file_put_contents($configFile, json_encode($config, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES)) === false) {
+            throw new RuntimeException("Failed to write config: {$configFile}");
+        }
+        echo json_encode(['ok' => true]);
+    } catch (Throwable $e) {
+        http_response_code(500);
+        echo json_encode([
+            'error'  => $e->getMessage(),
+            'file'   => basename($e->getFile()) . ':' . $e->getLine(),
+        ]);
+    }
     exit;
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'GET' && ($_GET['action'] ?? '') === 'config') {
     header('Content-Type: application/json');
-    $config = file_exists($configFile) ? json_decode(file_get_contents($configFile), true) ?? [] : [];
-    echo json_encode($config);
+    try {
+        $config = file_exists($configFile) ? json_decode(file_get_contents($configFile), true) ?? [] : [];
+        echo json_encode($config);
+    } catch (Throwable $e) {
+        http_response_code(500);
+        echo json_encode(['error' => $e->getMessage()]);
+    }
     exit;
 }
 
@@ -169,6 +189,7 @@ $dbOk = str_starts_with($dbStatus, 'connected');
                     <li><a href="http://adminer.local">⚡ Adminer</a><span class="desc">lekki DB manager</span></li>
                     <li><a href="http://mail.local">📧 Mailpit</a><span class="desc">przechwycone maile</span></li>
                     <li><a href="http://portainer.local">🐳 Portainer</a><span class="desc">kontenery</span></li>
+                    <li><a href="http://mdviewer.local">📖 Docs</a><span class="desc">dokumentacja MD</span></li>
                 </ul>
             </div>
         </div>

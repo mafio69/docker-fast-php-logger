@@ -8,7 +8,8 @@ var links=[
 ["http://pma.local","\uD83D\uDDC4\uFE0F phpMyAdmin"],
 ["http://adminer.local","\u26A1 Adminer"],
 ["http://mail.local","\uD83D\uDCE7 Mailpit"],
-["http://portainer.local","\uD83D\uDC33 Portainer"]
+["http://portainer.local","\uD83D\uDC33 Portainer"],
+["http://mdviewer.local","\uD83D\uDCD6 Docs"]
 ];
 var menu="";
 links.forEach(function(l,i){

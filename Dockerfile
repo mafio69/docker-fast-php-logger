@@ -43,6 +43,18 @@ RUN echo '<VirtualHost *:80>\n\
 </VirtualHost>' > /etc/apache2/sites-available/logs.conf \
     && a2ensite logs
 
+# VirtualHost for mdviewer.local — docs browser
+RUN echo '<VirtualHost *:80>\n\
+    ServerName mdviewer.local\n\
+    DocumentRoot /var/www/html/app\n\
+    DirectoryIndex docs-browser.php\n\
+    <Directory /var/www/html/app>\n\
+        AllowOverride None\n\
+        Require all granted\n\
+    </Directory>\n\
+</VirtualHost>' > /etc/apache2/sites-available/mdviewer.conf \
+    && a2ensite mdviewer
+
 WORKDIR /var/www/html
 
 # Trust the build directory for git

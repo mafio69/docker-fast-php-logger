@@ -2,7 +2,7 @@ services:
   proxy:
     image: nginxproxy/nginx-proxy:latest
     ports:
-      - "80:80"
+      - "${PROXY_PORT:-80}:80"
     volumes:
       - /var/run/docker.sock:/tmp/docker.sock:ro
       - ./docker/nginx-inject.conf:/etc/nginx/vhost.d/default_location:ro
@@ -16,15 +16,17 @@ services:
     env_file:
       - .env
     ports:
-      - "8080:80"
+      - "${PHP_PORT:-8888}:80"
     volumes:
       - ./app:/var/www/html/app
       - ./logs:/var/www/html/logs
+      - ./docs:/var/www/html/docs
+      - .:/var/www/html/project:ro
       - ./docker/php.ini:/usr/local/etc/php/conf.d/custom.ini
       - ./docker/xdebug.ini:/usr/local/etc/php/conf.d/xdebug.ini
       - ../PhpstormProjects/fast-php-log-viewer:/var/www/html/vendor/mafio69/fast-php-log-viewer
     environment:
-      VIRTUAL_HOST: app.local,logs.local
+      VIRTUAL_HOST: app.local,logs.local,mdviewer.local
       APP_ENV: development
       LOG_DIR: /var/www/html/logs
       DB_HOST: db
@@ -50,7 +52,7 @@ services:
       MYSQL_PASSWORD: secret
       MYSQL_ROOT_PASSWORD: root
     ports:
-      - "3306:3306"
+      - "${DB_PORT:-3307}:3306"
     volumes:
       - db_data:/var/lib/mysql
     healthcheck:
@@ -75,14 +77,14 @@ services:
       VIRTUAL_HOST: mail.local
       VIRTUAL_PORT: "8025"
     ports:
-      - "1025:1025"
+      - "${MAILPIT_SMTP_PORT:-1025}:1025"
     restart: unless-stopped
 
   phpmyadmin:
     image: phpmyadmin:latest
     environment:
       VIRTUAL_HOST: pma.local
-      VIRTUAL_PORT: "80"
+      VIRTUAL_PORT: "88"
       PMA_HOST: db
       PMA_USER: root
       PMA_PASSWORD: root

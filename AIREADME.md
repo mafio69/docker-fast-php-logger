@@ -58,3 +58,4 @@ It is NOT mounted as a volume — changes require `docker compose build`.
 
 
 Article link Coding Guidelines for Your AI Agents https://blog.jetbrains.com/idea/2025/05/coding-guidelines-for-your-ai-agents/
+Karpathy-Inspired Claude Code Guidelines https://github.com/multica-ai/andrej-karpathy-skills

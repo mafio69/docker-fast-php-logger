@@ -24,7 +24,6 @@ services:
       - .:/var/www/html/project:ro
       - ./docker/php.ini:/usr/local/etc/php/conf.d/custom.ini
       - ./docker/xdebug.ini:/usr/local/etc/php/conf.d/xdebug.ini
-      - ../PhpstormProjects/fast-php-log-viewer:/var/www/html/vendor/mafio69/fast-php-log-viewer
     environment:
       VIRTUAL_HOST: app.local,logs.local,mdviewer.local
       APP_ENV: development
@@ -43,6 +42,12 @@ services:
     depends_on:
       db:
         condition: service_healthy
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
 
   db:
     image: mysql:8.0

@@ -1,7 +1,7 @@
 ---
 inclusion: always
 ---
-Zasady pracy z AI: myśl, uprości, wykonaj precyzyjnie
+Zasady dla AI: myśl, uprości, wykonaj precyzyjnie
 
 Pracujemy z AI codziennie. Te zasady.
 _Warto je dodać do wytycznych dla AI_

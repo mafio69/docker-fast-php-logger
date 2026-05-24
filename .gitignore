@@ -5,3 +5,4 @@ logs/*
 .env
 .idea/
 identifier.db
+docker-compose.override.yml

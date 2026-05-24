@@ -6,18 +6,16 @@
 
 
 <a id="en"></a>  
-# Our Engineering Manifesto
-  
-This document is more than just a set of rules; it's our manifesto. It defines who we are as engineers, what we value, and how we build software. It is a living document that evolves with us, but its core principles remain our guiding light.
-
-We believe in **craftsmanship**, **pragmatism**, and **continuous improvement**. We build software that is not only functional but also elegant, maintainable, and a joy to work on.
-
+## Our Engineering Manifesto   
 ---
 
+This is more than just a set of rules — it is my manifesto. It defines who I am as a programmer, what I value, and how I build software. It is a living document that evolves with me, but its core principles remain my guide. 
+
+ I believe in craftsmanship, pragmatism, and continuous improvement. I strive to create software that is not only functional, but also elegant, maintainable, and genuinely pleasant to work with and read. That matters to me, and it should not be forgotten.
 ## 1. Security First: A Non-Negotiable Principle
-
+ I also believe that imperfection is part of being human — and, in my view, that is a strength, not a flaw.
 Before any line of code is written, we acknowledge that security is our highest priority. It is not a feature or an afterthought; it is the foundation upon which we build everything.
-
+ I write this for myself, and maybe it will be useful to someone else too.
 *   **No Hardcoded Secrets:** We have a zero-tolerance policy for sensitive data (API keys, passwords, tokens) in our codebase. Such credentials must never be committed to version control.
 *   **Configuration via Environment:** All configuration, especially secrets, must be loaded from environment variables (e.g., via `.env` files). We ensure that our `.gitignore` files are always configured to exclude these files.
 *   **Data Masking:** We are vigilant about protecting data in logs and error reports. All sensitive information must be masked or omitted to prevent accidental exposure.
@@ -313,11 +311,10 @@ For multi-step tasks, state a brief plan with verification:
 # Po polsku 
 # Manifest inżynieryjny
 
-Ten dokument to więcej niż zbiór zasad — to nasz manifest. Definiuje kim jesteśmy jako inżynierowie, co cenimy i jak budujemy oprogramowanie. To dokument żywy, który ewoluuje razem z nami, ale jego podstawowe zasady pozostają naszym drogowskazem.
+To nie jest tylko zbiór zasad — to mój sposób myślenia o programowaniu. Zapisuję to dla siebie, ale jeśli komuś też pomoże, tym lepiej.
 
-Wierzymy w **rzemiosło**, **pragmatyzm** i **ciągłe doskonalenie**. Tworzymy oprogramowanie, które jest nie tylko funkcjonalne, ale też eleganckie, łatwe w utrzymaniu i przyjemne do pracy.
-
----
+Cenię rzemiosło, pragmatyzm i ciągłe doskonalenie. Chcę tworzyć oprogramowanie, które działa dobrze, jest łatwe w utrzymaniu i po prostu przyjemne w codziennej pracy. Ważne jest dla mnie też, żeby kod był czytelny i miał sens dla innych ludzi, nie tylko dla kompilatora czy AI.
+Ten dokument ma żyć razem ze mną. Będzie się zmieniał, ale jego rdzeń zostaje ten sam: robić rzeczy porządnie, bez zbędnej komplikacji i z szacunkiem do czasu własnego oraz innych.
 
 ## 1. Bezpieczeństwo przede wszystkim (zasada niepodlegająca negocjacjom)
 

@@ -54,8 +54,54 @@ It is NOT mounted as a volume — changes require `docker compose build`.
 - `vendor/` is excluded from git (built inside Docker image)
 - To update a package version: bump `composer.json`, run `docker compose build`
 
+
+Zasady dla AI: myśl, uprości, wykonaj precyzyjnie
+
+Pracujemy z AI codziennie. Te zasady.
+_Warto je dodać do wytycznych dla AI_
+
+I Prostota przede wszystkim
+
+Minimum kod. Nie spekuluj. Brak funkcji poza żądaniem, brak abstrakcji dla kodu jednorazowego, brak "elastyczności" która nie była proszona, jeśli 200 → 50 linii, przepisz.
+
+Test: Czy senior powiedziałby "skomplikowane"? Uprości.
+
+II Chirurgiczne zmiany
+
+Dotykaj co musisz. Nie ulepszaj sąsiedni kod. Nie refaktoruj niepsutego, pasuj do stylu, martwego kodu: wspomni, nie usuwaj, usuń tylko swoje orphans.
+
+Test: Każda zmiana → bezpośrednio do wymagania.
+
+III Wykonanie sterowane celem
+
+Zdefiniuj sukces. Pętluj aż działa.
+
+Zamiast "Dodaj walidację" → zmień na "Testy invalid → pass"
+Zamiast "Napraw błąd" → zmień na "Test reprodukuje → pass"
+Zamiast "Refaktoruj X" → zmień na "Testy przed i po: pass"
+
+Wieloetapowe: plan + weryfikacja:
+1. [Krok] → verify: [check]
+2. [Krok] → verify: [check]
+3. [Krok] → verify: [check]
+
+# Pryncypia
+KOD musi działać przed wysłaniem `push`  
+KOD musi byc zgodny z zasadami programowania SOLID, DRY, cienkich kontrolerów i pojedyńczej odpowiedzielaności, dodatkowo obsługa błędów, `user` nie ma widzieć nieprzechwyconego błędu. Naprawiamy tam, gdzie jesteśmy
+`hard code` np.: 8080 nie ma tego, ZAKAZ `hard code`, gdzie dotykamy- widzisz `hard code` pytasz! czy naprawiać zawsze!
+Mój język to polski w nim rozmawiamy. Jednak w kodzie tylko angielski, polski to nasz prywatny język na zewnątrz tylko angielski.
+
+Start sesji — espservice-customeraftercare
+Adres kodu tego i pokrewnych
+/home/m.franciszczak@sellasist.pl/https:/gitlab.devsel.pl/backend/
+reszta ~/PhpstormProjects
+
+
+Dotenv: źródła danych poufnych i zmiennych konfiguracji. Zmienne do .env najbardziej poufne i wrażliwe tylko .env.local lub .env.dev
+.env
+.env.local
+.env.dev
+
 ### Useful links
-
-
 Article link Coding Guidelines for Your AI Agents https://blog.jetbrains.com/idea/2025/05/coding-guidelines-for-your-ai-agents/
 Karpathy-Inspired Claude Code Guidelines https://github.com/multica-ai/andrej-karpathy-skills

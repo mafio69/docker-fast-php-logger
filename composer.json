@@ -6,6 +6,9 @@
         "mafio69/fast-php-logger": "^0.9",
         "mafio69/fast-php-log-viewer": "^1.0"
     },
+    "require-dev": {
+        "laravel/pint": "^1.10"
+    },
     "repositories": [
         {
             "type": "vcs",

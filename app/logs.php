@@ -1,6 +1,12 @@
 <?php
 declare(strict_types=1);
 
+set_error_handler(static function (int $severity, string $message, string $file, int $line): bool {
+    throw new ErrorException($message, 0, $severity, $file, $line);
+});
+
+try {
+
 $directories = [
     'App logs'  => __DIR__ . '/../logs',
     'PHP errors' => dirname(ini_get('error_log') ?: '/var/www/html/logs/php-errors.log'),
@@ -340,3 +346,12 @@ document.addEventListener('keydown', e => { if (e.key === 'Escape') modal.classL
 </script>
 </body>
 </html>
+<?php } catch (Throwable $e) { ?>
+<!DOCTYPE html>
+<html><head><title>Error</title><style>body{background:#0d0d0d;color:#ac4142;font:14px/1.6 monospace;padding:40px}pre{background:#111;border:1px solid #2a2a2a;padding:16px;border-radius:4px;color:#c5c8c6;overflow-x:auto;margin-top:12px}</style></head>
+<body>
+<h2>⚠ <?= htmlspecialchars($e->getMessage()) ?></h2>
+<p style="color:#888"><?= htmlspecialchars(basename($e->getFile())) ?>:<?= $e->getLine() ?></p>
+<pre><?= htmlspecialchars($e->getTraceAsString()) ?></pre>
+</body></html>
+<?php } ?>

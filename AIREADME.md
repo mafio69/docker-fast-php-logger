@@ -53,3 +53,8 @@ It is NOT mounted as a volume — changes require `docker compose build`.
 - All git commits, PR descriptions, and code comments in **English**
 - `vendor/` is excluded from git (built inside Docker image)
 - To update a package version: bump `composer.json`, run `docker compose build`
+
+### Useful links
+
+
+Article link Coding Guidelines for Your AI Agents https://blog.jetbrains.com/idea/2025/05/coding-guidelines-for-your-ai-agents/

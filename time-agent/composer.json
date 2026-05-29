@@ -1,0 +1,17 @@
+{
+    "name": "mafio69/time-agent",
+    "description": "Time Doctor monitor - Symfony Console agent with GUI",
+    "type": "project",
+    "require": {
+        "php": ">=8.1",
+        "symfony/console": "^6.0|^7.0",
+        "symfony/process": "^6.0|^7.0",
+        "symfony/scheduler": "^6.0|^7.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "App\\": "src/"
+        }
+    },
+    "bin": ["bin/time-agent"]
+}

@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Log Viewer // Terminal</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --bg: #0a0a0a;
+            --sidebar: #0d0d0d;
+            --green: #00ff41;
+            --green-dim: #008f11;
+            --green-dark: #003b00;
+            --red: #ff0040;
+            --yellow: #ffee00;
+            --blue: #00a8ff;
+            --gray: #666;
+            --light: #e0e0e0;
+        }
+        body {
+            background: var(--bg);
+            color: var(--green);
+            font-family: 'JetBrains Mono', 'Consolas', monospace;
+            font-size: 12px;
+            line-height: 1.5;
+            height: 100vh;
+            overflow: hidden;
+            display: flex;
+        }
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: repeating-linear-gradient(0deg, rgba(0,0,0,0.15), rgba(0,0,0,0.15) 1px, transparent 1px, transparent 2px);
+            pointer-events: none;
+            z-index: 1000;
+        }
+        
+        /* SIDEBAR */
+        .sidebar {
+            width: 280px;
+            background: var(--sidebar);
+            border-right: 1px solid var(--green-dark);
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+        }
+        .sidebar-header {
+            padding: 15px;
+            border-bottom: 1px solid var(--green-dark);
+            font-size: 14px;
+            font-weight: bold;
+            letter-spacing: 2px;
+        }
+        
+        /* Tree */
+        .tree-section {
+            padding: 15px;
+            border-bottom: 1px solid var(--green-dark);
+        }
+        .tree-title {
+            font-size: 10px;
+            color: var(--gray);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 10px;
+        }
+        .tree-item {
+            padding: 5px 10px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .tree-item:hover { background: var(--green-dark); }
+        .tree-item.active { background: var(--green-dim); color: var(--bg); }
+        .tree-icon { color: var(--yellow); }
+        .tree-icon.dir { color: var(--blue); }
+        
+        /* Filters */
+        .filters-section {
+            padding: 15px;
+            border-bottom: 1px solid var(--green-dark);
+        }
+        .filter-group { margin-bottom: 15px; }
+        .filter-label {
+            font-size: 10px;
+            color: var(--gray);
+            text-transform: uppercase;
+            margin-bottom: 8px;
+            display: block;
+        }
+        .filter-btn {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 10px;
+            margin-bottom: 5px;
+            cursor: pointer;
+            border: 1px solid transparent;
+        }
+        .filter-btn:hover { border-color: var(--green-dark); }
+        .filter-btn.active { border-color: var(--green); background: var(--green-dark); }
+        .filter-indicator {
+            width: 8px; height: 8px; border-radius: 50%;
+        }
+        .filter-indicator.error { background: var(--red); box-shadow: 0 0 5px var(--red); }
+        .filter-indicator.warn { background: var(--yellow); box-shadow: 0 0 5px var(--yellow); }
+        .filter-indicator.info { background: var(--green); }
+        .filter-indicator.debug { background: var(--blue); }
+        
+        /* Time filter */
+        .time-filters {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+        .time-btn {
+            background: transparent;
+            border: 1px solid var(--green-dark);
+            color: var(--green);
+            padding: 5px 10px;
+            font-family: inherit;
+            font-size: 11px;
+            cursor: pointer;
+            text-align: left;
+        }
+        .time-btn:hover, .time-btn.active {
+            border-color: var(--green);
+            background: var(--green-dark);
+        }
+        
+        /* MAIN CONTENT */
+        .main {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        .main-header {
+            padding: 10px 15px;
+            border-bottom: 1px solid var(--green-dark);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .file-path {
+            font-size: 11px;
+            color: var(--gray);
+        }
+        .file-path span { color: var(--green); }
+        .actions { display: flex; gap: 10px; }
+        .btn {
+            background: transparent;
+            border: 1px solid var(--green-dark);
+            color: var(--green);
+            padding: 5px 12px;
+            font-family: inherit;
+            font-size: 11px;
+            cursor: pointer;
+            text-transform: uppercase;
+        }
+        .btn:hover { border-color: var(--green); background: var(--green-dark); }
+        
+        /* Search bar */
+        .search-bar {
+            padding: 10px 15px;
+            border-bottom: 1px solid var(--green-dark);
+            display: flex;
+            gap: 10px;
+        }
+        .search-input {
+            flex: 1;
+            background: var(--bg);
+            border: 1px solid var(--green-dark);
+            color: var(--green);
+            padding: 8px 12px;
+            font-family: inherit;
+            font-size: 12px;
+        }
+        .search-input:focus {
+            outline: none;
+            border-color: var(--green);
+        }
+        
+        /* Log content */
+        .log-container {
+            flex: 1;
+            overflow-y: auto;
+            padding: 0;
+            font-size: 11px;
+        }
+        .log-line {
+            padding: 4px 15px;
+            border-bottom: 1px solid rgba(0,59,0,0.3);
+            display: flex;
+            gap: 15px;
+            white-space: pre-wrap;
+            word-break: break-all;
+        }
+        .log-line:hover { background: rgba(0,143,17,0.1); }
+        .log-line.error { border-left: 2px solid var(--red); }
+        .log-line.warn { border-left: 2px solid var(--yellow); }
+        .log-line.info { border-left: 2px solid var(--green); }
+        .log-line.debug { border-left: 2px solid var(--blue); }
+        
+        .log-time { color: var(--gray); min-width: 80px; }
+        .log-level {
+            min-width: 40px;
+            text-transform: uppercase;
+            font-size: 10px;
+        }
+        .log-level.error { color: var(--red); }
+        .log-level.warn { color: var(--yellow); }
+        .log-level.info { color: var(--green); }
+        .log-level.debug { color: var(--blue); }
+        .log-message { flex: 1; color: var(--light); }
+        
+        /* Stats footer */
+        .stats-footer {
+            padding: 8px 15px;
+            border-top: 1px solid var(--green-dark);
+            display: flex;
+            justify-content: space-between;
+            font-size: 11px;
+            color: var(--gray);
+        }
+        
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: var(--bg); }
+        ::-webkit-scrollbar-thumb { background: var(--green-dark); }
+    </style>
+</head>
+<body>
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+        <div class="sidebar-header">LOG VIEWER</div>
+        
+        <div class="tree-section">
+            <div class="tree-title">// FILES</div>
+            <div class="tree-item active">
+                <span class="tree-icon">📄</span>
+                <span>app.log</span>
+            </div>
+            <div class="tree-item">
+                <span class="tree-icon">📄</span>
+                <span>error.log</span>
+            </div>
+            <div class="tree-item">
+                <span class="tree-icon">📄</span>
+                <span>debug.log</span>
+            </div>
+            <div class="tree-item">
+                <span class="tree-icon dir">📁</span>
+                <span>archive/</span>
+            </div>
+            <div class="tree-item">
+                <span class="tree-icon dir">📁</span>
+                <span>nginx/</span>
+            </div>
+        </div>
+        
+        <div class="filters-section">
+            <div class="tree-title">// LEVEL FILTERS</div>
+            <div class="filter-group">
+                <div class="filter-btn active" data-level="error">
+                    <span class="filter-indicator error"></span>
+                    <span>ERROR</span>
+                </div>
+                <div class="filter-btn active" data-level="warn">
+                    <span class="filter-indicator warn"></span>
+                    <span>WARNING</span>
+                </div>
+                <div class="filter-btn active" data-level="info">
+                    <span class="filter-indicator info"></span>
+                    <span>INFO</span>
+                </div>
+                <div class="filter-btn" data-level="debug">
+                    <span class="filter-indicator debug"></span>
+                    <span>DEBUG</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="filters-section">
+            <div class="tree-title">// TIME RANGE</div>
+            <div class="time-filters">
+                <button class="time-btn active">Last 15 min</button>
+                <button class="time-btn">Last hour</button>
+                <button class="time-btn">Last 4 hours</button>
+                <button class="time-btn">Last 24 hours</button>
+                <button class="time-btn">All time</button>
+            </div>
+        </div>
+    </aside>
+    
+    <!-- MAIN -->
+    <main class="main">
+        <header class="main-header">
+            <div class="file-path">logs/<span>app.log</span></div>
+            <div class="actions">
+                <button class="btn">⏸ Pause</button>
+                <button class="btn">🔄 Refresh</button>
+                <button class="btn">💾 Download</button>
+                <button class="btn">🗑 Clear</button>
+            </div>
+        </header>
+        
+        <div class="search-bar">
+            <input type="text" class="search-input" placeholder="🔍 Search in logs... (regex supported)">
+            <button class="btn">Filter</button>
+        </div>
+        
+        <div class="log-container" id="log-container">
+            <div class="log-line info">
+                <span class="log-time">20:15:32</span>
+                <span class="log-level info">INFO</span>
+                <span class="log-message">Application started successfully</span>
+            </div>
+            <div class="log-line info">
+                <span class="log-time">20:15:33</span>
+                <span class="log-level info">INFO</span>
+                <span class="log-message">Database connection established</span>
+            </div>
+            <div class="log-line warn">
+                <span class="log-time">20:16:12</span>
+                <span class="log-level warn">WARN</span>
+                <span class="log-message">Deprecated function call: mysql_connect() in /app/legacy.php:45</span>
+            </div>
+            <div class="log-line error">
+                <span class="log-time">20:16:45</span>
+                <span class="log-level error">ERROR</span>
+                <span class="log-message">Connection timeout after 30s - retrying...</span>
+            </div>
+            <div class="log-line debug">
+                <span class="log-time">20:16:46</span>
+                <span class="log-level debug">DEBUG</span>
+                <span class="log-message">Retry attempt 1/3 with exponential backoff</span>
+            </div>
+            <div class="log-line info">
+                <span class="log-time">20:16:48</span>
+                <span class="log-level info">INFO</span>
+                <span class="log-message">Connection restored</span>
+            </div>
+        </div>
+        
+        <footer class="stats-footer">
+            <span>Lines: <span id="line-count">6</span> | Filtered: <span id="filtered-count">0</span></span>
+            <span>Size: 2.4 KB | Last update: 20:16:48</span>
+        </footer>
+    </main>
+    
+    <script>
+        // Toggle filters
+        document.querySelectorAll('.filter-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                btn.classList.toggle('active');
+                filterLogs();
+            });
+        });
+        
+        // Toggle time filter
+        document.querySelectorAll('.time-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.time-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+            });
+        });
+        
+        // Filter logs based on level
+        function filterLogs() {
+            const activeLevels = Array.from(document.querySelectorAll('.filter-btn.active'))
+                .map(btn => btn.dataset.level);
+            
+            document.querySelectorAll('.log-line').forEach(line => {
+                const level = line.querySelector('.log-level').textContent.toLowerCase();
+                line.style.display = activeLevels.includes(level) ? 'flex' : 'none';
+            });
+            
+            updateStats();
+        }
+        
+        function updateStats() {
+            const total = document.querySelectorAll('.log-line').length;
+            const visible = document.querySelectorAll('.log-line:not([style*="none"])').length;
+            document.getElementById('line-count').textContent = visible;
+            document.getElementById('filtered-count').textContent = total - visible;
+        }
+        
+        // Tree file selection
+        document.querySelectorAll('.tree-item').forEach(item => {
+            item.addEventListener('click', () => {
+                document.querySelectorAll('.tree-item').forEach(i => i.classList.remove('active'));
+                item.classList.add('active');
+            });
+        });
+    </script>
+</body>
+</html>

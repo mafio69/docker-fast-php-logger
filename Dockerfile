@@ -1,84 +1,45 @@
-FROM php:8.3-apache
+FROM php:8.2-fpm-alpine
 
-# System deps + PHP extensions
-RUN apt-get update && apt-get install -y \
-        git unzip curl libzip-dev libpng-dev libonig-dev libxml2-dev wget \
-    && docker-php-ext-install pdo pdo_mysql zip mbstring \
-    && wget -q https://github.com/duckdb/duckdb/releases/latest/download/duckdb_cli-linux-amd64.zip \
-    && unzip -q duckdb_cli-linux-amd64.zip -d /usr/local/bin \
-    && chmod +x /usr/local/bin/duckdb \
-    && rm duckdb_cli-linux-amd64.zip \
-    && apt-get clean && rm -rf /var/lib/apt/lists/*
+# Install dependencies + linux-headers dla sockets
+RUN apk add --no-cache \
+    nginx \
+    bash \
+    curl \
+    git \
+    unzip \
+    sqlite \
+    sqlite-dev \
+    oniguruma-dev \
+    libzip-dev \
+    tzdata \
+    linux-headers \
+    && docker-php-ext-install pdo pdo_sqlite sockets pcntl
 
-# Xdebug
-RUN pecl install xdebug && docker-php-ext-enable xdebug
+# Timezone
+ENV TZ=Europe/Warsaw
+RUN cp /usr/share/zoneinfo/Europe/Warsaw /etc/localtime
 
-# Composer
-COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
+# Install Composer
+COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
-# Apache: app served from /var/www/html/app, viewer at /logs and logs.local
-RUN sed -i 's|/var/www/html|/var/www/html/app|g' /etc/apache2/sites-available/000-default.conf \
-    && a2enmod rewrite alias
+# Nginx config
+COPY docker/nginx.conf /etc/nginx/nginx.conf
 
-# Add /logs alias pointing to the viewer entry point
-RUN echo '\n\
-Alias /logs /var/www/html/viewer\n\
-<Directory /var/www/html/viewer>\n\
-    Options -Indexes\n\
-    AllowOverride None\n\
-    Require all granted\n\
-    DirectoryIndex index.php\n\
-</Directory>' >> /etc/apache2/sites-available/000-default.conf
+# PHP config
+COPY docker/php.ini /usr/local/etc/php/conf.d/custom.ini
 
-# VirtualHost for logs.local — serves viewer directly
-RUN echo '<VirtualHost *:80>\n\
-    ServerName logs.local\n\
-    DocumentRoot /var/www/html/viewer\n\
-    <Directory /var/www/html/viewer>\n\
-        Options -Indexes\n\
-        AllowOverride None\n\
-        Require all granted\n\
-        DirectoryIndex index.php\n\
-    </Directory>\n\
-</VirtualHost>' > /etc/apache2/sites-available/logs.conf \
-    && a2ensite logs
+WORKDIR /app
 
-# VirtualHost for mdviewer.local — docs browser
-RUN echo '<VirtualHost *:80>\n\
-    ServerName mdviewer.local\n\
-    DocumentRoot /var/www/html/app\n\
-    DirectoryIndex docs-browser.php\n\
-    <Directory /var/www/html/app>\n\
-        AllowOverride None\n\
-        Require all granted\n\
-    </Directory>\n\
-</VirtualHost>' > /etc/apache2/sites-available/mdviewer.conf \
-    && a2ensite mdviewer
+# Copy application
+COPY . /app
 
-WORKDIR /var/www/html
-
-# Trust the build directory for git
-RUN git config --global --add safe.directory /var/www/html \
-    && git config --global --add safe.directory /opt/project
-
-# Install packages from GitHub — vendor stays inside the image
-COPY composer.json ./
-COPY packages/ ./packages/
-ARG GITHUB_TOKEN
-RUN composer config --global github-oauth.github.com "$GITHUB_TOKEN" && \
-    COMPOSER_ALLOW_SUPERUSER=1 \
-    composer install --no-interaction --prefer-dist --optimize-autoloader --no-dev
-
-# Copy viewer entry point
-COPY viewer/ /var/www/html/viewer/
+# Install dependencies (if composer.json exists)
+RUN if [ -f composer.json ]; then composer install --no-dev --optimize-autoloader 2>/dev/null || true; fi
 
 # Create directories
-RUN mkdir -p /var/www/html/app /var/www/html/logs \
-    && chown -R www-data:www-data /var/www/html \
-    && chmod -R 755 /var/www/html
+RUN mkdir -p /app/logs /app/data /run/nginx && \
+    chown -R www-data:www-data /app/logs /app/data
 
-COPY docker/entrypoint.sh /entrypoint.sh
-RUN chmod +x /entrypoint.sh
+EXPOSE 80 8080
 
-EXPOSE 80
-ENTRYPOINT ["/entrypoint.sh"]
+CMD ["./start-devbox.sh"]

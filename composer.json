@@ -1,23 +1,46 @@
 {
-    "name": "mafio69/docker-fast-php-logger",
-    "description": "Docker dev environment with fast-php-logger and fast-php-log-viewer pre-installed",
-    "require": {
-        "php": ">=8.1",
-        "mafio69/fast-php-logger": "^0.9",
-        "mafio69/fast-php-log-viewer": "^1.0"
-    },
-    "require-dev": {
-        "laravel/pint": "^1.10"
-    },
+    "name": "mafio69/developer-suite",
+    "description": "Developer Suite: Logger + MCP Server + Time Agent",
+    "type": "project",
     "repositories": [
+        {
+            "type": "path",
+            "url": "./time-agent"
+        },
+        {
+            "type": "path",
+            "url": "./mcp-server"
+        },
         {
             "type": "vcs",
             "url": "https://github.com/mafio69/fast-php-log-viewer"
         }
     ],
+    "require": {
+        "php": ">=8.1",
+        "mafio69/fast-php-logger": "^0.9",
+        "mafio69/fast-php-log-viewer": "^1.0",
+        "mafio69/time-agent": "@dev",
+        "mafio69/enhanced-php-mcp-server": "@dev"
+    },
+    "require-dev": {
+        "laravel/pint": "^1.10"
+    },
+    "scripts": {
+        "post-install-cmd": [
+            "@composer install -d time-agent",
+            "@composer install -d mcp-server"
+        ],
+        "start": [
+            "docker-compose up -d"
+        ],
+        "logs": [
+            "docker-compose logs -f"
+        ]
+    },
     "config": {
         "optimize-autoloader": true,
         "preferred-install": "dist",
-        "github-protocols": ["https"]
+        "sort-packages": true
     }
 }

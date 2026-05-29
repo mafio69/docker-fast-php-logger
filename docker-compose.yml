@@ -1,114 +1,74 @@
 services:
-  proxy:
-    image: nginxproxy/nginx-proxy:latest
-    ports:
-      - "${PROXY_PORT:-80}:80"
-    volumes:
-      - /var/run/docker.sock:/tmp/docker.sock:ro
-      - ./docker/nginx-inject.conf:/etc/nginx/vhost.d/default_location:ro
-    restart: unless-stopped
-
-  php:
+  # GŁÓWNA APLIKACJA
+  devbox:
     build:
       context: .
-      args:
-        GITHUB_TOKEN: ${GIT_ACCES_TOKEN}
-    env_file:
-      - .env
+      dockerfile: Dockerfile
+    container_name: devbox
     ports:
-      - "${PHP_PORT:-8888}:80"
+      - "8794:80"
     volumes:
-      - ./app:/var/www/html/app
-      - ./logs:/var/www/html/logs
-      - ./docs:/var/www/html/docs
-      - .:/var/www/html/project:ro
-      - ./docker/php.ini:/usr/local/etc/php/conf.d/custom.ini
-      - ./docker/xdebug.ini:/usr/local/etc/php/conf.d/xdebug.ini
+      - ./logs:/app/logs
+      - ./data:/app/data
+      - ./app:/var/www/html/app:ro
+      - /tmp/.X11-unix:/tmp/.X11-unix:rw
+      - ~/.Xauthority:/tmp/.docker.xauth:ro
     environment:
-      VIRTUAL_HOST: app.local,logs.local,mdviewer.local
-      APP_ENV: development
-      LOG_DIR: /var/www/html/logs
-      DB_HOST: db
-      DB_PORT: 3306
-      DB_DATABASE: app
-      DB_USERNAME: app
-      DB_PASSWORD: secret
-      XDEBUG_MODE: debug
-      XDEBUG_CLIENT_HOST: host.docker.internal
-      motherduck_token: ${DUCK_TOKEN}
-      MAIL_HOST: ${MAIL_HOST}
-      MAIL_PORT: ${MAIL_PORT}
-      MAIL_FROM: ${MAIL_FROM}
-    depends_on:
-      db:
-        condition: service_healthy
+      - DISPLAY=${DISPLAY:-:0}
+      - XAUTHORITY=/tmp/.docker.xauth
+      - LOG_DIR=/app/logs
+      - DB_PATH=/app/data/devbox.sqlite
     restart: unless-stopped
-    healthcheck:
-      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost/"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
 
-  db:
-    image: mysql:8.0
-    environment:
-      MYSQL_DATABASE: app
-      MYSQL_USER: app
-      MYSQL_PASSWORD: secret
-      MYSQL_ROOT_PASSWORD: root
+  # LOG VIEWER (osobny, na porcie 8795)
+  logviewer:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: logviewer
     ports:
-      - "${DB_PORT:-3307}:3306"
+      - "8795:80"
     volumes:
-      - db_data:/var/lib/mysql
-    healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "app", "-psecret"]
-      interval: 5s
-      timeout: 5s
-      retries: 10
+      - ./logs:/var/www/html/logs:ro
+      - ./app:/var/www/html/app:ro
+    environment:
+      - VIRTUAL_HOST=logviewer.local
+    restart: unless-stopped
+    command: ["nginx", "-g", "daemon off;"]
 
+  # PORTAINER - zarządzanie Docker
   portainer:
     image: portainer/portainer-ce:latest
-    environment:
-      VIRTUAL_HOST: portainer.local
-      VIRTUAL_PORT: "9000"
+    container_name: portainer
+    ports:
+      - "9000:9000"
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - portainer_data:/data
     restart: unless-stopped
 
-  mailpit:
-    image: axllent/mailpit:latest
-    environment:
-      VIRTUAL_HOST: mail.local
-      VIRTUAL_PORT: "8025"
-    ports:
-      - "${MAILPIT_SMTP_PORT:-1025}:1025"
-    restart: unless-stopped
-
-  phpmyadmin:
-    image: phpmyadmin:latest
-    environment:
-      VIRTUAL_HOST: pma.local
-      VIRTUAL_PORT: "88"
-      PMA_HOST: db
-      PMA_USER: root
-      PMA_PASSWORD: root
-    depends_on:
-      db:
-        condition: service_healthy
-    restart: unless-stopped
-
+  # ADMINER - bazy danych (SQLite/MySQL)
   adminer:
     image: adminer:latest
+    container_name: adminer
+    ports:
+      - "8081:8080"
     environment:
-      VIRTUAL_HOST: adminer.local
-      VIRTUAL_PORT: "8080"
-      ADMINER_DEFAULT_SERVER: db
-    depends_on:
-      db:
-        condition: service_healthy
+      - ADMINER_DEFAULT_SERVER=sqlite
+      - ADMINER_DESIGN=pepa-linha-dark
+    restart: unless-stopped
+
+  # MAILPIT - testowy SMTP
+  mailpit:
+    image: axllent/mailpit:latest
+    container_name: mailpit
+    ports:
+      - "8025:8025"   # Web UI
+      - "1025:1025"   # SMTP
+    volumes:
+      - mailpit_data:/data
     restart: unless-stopped
 
 volumes:
-  db_data:
   portainer_data:
+  mailpit_data:

@@ -88,18 +88,10 @@ services:
   proxy:
     image: nginx:alpine
     container_name: proxy
-    ports:
-      - "80:80"
+    network_mode: host
     volumes:
       - ./docker/proxy.conf:/etc/nginx/nginx.conf:ro
-    networks:
-      - devbox-net
     restart: unless-stopped
-    depends_on:
-      - php
-      - portainer
-      - adminer
-      - mailpit
 
 volumes:
   mysql_data:

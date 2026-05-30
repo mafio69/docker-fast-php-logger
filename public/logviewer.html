@@ -300,6 +300,21 @@
             border-color: var(--red);
             color: var(--red);
         }
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+        }
+        .checkbox-label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 11px;
+            color: var(--green);
+            cursor: pointer;
+        }
+        .checkbox-label input[type="checkbox"] {
+            accent-color: var(--green);
+        }
         
         ::-webkit-scrollbar { width: 8px; height: 8px; }
         ::-webkit-scrollbar-track { background: var(--bg); }
@@ -403,12 +418,23 @@
                 <div class="form-group">
                     <label class="form-label">SSH Key path</label>
                     <input type="text" class="form-input" id="ssh-key" placeholder="~/.ssh/id_rsa">
-                    <span class="form-hint">💡 Ścieżka do klucza prywatnego</span>
+                    <span class="form-hint">💡 Ścieżka do klucza prywatnego (opcjonalnie)</span>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">SSH Password</label>
+                    <input type="password" class="form-input" id="ssh-pass" placeholder="••••••••">
+                    <span class="form-hint">💡 Hasło SSH (lub użyj klucza powyżej)</span>
                 </div>
                 <div class="form-group">
                     <label class="form-label">Remote log path</label>
                     <input type="text" class="form-input" id="ssh-path" placeholder="/var/log/app/app.log">
                     <span class="form-hint">💡 Pełna ścieżka na serwerze</span>
+                </div>
+                <div class="form-group checkbox-group">
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="ssh-save" checked>
+                        <span>💾 Zapisz to połączenie</span>
+                    </label>
                 </div>
                 <button class="btn connect-btn" onclick="connectSSH()">🔗 Connect SSH</button>
             </div>
@@ -563,7 +589,9 @@
         async function connectSSH() {
             const hostInput = document.getElementById('ssh-host').value.trim();
             const key = document.getElementById('ssh-key').value.trim();
+            const pass = document.getElementById('ssh-pass').value.trim();
             const path = document.getElementById('ssh-path').value.trim();
+            const saveConn = document.getElementById('ssh-save').checked;
             
             if (!hostInput) {
                 showStatus('❌ Podaj host SSH (user@host:port)', true);
@@ -571,6 +599,10 @@
             }
             if (!path) {
                 showStatus('❌ Podaj ścieżkę do logu na serwerze', true);
+                return;
+            }
+            if (!pass && !key) {
+                showStatus('❌ Podaj hasło lub ścieżkę do klucza SSH', true);
                 return;
             }
             
@@ -587,13 +619,6 @@
             }
             
             showStatus('🔐 Testuję połączenie SSH... ' + user + '@' + host + ':' + port);
-            
-            // Get password from user (prompt)
-            const pass = prompt('Wprowadź hasło SSH dla ' + user + '@' + host + ':\n\n(UWAGA: Tylko 2 próby przed banem!)');
-            if (!pass) {
-                showStatus('❌ Anulowano - hasło wymagane', true);
-                return;
-            }
             
             try {
                 const response = await fetch('/app/api/ssh-test.php', {
@@ -613,6 +638,13 @@
                 
                 if (result.success) {
                     showStatus('✅ ' + result.message + '\n📁 ' + result.note);
+                    
+                    // Save connection if requested
+                    if (saveConn) {
+                        const conn = { host: hostInput, key, path };
+                        localStorage.setItem('ssh_last_conn', JSON.stringify(conn));
+                        showStatus('✅ ' + result.message + '\n📁 ' + result.note + '\n💾 Zapisano połączenie');
+                    }
                 } else {
                     showStatus('❌ ' + result.error + '\n' + (result.details || ''), true);
                 }
@@ -620,6 +652,25 @@
                 showStatus('❌ Błąd: ' + err.message, true);
             }
         }
+        
+        // Load saved SSH connection
+        function loadSavedSSH() {
+            const saved = localStorage.getItem('ssh_last_conn');
+            if (saved) {
+                try {
+                    const conn = JSON.parse(saved);
+                    document.getElementById('ssh-host').value = conn.host || '';
+                    document.getElementById('ssh-key').value = conn.key || '';
+                    document.getElementById('ssh-path').value = conn.path || '';
+                    showStatus('💾 Wczytano zapisane połączenie: ' + conn.host);
+                } catch (e) {
+                    console.error('Failed to load saved connection', e);
+                }
+            }
+        }
+        
+        // Load on page load
+        document.addEventListener('DOMContentLoaded', loadSavedSSH);
         
         // Quick commands helper
         document.getElementById('docker-container').addEventListener('focus', () => {

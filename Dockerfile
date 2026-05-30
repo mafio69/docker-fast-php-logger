@@ -13,6 +13,7 @@ RUN apk add --no-cache \
     libzip-dev \
     tzdata \
     supervisor \
+    linux-headers \
     && docker-php-ext-install pdo pdo_sqlite pdo_mysql sockets pcntl
 
 # Timezone

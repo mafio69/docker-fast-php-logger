@@ -227,6 +227,80 @@
             color: var(--gray);
         }
         
+        /* Remote Logs Form */
+        .remote-section { border-top: 2px solid var(--green-dim); }
+        .remote-toggle {
+            display: flex;
+            gap: 5px;
+            margin-bottom: 12px;
+        }
+        .remote-type-btn {
+            flex: 1;
+            background: transparent;
+            border: 1px solid var(--green-dark);
+            color: var(--green);
+            padding: 6px 8px;
+            font-family: inherit;
+            font-size: 10px;
+            cursor: pointer;
+        }
+        .remote-type-btn:hover { border-color: var(--green); }
+        .remote-type-btn.active {
+            background: var(--green-dark);
+            border-color: var(--green);
+        }
+        .remote-form.hidden { display: none; }
+        .form-group {
+            margin-bottom: 12px;
+        }
+        .form-label {
+            display: block;
+            font-size: 10px;
+            color: var(--gray);
+            text-transform: uppercase;
+            margin-bottom: 5px;
+        }
+        .form-input {
+            width: 100%;
+            background: var(--bg);
+            border: 1px solid var(--green-dark);
+            color: var(--green);
+            padding: 6px 8px;
+            font-family: inherit;
+            font-size: 11px;
+        }
+        .form-input:focus {
+            outline: none;
+            border-color: var(--green);
+        }
+        .form-hint {
+            display: block;
+            font-size: 9px;
+            color: var(--gray);
+            margin-top: 3px;
+            font-style: italic;
+        }
+        .connect-btn {
+            width: 100%;
+            margin-top: 5px;
+        }
+        .connection-status {
+            margin-top: 10px;
+            padding: 8px;
+            font-size: 10px;
+            border: 1px solid var(--green-dark);
+            display: none;
+        }
+        .connection-status.active { display: block; }
+        .connection-status.success {
+            border-color: var(--green);
+            color: var(--green);
+        }
+        .connection-status.error {
+            border-color: var(--red);
+            color: var(--red);
+        }
+        
         ::-webkit-scrollbar { width: 8px; height: 8px; }
         ::-webkit-scrollbar-track { background: var(--bg); }
         ::-webkit-scrollbar-thumb { background: var(--green-dark); }
@@ -292,6 +366,55 @@
                 <button class="time-btn">Last 24 hours</button>
                 <button class="time-btn">All time</button>
             </div>
+        </div>
+        
+        <!-- REMOTE LOGS -->
+        <div class="filters-section remote-section">
+            <div class="tree-title">// REMOTE LOGS 🔌</div>
+            
+            <!-- SSH/Docker Toggle -->
+            <div class="remote-toggle">
+                <button class="remote-type-btn active" data-type="docker">🐳 Docker</button>
+                <button class="remote-type-btn" data-type="ssh">🔐 SSH</button>
+            </div>
+            
+            <!-- Docker Form -->
+            <div class="remote-form" id="docker-form">
+                <div class="form-group">
+                    <label class="form-label">Container name</label>
+                    <input type="text" class="form-input" id="docker-container" placeholder="e.g., myapp-php">
+                    <span class="form-hint">💡 docker ps → nazwa kontenera</span>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Log path</label>
+                    <input type="text" class="form-input" id="docker-path" placeholder="/var/www/html/logs/app.log">
+                    <span class="form-hint">💡 Ścieżka wewnątrz kontenera</span>
+                </div>
+                <button class="btn connect-btn" onclick="connectDocker()">🔗 Connect Docker</button>
+            </div>
+            
+            <!-- SSH Form (hidden by default) -->
+            <div class="remote-form hidden" id="ssh-form">
+                <div class="form-group">
+                    <label class="form-label">SSH Host</label>
+                    <input type="text" class="form-input" id="ssh-host" placeholder="user@server.com:22">
+                    <span class="form-hint">💡 user@host:port (domyślnie 22)</span>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">SSH Key path</label>
+                    <input type="text" class="form-input" id="ssh-key" placeholder="~/.ssh/id_rsa">
+                    <span class="form-hint">💡 Ścieżka do klucza prywatnego</span>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Remote log path</label>
+                    <input type="text" class="form-input" id="ssh-path" placeholder="/var/log/app/app.log">
+                    <span class="form-hint">💡 Pełna ścieżka na serwerze</span>
+                </div>
+                <button class="btn connect-btn" onclick="connectSSH()">🔗 Connect SSH</button>
+            </div>
+            
+            <!-- Status -->
+            <div class="connection-status" id="conn-status"></div>
         </div>
     </aside>
     
@@ -394,6 +517,78 @@
                 document.querySelectorAll('.tree-item').forEach(i => i.classList.remove('active'));
                 item.classList.add('active');
             });
+        });
+        
+        // REMOTE LOGS - Toggle Docker/SSH
+        document.querySelectorAll('.remote-type-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.remote-type-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                const type = btn.dataset.type;
+                document.getElementById('docker-form').classList.toggle('hidden', type !== 'docker');
+                document.getElementById('ssh-form').classList.toggle('hidden', type !== 'ssh');
+            });
+        });
+        
+        // Show status message
+        function showStatus(message, isError = false) {
+            const status = document.getElementById('conn-status');
+            status.textContent = message;
+            status.className = 'connection-status active ' + (isError ? 'error' : 'success');
+        }
+        
+        // Connect Docker
+        function connectDocker() {
+            const container = document.getElementById('docker-container').value.trim();
+            const path = document.getElementById('docker-path').value.trim();
+            
+            if (!container) {
+                showStatus('❌ Podaj nazwę kontenera (docker ps)', true);
+                return;
+            }
+            if (!path) {
+                showStatus('❌ Podaj ścieżkę do logu w kontenerze', true);
+                return;
+            }
+            
+            showStatus('🐳 Łączenie... docker exec -it ' + container + ' tail -f ' + path);
+            
+            // Simulate connection (in real implementation, this would call backend API)
+            setTimeout(() => {
+                showStatus('✅ Połączono! Odczytuję logi z ' + container + ':' + path);
+            }, 1000);
+        }
+        
+        // Connect SSH
+        function connectSSH() {
+            const host = document.getElementById('ssh-host').value.trim();
+            const key = document.getElementById('ssh-key').value.trim();
+            const path = document.getElementById('ssh-path').value.trim();
+            
+            if (!host) {
+                showStatus('❌ Podaj host SSH (user@host:port)', true);
+                return;
+            }
+            if (!path) {
+                showStatus('❌ Podaj ścieżkę do logu na serwerze', true);
+                return;
+            }
+            
+            const keyInfo = key ? ' -i ' + key : '';
+            showStatus('🔐 Łączenie SSH... ssh ' + host + keyInfo + ' tail -f ' + path);
+            
+            // Simulate connection
+            setTimeout(() => {
+                showStatus('✅ Połączono przez SSH! Odczytuję: ' + path);
+            }, 1000);
+        }
+        
+        // Quick commands helper
+        document.getElementById('docker-container').addEventListener('focus', () => {
+            showStatus('💡 Wskazówka: Użyj "docker ps" aby zobaczyć nazwy kontenerów');
+        });
+        document.getElementById('ssh-host').addEventListener('focus', () => {
+            showStatus('💡 Format: user@hostname:22 (port opcjonalny, domyślnie 22)');
         });
     </script>
 </body>

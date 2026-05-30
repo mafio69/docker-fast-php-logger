@@ -10,7 +10,7 @@ show_help() {
     echo ""
     echo "Komendy:"
     echo "  install     - Instaluj wszystkie komponenty"
-    echo "  start       - Uruchom całą suite (docker-compose up)"
+    echo "  start       - Uruchom całą suite (docker compose up)"
     echo "  stop        - Zatrzymaj suite"
     echo "  restart     - Restartuj suite"
     echo "  status      - Sprawdź status wszystkich usług"
@@ -41,7 +41,7 @@ case "$1" in
     
     start)
         echo "🚀 Uruchamianie Developer Suite..."
-        docker-compose up -d
+        docker compose up -d
         echo ""
         echo "✅ Suite uruchomiona!"
         echo ""
@@ -56,68 +56,68 @@ case "$1" in
     
     stop)
         echo "🛑 Zatrzymywanie..."
-        docker-compose down
+        docker compose down
         echo "✅ Zatrzymane"
         ;;
     
     restart)
         echo "🔄 Restart..."
-        docker-compose restart
+        docker compose restart
         ./suite status
         ;;
     
     status)
         echo "📊 Status kontenerów:"
-        docker-compose ps
+        docker compose ps
         echo ""
         echo "🌐 Porty:"
         ss -tlnp 2>/dev/null | grep -E "8080|8794|3307" || netstat -tlnp 2>/dev/null | grep -E "8080|8794|3307" || echo "  (brak danych)"
         ;;
     
     logs)
-        docker-compose logs -f
+        docker compose logs -f
         ;;
     
     shell)
-        docker-compose exec php bash
+        docker compose exec php bash
         ;;
     
     mcp:start)
-        docker-compose up -d mcp-server
+        docker compose up -d mcp-server
         echo "✅ MCP Server: http://localhost:8080"
         ;;
     
     mcp:stop)
-        docker-compose stop mcp-server
+        docker compose stop mcp-server
         ;;
     
     mcp:logs)
-        docker-compose logs -f mcp-server
+        docker compose logs -f mcp-server
         ;;
     
     agent:start)
-        docker-compose up -d time-agent
+        docker compose up -d time-agent
         echo "✅ Time Agent uruchomiony"
         ;;
     
     agent:stop)
-        docker-compose stop time-agent
+        docker compose stop time-agent
         ;;
     
     agent:logs)
-        docker-compose logs -f time-agent
+        docker compose logs -f time-agent
         ;;
     
     snooze)
-        docker-compose exec time-agent sh -c 'date -d "tomorrow 06:00" +%s > /tmp/timedoctor-snooze-until && echo "🔕 Wyłączone do jutra 6:00"'
+        docker compose exec time-agent sh -c 'date -d "tomorrow 06:00" +%s > /tmp/timedoctor-snooze-until && echo "🔕 Wyłączone do jutra 6:00"'
         ;;
     
     bypass)
-        if docker-compose exec time-agent test -f /tmp/timedoctor-bypass 2>/dev/null; then
-            docker-compose exec time-agent rm /tmp/timedoctor-bypass
+        if docker compose exec time-agent test -f /tmp/timedoctor-bypass 2>/dev/null; then
+            docker compose exec time-agent rm /tmp/timedoctor-bypass
             echo "▶️  Bypass wyłączony - monitoring aktywny"
         else
-            docker-compose exec time-agent touch /tmp/timedoctor-bypass
+            docker compose exec time-agent touch /tmp/timedoctor-bypass
             echo "⏸️  Bypass włączony - alarmy wyłączone"
         fi
         ;;

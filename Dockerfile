@@ -42,7 +42,7 @@ COPY . /var/www/html
 RUN if [ -f composer.json ]; then composer install --no-dev --optimize-autoloader 2>/dev/null || true; fi
 
 # Create directories
-RUN mkdir -p /var/www/html/logs /var/www/html/data /run/nginx && \
+RUN mkdir -p /var/www/html/logs /var/www/html/data /run/nginx /var/log/supervisor && \
     chown -R www-data:www-data /var/www/html/logs /var/www/html/data
 
 EXPOSE 80

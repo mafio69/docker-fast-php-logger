@@ -559,13 +559,13 @@
             }, 1000);
         }
         
-        // Connect SSH
-        function connectSSH() {
-            const host = document.getElementById('ssh-host').value.trim();
+        // Connect SSH - calls backend API
+        async function connectSSH() {
+            const hostInput = document.getElementById('ssh-host').value.trim();
             const key = document.getElementById('ssh-key').value.trim();
             const path = document.getElementById('ssh-path').value.trim();
             
-            if (!host) {
+            if (!hostInput) {
                 showStatus('❌ Podaj host SSH (user@host:port)', true);
                 return;
             }
@@ -574,13 +574,51 @@
                 return;
             }
             
-            const keyInfo = key ? ' -i ' + key : '';
-            showStatus('🔐 Łączenie SSH... ssh ' + host + keyInfo + ' tail -f ' + path);
+            // Parse user@host:port
+            let user = '', host = '', port = '22';
+            const match = hostInput.match(/^([^@]+)@([^:]+)(?::(\d+))?$/);
+            if (match) {
+                user = match[1];
+                host = match[2];
+                port = match[3] || '22';
+            } else {
+                showStatus('❌ Format: user@host:port (np. ubuntu@57.128.241.168:22)', true);
+                return;
+            }
             
-            // Simulate connection
-            setTimeout(() => {
-                showStatus('✅ Połączono przez SSH! Odczytuję: ' + path);
-            }, 1000);
+            showStatus('🔐 Testuję połączenie SSH... ' + user + '@' + host + ':' + port);
+            
+            // Get password from user (prompt)
+            const pass = prompt('Wprowadź hasło SSH dla ' + user + '@' + host + ':\n\n(UWAGA: Tylko 2 próby przed banem!)');
+            if (!pass) {
+                showStatus('❌ Anulowano - hasło wymagane', true);
+                return;
+            }
+            
+            try {
+                const response = await fetch('/app/api/ssh-test.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        host: host,
+                        user: user,
+                        pass: pass,
+                        port: port,
+                        key: key,
+                        logPath: path
+                    })
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    showStatus('✅ ' + result.message + '\n📁 ' + result.note);
+                } else {
+                    showStatus('❌ ' + result.error + '\n' + (result.details || ''), true);
+                }
+            } catch (err) {
+                showStatus('❌ Błąd: ' + err.message, true);
+            }
         }
         
         // Quick commands helper

@@ -14,6 +14,8 @@ RUN apk add --no-cache \
     tzdata \
     supervisor \
     linux-headers \
+    openssh-client \
+    sshpass \
     && docker-php-ext-install pdo pdo_sqlite pdo_mysql sockets pcntl
 
 # Timezone

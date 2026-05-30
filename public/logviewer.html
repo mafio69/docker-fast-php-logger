@@ -621,7 +621,7 @@
             showStatus('🔐 Testuję połączenie SSH... ' + user + '@' + host + ':' + port);
             
             try {
-                const response = await fetch('/app/api/ssh-test.php', {
+                const response = await fetch('/api/ssh-test.php', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({

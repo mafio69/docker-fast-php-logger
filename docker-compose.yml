@@ -1,40 +1,47 @@
 services:
-  # GŁÓWNA APLIKACJA
-  devbox:
+  # GŁÓWNA APLIKACJA - PHP + Nginx
+  php:
     build:
       context: .
       dockerfile: Dockerfile
     container_name: devbox
     ports:
-      - "8794:80"
+      - "8080:80"
     volumes:
-      - ./logs:/app/logs
-      - ./data:/app/data
+      - ./logs:/var/www/html/logs
+      - ./data:/var/www/html/data
       - ./app:/var/www/html/app:ro
-      - /tmp/.X11-unix:/tmp/.X11-unix:rw
-      - ~/.Xauthority:/tmp/.docker.xauth:ro
     environment:
-      - DISPLAY=${DISPLAY:-:0}
-      - XAUTHORITY=/tmp/.docker.xauth
-      - LOG_DIR=/app/logs
-      - DB_PATH=/app/data/devbox.sqlite
+      - APP_ENV=development
+      - LOG_DIR=/var/www/html/logs
+      - DB_PATH=/var/www/html/data/devbox.sqlite
+      - DB_HOST=mysql
+      - DB_PORT=3306
+      - DB_DATABASE=devbox
+      - DB_USERNAME=devbox
+      - DB_PASSWORD=devbox
+    networks:
+      - devbox-net
     restart: unless-stopped
+    depends_on:
+      - mysql
 
-  # LOG VIEWER (osobny, na porcie 8795)
-  logviewer:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    container_name: logviewer
-    ports:
-      - "8795:80"
-    volumes:
-      - ./logs:/var/www/html/logs:ro
-      - ./app:/var/www/html/app:ro
+  # MySQL 8
+  mysql:
+    image: mysql:8.0
+    container_name: mysql
     environment:
-      - VIRTUAL_HOST=logviewer.local
+      - MYSQL_ROOT_PASSWORD=root
+      - MYSQL_DATABASE=devbox
+      - MYSQL_USER=devbox
+      - MYSQL_PASSWORD=devbox
+    volumes:
+      - mysql_data:/var/lib/mysql
+    networks:
+      - devbox-net
     restart: unless-stopped
-    command: ["nginx", "-g", "daemon off;"]
+    ports:
+      - "3306:3306"
 
   # PORTAINER - zarządzanie Docker
   portainer:
@@ -45,6 +52,8 @@ services:
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - portainer_data:/data
+    networks:
+      - devbox-net
     restart: unless-stopped
 
   # ADMINER - bazy danych (SQLite/MySQL)
@@ -54,9 +63,13 @@ services:
     ports:
       - "8081:8080"
     environment:
-      - ADMINER_DEFAULT_SERVER=sqlite
+      - ADMINER_DEFAULT_SERVER=mysql
       - ADMINER_DESIGN=pepa-linha-dark
+    networks:
+      - devbox-net
     restart: unless-stopped
+    depends_on:
+      - mysql
 
   # MAILPIT - testowy SMTP
   mailpit:
@@ -67,8 +80,15 @@ services:
       - "1025:1025"   # SMTP
     volumes:
       - mailpit_data:/data
+    networks:
+      - devbox-net
     restart: unless-stopped
 
 volumes:
+  mysql_data:
   portainer_data:
   mailpit_data:
+
+networks:
+  devbox-net:
+    driver: bridge

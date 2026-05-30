@@ -1,6 +1,6 @@
-FROM php:8.2-fpm-alpine
+FROM php:8.3-fpm-alpine
 
-# Install dependencies + linux-headers dla sockets
+# Install dependencies
 RUN apk add --no-cache \
     nginx \
     bash \
@@ -12,8 +12,8 @@ RUN apk add --no-cache \
     oniguruma-dev \
     libzip-dev \
     tzdata \
-    linux-headers \
-    && docker-php-ext-install pdo pdo_sqlite sockets pcntl
+    supervisor \
+    && docker-php-ext-install pdo pdo_sqlite pdo_mysql sockets pcntl
 
 # Timezone
 ENV TZ=Europe/Warsaw
@@ -28,18 +28,22 @@ COPY docker/nginx.conf /etc/nginx/nginx.conf
 # PHP config
 COPY docker/php.ini /usr/local/etc/php/conf.d/custom.ini
 
-WORKDIR /app
+# Supervisor config (start nginx + php-fpm)
+RUN mkdir -p /etc/supervisor/conf.d
+COPY docker/supervisor.conf /etc/supervisor/conf.d/supervisord.conf
+
+WORKDIR /var/www/html
 
 # Copy application
-COPY . /app
+COPY . /var/www/html
 
-# Install dependencies (if composer.json exists)
+# Install dependencies
 RUN if [ -f composer.json ]; then composer install --no-dev --optimize-autoloader 2>/dev/null || true; fi
 
 # Create directories
-RUN mkdir -p /app/logs /app/data /run/nginx && \
-    chown -R www-data:www-data /app/logs /app/data
+RUN mkdir -p /var/www/html/logs /var/www/html/data /run/nginx && \
+    chown -R www-data:www-data /var/www/html/logs /var/www/html/data
 
-EXPOSE 80 8080
+EXPOSE 80
 
-CMD ["./start-devbox.sh"]
+CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/conf.d/supervisord.conf"]

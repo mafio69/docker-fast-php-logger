@@ -91,12 +91,14 @@ services:
     network_mode: host
     volumes:
       - ./docker/proxy.conf:/etc/nginx/nginx.conf:ro
+      - proxy_run:/run/nginx
     restart: unless-stopped
 
 volumes:
   mysql_data:
   portainer_data:
   mailpit_data:
+  proxy_run:
 
 networks:
   devbox-net:

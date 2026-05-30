@@ -6,7 +6,7 @@ services:
       dockerfile: Dockerfile
     container_name: devbox
     ports:
-      - "8080:80"
+      - "8082:80"
     volumes:
       - ./logs:/var/www/html/logs
       - ./data:/var/www/html/data
@@ -41,7 +41,7 @@ services:
       - devbox-net
     restart: unless-stopped
     ports:
-      - "3306:3306"
+      - "3307:3306"
 
   # PORTAINER - zarządzanie Docker
   portainer:

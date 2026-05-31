@@ -1,8 +1,7 @@
 <?php
 /**
- * fast-php-log-viewer entry point
+ * fast-php-log-viewer entry point main
  * Served at http://localhost:8080/logs
- *
  */
 define('LOG_DIR', getenv('LOG_DIR') ?: '/var/www/html/logs');
 define('LOG_DIRS', [

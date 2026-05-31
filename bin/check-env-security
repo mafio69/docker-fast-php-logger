@@ -1,0 +1,124 @@
+#!/usr/bin/env php
+<?php
+/**
+ * Symfony Env Security Checker
+ * Sprawdza czy poufne dane nie wyciekły do commitowalnych plików .env
+ */
+
+$exitCode = 0;
+$errors = [];
+
+// Definicja wzorców poufnych danych
+$secretPatterns = [
+    '/^(?:GIT_)?(?:ACCES|ACCESS)_TOKEN\s*=\s*.+/mi' => 'Token (GitHub/GitLab)',
+    '/^APP_SECRET\s*=\s*.+/mi' => 'APP_SECRET',
+    '/^DATABASE_URL\s*=\s*.+:.+@.+/mi' => 'Database URL z hasłem',
+    '/^API_KEY\s*=\s*.+/mi' => 'API Key',
+    '/^PRIVATE_KEY\s*=\s*.+/mi' => 'Private Key',
+    '/^SECRET\s*=\s*.+/mi' => 'Generic Secret',
+    '/^PASSWORD\s*=\s*.+/mi' => 'Password',
+    '/token\s*=\s*ghp_[a-zA-Z0-9]{36}/mi' => 'GitHub PAT',
+    '/token\s*=\s*glpat-[a-zA-Z0-9\-]{20}/mi' => 'GitLab PAT',
+];
+
+// Pliki które MOGĄ zawierać sekrety (gitignored)
+$allowedSecretFiles = [
+    '.env.local',
+    '.env.dev.local',
+    '.env.prod.local',
+    '.env.test.local',
+];
+
+// Pliki które NIE powinny zawierać sekretów (commitowalne)
+$checkedFiles = [
+    '.env',
+    '.env.dev',
+    '.env.prod',
+    '.env.test',
+    '.env.example',
+];
+
+echo "🔍 Symfony Env Security Checker\n";
+echo "================================\n\n";
+
+foreach ($checkedFiles as $file) {
+    if (!file_exists($file)) {
+        continue;
+    }
+
+    $content = file_get_contents($file);
+    $fileErrors = [];
+
+    foreach ($secretPatterns as $pattern => $description) {
+        if (preg_match($pattern, $content, $matches)) {
+            $fileErrors[] = [
+                'type' => $description,
+                'line' => findLineNumber($content, $matches[0]),
+                'match' => trim($matches[0]),
+            ];
+        }
+    }
+
+    if (!empty($fileErrors)) {
+        $errors[$file] = $fileErrors;
+        $exitCode = 1;
+    }
+}
+
+// Sprawdź czy .env.local istnieje i jest gitignored
+echo "📋 Sprawdzanie struktury plików...\n";
+
+if (!file_exists('.env.local')) {
+    echo "⚠️  WARNING: Brak pliku .env.local (powinien zawierać sekrety)\n";
+}
+
+if (file_exists('.gitignore')) {
+    $gitignore = file_get_contents('.gitignore');
+
+    if (!str_contains($gitignore, '.env.local')) {
+        echo "❌ ERROR: .env.local NIE jest w .gitignore!\n";
+        $exitCode = 1;
+    } else {
+        echo "✅ .env.local jest gitignored\n";
+    }
+
+    // Sprawdź czy .env jest błędnie gitignored
+    if (preg_match('/^\.env$/m', $gitignore)) {
+        echo "⚠️  WARNING: .env jest w .gitignore (ale powinien być commitowany wg Symfony best practices)\n";
+    }
+}
+
+echo "\n";
+
+// Raport wykrytych problemów
+if (!empty($errors)) {
+    echo "❌ WYKRYTO POUEFNE DANE W COMMITOWALNYCH PLIKACH:\n\n";
+
+    foreach ($errors as $file => $fileErrors) {
+        echo "📁 $file\n";
+        foreach ($fileErrors as $error) {
+            echo "   Linia {$error['line']}: {$error['type']}\n";
+            echo "   → {$error['match']}\n\n";
+        }
+    }
+
+    echo "💡 ROZWIĄZANIE:\n";
+    echo "   1. Przenieś sekrety do .env.local (gitignored)\n";
+    echo "   2. Zastąp w commitowalnych plikach pustymi wartościami lub placeholderami\n";
+    echo "   3. Uruchom: composer check-env (sprawdź ponownie)\n\n";
+} else {
+    echo "✅ Wszystko OK - brak wykrytych sekretów w commitowalnych plikach\n\n";
+}
+
+exit($exitCode);
+
+function findLineNumber(string $content, string $search): int
+{
+    $lines = explode("\n", $content);
+    foreach ($lines as $num => $line) {
+        if (str_contains($line, $search) || str_contains($search, trim($line))) {
+            return $num + 1;
+        }
+    }
+    return 0;
+}

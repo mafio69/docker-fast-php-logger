@@ -1,0 +1,4 @@
+# Load controller routes from PHP 8 attributes
+controllers:
+    resource: ../../src/Controller/
+    type: attribute

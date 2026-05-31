@@ -1,8 +1,8 @@
 <?php
-namespace App;
+namespace Mafio69\TimeAgent;
 
 use Symfony\Component\Console\Application;
-use App\Command\MonitorCommand;
+use Mafio69\TimeAgent\Command\MonitorCommand;
 
 class Kernel
 {

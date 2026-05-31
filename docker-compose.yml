@@ -1,5 +1,5 @@
 services:
-  # GŁÓWNA APLIKACJA - PHP + Nginx
+  # GŁÓWNA APLIKACJA - PHP + Nginx (Symfony)
   php:
     build:
       context: .
@@ -10,9 +10,17 @@ services:
     volumes:
       - ./logs:/var/www/html/logs
       - ./data:/var/www/html/data
-      - ./app:/var/www/html/app:ro
+      - ./var:/var/www/html/var
+      - ./app/public:/var/www/html/public:ro
+      - ./app/config:/var/www/html/config:ro
+      - ./src:/var/www/html/src:ro
+      - ./app/templates:/var/www/html/templates:ro
+      - ./vendor:/var/www/html/vendor:ro
+      - ./composer.json:/var/www/html/composer.json:ro
+      - ./composer.lock:/var/www/html/composer.lock:ro
     environment:
-      - APP_ENV=development
+      - APP_ENV=dev
+      - APP_DEBUG=1
       - LOG_DIR=/var/www/html/logs
       - DB_PATH=/var/www/html/data/devbox.sqlite
       - DB_HOST=mysql

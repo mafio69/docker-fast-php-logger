@@ -1,5 +1,5 @@
 <?php
-namespace App\Command;
+namespace Mafio69\TimeAgent\Command;
 
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
@@ -26,28 +26,28 @@ class MonitorCommand extends Command
     {
         $this->logFile = __DIR__ . '/../../var/agent.log';
         @mkdir(dirname($this->logFile), 0777, true);
-        
+
         $this->log('=== Time Agent START (Symfony) ===');
-        
+
         // Sprawdź/pytaj o tryb
         $this->initializeMode();
-        
+
         // Główna pętla
         while (true) {
             if (file_exists('/tmp/timedoctor-bypass')) {
                 sleep(30);
                 continue;
             }
-            
+
             $this->checkScreenLock();
             $this->checkTimeDoctor();
-            
+
             sleep(5);
         }
-        
+
         return Command::SUCCESS;
     }
-    
+
     private function initializeMode(): void
     {
         if (!file_exists('/tmp/timedoctor-session-mode')) {
@@ -63,26 +63,26 @@ class MonitorCommand extends Command
             ]);
             $process->run();
             $result = trim($process->getOutput());
-            
+
             $this->mode = $result === 'private' ? 'private' : 'work';
             file_put_contents('/tmp/timedoctor-session-mode', $this->mode);
-            
+
             if ($this->mode === 'private') {
                 touch('/tmp/timedoctor-bypass');
             }
-            
+
             $this->log("Tryb: {$this->mode}");
         } else {
             $this->mode = trim(file_get_contents('/tmp/timedoctor-session-mode'));
         }
     }
-    
+
     private function checkScreenLock(): void
     {
         $process = new Process(['loginctl', 'show-session', '--property=IdleHint', '--value']);
         $process->run();
         $isLocked = trim($process->getOutput()) === 'yes';
-        
+
         if ($isLocked && !$this->wasLocked) {
             $this->log('Przerwa rozpoczęta');
             $this->lockStart = time();
@@ -90,47 +90,47 @@ class MonitorCommand extends Command
             $this->alertTriggered = false;
         } elseif (!$isLocked && $this->wasLocked) {
             $duration = time() - $this->lockStart;
-            
+
             if ($duration > 180) {
                 $this->log("Powrót z przerwy ({$duration}s)");
-                
+
                 if (!$this->isTdRunning() && $this->mode === 'work') {
                     $this->showAlert('return');
                     $this->alertTriggered = true;
                 }
             }
-            
+
             $this->wasLocked = false;
         }
     }
-    
+
     private function checkTimeDoctor(): void
     {
         $tdRunning = $this->isTdRunning();
-        
+
         if (!$tdRunning && $this->mode === 'work' && !$this->alertTriggered) {
             $this->log('Praca bez TD - alert');
             $this->showAlert('working');
             $this->alertTriggered = true;
         }
-        
+
         if ($tdRunning && $this->alertTriggered) {
             $this->log('TD uruchomiony');
             $this->alertTriggered = false;
         }
     }
-    
+
     private function isTdRunning(): bool
     {
         $process = new Process(['pgrep', '-i', 'timedoctor']);
         $process->run();
         return $process->isSuccessful();
     }
-    
+
     private function showAlert(string $reason): void
     {
         $isWorkHours = $this->isWorkingHours();
-        
+
         if ($isWorkHours) {
             $style = 'error';
             $title = '⏱️ UWAGA - Time Doctor';
@@ -142,9 +142,9 @@ class MonitorCommand extends Command
             $header = '🌙 Pracujesz po godzinach';
             $subheader = 'To nie jest standardowy czas pracy';
         }
-        
+
         $tomorrow6am = strtotime('tomorrow 06:00');
-        
+
         // Uruchom zenity w tle
         $process = new Process([
             'zenity', "--{$style}",
@@ -155,17 +155,17 @@ class MonitorCommand extends Command
             '--width', '520', '--height', '320'
         ]);
         $process->start();
-        
+
         $this->log('Pokazano okno alertu');
     }
-    
+
     private function isWorkingHours(): bool
     {
         $hour = (int) date('H');
         $weekday = (int) date('N');
         return $weekday <= 5 && $hour >= 7 && $hour < 17;
     }
-    
+
     private function log(string $message): void
     {
         $line = date('Y-m-d H:i:s') . ' - ' . $message . PHP_EOL;

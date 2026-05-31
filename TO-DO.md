@@ -1,3 +1,87 @@
+## Dzisiaj zrobione (2025-05-31)
+
+- ~~PHP 8.4 compatibility - lokalny composer zamiast systemowego~~ ✅
+- ~~AIRules.md - zasady dla AI z "STOP bez TAK"~~ ✅
+- ~~MdViewer refactor - z chaosu do Symfony MVC~~ ✅
+  - ~~Controller + Service + Interface~~
+  - ~~Twig template z cyberpunk style~~
+  - ~~API endpoint /api/mdviewer/data~~
+- ~~SSH Test refactor - z app_old do Service~~ ✅
+  - ~~SshTestService~~
+  - ~~SshTestController~~
+- ~~Routing fix - działające #[Route]~~ ✅
+- ~~Dashboard naprawa - template + config~~ ✅
+- ~~Usunięty EDITOR_URL z dashboard~~ ✅
+- ~~Unit tests + composer test integration~~ ✅
+  - ~~SshTestServiceTest (6 tests)~~
+  - ~~MdViewerServiceTest (8 tests)~~
+  - ~~MdViewerControllerTest (5 tests)~~
+  - ~~SshTestControllerTest (5 tests)~~
+  - ~~27 tests, 332 assertions - all passing~~ ✅
+
+---
+
+## AUDYT KONFIGURACJI (2025-05-31) 🔍
+
+### Znalezione Problemy:
+
+| Problem | Poziom | Opis | Plik |
+|---------|--------|------|------|
+| **Duplikacja SSH endpoint** | 🔴 HIGH | Dwa endpointy SSH: `/api/ssh-test` (stary YAML) i `/api/ssh/test` (nowy Controller) | routes.yaml + SshTestController |
+| **MdViewer templates path** | 🟡 MEDIUM | Ścieżka `__DIR__ . '/../../templates'` może nie działać w kontenerze | MdViewerController.php:22 |
+| **Stale routes dla SSH** | 🟡 MEDIUM | ApiController::sshTest nadal istnieje - prawdopodobnie nieużywany | ApiController.php |
+| **Brak czyszczenia cache** | 🟡 MEDIUM | Brak automatycznego czyszczenia Symfony cache po zmianach | - |
+| **Legacy files** | 🟢 LOW | `app_old/`, `public/mdviewer.html` nadal istnieją | app_old/, public/ |
+
+### Endpointy - Status:
+
+| Endpoint | Controller | Status | Uwagi |
+|----------|------------|--------|-------|
+| `/` | DashboardController | ✅ OK | |
+| `/logs` | LogController | ✅ OK | |
+| `/mdviewer` | MdViewerController | ✅ OK | Attribute routing |
+| `/api/mdviewer/data` | MdViewerController | ✅ OK | GET |
+| `/api/ssh/test` | SshTestController | ✅ OK | POST |
+| `/api/ssh-test` | ApiController | ⚠️ STARY | Do usunięcia |
+| `/api/config` | ApiController | ✅ OK | |
+| `/api/config/hosts` | ApiController | ✅ OK | POST |
+| `/api/config/app` | ApiController | ✅ OK | POST |
+
+---
+
+## Do zrobienia (kolejność priorytetowa):
+
+### 🔴 HIGH Priority:
+
+1. **~~Usunąć duplikację SSH endpoint~~** ✅
+   - [x] ~~Zmieniono ścieżkę w SshTestController na `/api/ssh-test`~~
+   - [x] ~~Usunięto duplikat z `app/config/routes.yaml`~~
+   - [x] ~~Sprawdzono - logs/index.html.twig używa `/api/ssh-test`~~
+
+### 🟡 MEDIUM Priority:
+
+2. **Wyczyścić legacy files**
+   - [ ] Usunąć `app_old/` (cały katalog)
+   - [ ] Usunąć `public/mdviewer.html` (stary plik)
+   - [ ] Sprawdzić czy `app/docs-browser.php`, `app/index.php`, `app/logs.php` są używane
+
+3. **Poprawić MdViewer template path**
+   - [ ] Sprawdzić czy templates ładują się poprawnie w kontenerze
+   - [ ] Jeśli nie - poprawić ścieżkę w MdViewerController
+
+4. **Dodać cache clearing do workflow**
+   - [ ] Opcjonalnie: dodać `cache:clear` do composer scripts
+   - [ ] Lub: dokumentacja w README jak czyścić cache
+
+### 🟢 LOW Priority:
+
+5. **Code Review / PR**
+   - [ ] Commit wszystkich zmian
+   - [ ] Push do GitHub
+   - [ ] Utworzyć PR z opisem
+
+---
+
 Problem
 Ocena
 Komentarz

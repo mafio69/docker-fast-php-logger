@@ -2,7 +2,7 @@
 <?php
 require __DIR__ . '/../vendor/autoload.php';
 
-use App\Kernel;
+use Mafio69\TimeAgent\Kernel;
 
 $kernel = new Kernel();
 $kernel->run();

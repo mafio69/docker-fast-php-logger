@@ -8,6 +8,11 @@ set -e
 echo "🚀 Konfiguracja docker-fast-php-logger..."
 
 PROJECT_DIR="$(cd "$(dirname "$0")" && pwd)"
+IS_WSL=false
+if grep -qi microsoft /proc/version 2>/dev/null || grep -qi wsl /proc/version 2>/dev/null; then
+    IS_WSL=true
+    echo "🪟 Wykryto WSL2 – konfiguracja pod Windows 11"
+fi
 
 # ── 1. Plik .env ──────────────────────────────────────────────
 echo ""
@@ -24,12 +29,22 @@ fi
 # ── 2. /etc/hosts (domeny .local) ─────────────────────────────
 echo ""
 echo "📌 Dodaję domeny do /etc/hosts..."
+HOSTS_ENTRY="127.0.0.1 app.local logs.local portainer.local mail.local pma.local adminer.local mdviewer.local"
 if grep -q "app.local" /etc/hosts 2>/dev/null; then
-    echo "   ✓ Domeny już dodane"
+    echo "   ✓ Domeny już dodane w WSL"
 else
-    docker run --rm -v /etc/hosts:/etc/hosts alpine sh -c \
-        'echo "127.0.0.1 app.local logs.local portainer.local mail.local pma.local adminer.local mdviewer.local" >> /etc/hosts'
-    echo "   ✓ Dodano: app.local logs.local portainer.local mail.local pma.local adminer.local mdviewer.local"
+    echo "$HOSTS_ENTRY" | sudo tee -a /etc/hosts > /dev/null
+    echo "   ✓ Dodano do WSL /etc/hosts"
+fi
+
+if $IS_WSL; then
+    echo ""
+    echo "⚠️  Windows hosts – dodaj ręcznie (jako Administrator):"
+    echo "   Notatnik → Otwórz: C:\\Windows\\System32\\drivers\\etc\\hosts"
+    echo "   Dopisz na końcu:"
+    echo "   $HOSTS_ENTRY"
+    echo ""
+    read -p "   Naciśnij Enter po dodaniu wpisów..."
 fi
 
 # ── 3. PATH (bin/mask) ────────────────────────────────────────
@@ -57,7 +72,7 @@ echo "📌 Buduję i uruchamiam kontenery..."
 cd "$PROJECT_DIR"
 docker compose up -d --build
 
-# ── 5. Podsumowanie ───────────────────────────────────────────
+# ── 6. Podsumowanie ───────────────────────────────────────────
 echo ""
 echo "═══════════════════════════════════════════════"
 echo "✅ Gotowe! Uruchom: source ~/.bashrc"

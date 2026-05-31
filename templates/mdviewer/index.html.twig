@@ -1,0 +1,342 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}MD Viewer // DataTable{% endblock %}
+
+{% block stylesheets %}
+<style>
+:root {
+    --bg: #0a0a0a;
+    --green: #00ff41;
+    --green-dim: #008f11;
+    --green-dark: #003b00;
+    --red: #ff0040;
+    --yellow: #ffee00;
+    --cyan: #00ffff;
+    --gray: #666;
+    --white: #e0e0e0;
+}
+body {
+    background: var(--bg);
+    color: var(--green);
+    font-family: 'JetBrains Mono', 'Consolas', monospace;
+    font-size: 13px;
+    line-height: 1.6;
+    min-height: 100vh;
+    padding: 20px;
+}
+header {
+    border-bottom: 1px solid var(--green-dim);
+    padding-bottom: 15px;
+    margin-bottom: 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+.logo { font-size: 20px; font-weight: bold; letter-spacing: 3px; }
+.stats { display: flex; gap: 20px; font-size: 11px; color: var(--gray); }
+.controls {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+    align-items: center;
+    padding: 15px;
+    border: 1px solid var(--green-dark);
+    background: rgba(0, 59, 0, 0.1);
+}
+.control-group { display: flex; align-items: center; gap: 8px; }
+.control-group label {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--green-dim);
+}
+input, select {
+    background: var(--bg);
+    border: 1px solid var(--green-dim);
+    color: var(--green);
+    padding: 6px 12px;
+    font-family: inherit;
+    font-size: 12px;
+    outline: none;
+}
+input:focus, select:focus { border-color: var(--green); box-shadow: 0 0 8px var(--green-dim); }
+.table-container {
+    overflow-x: auto;
+    border: 1px solid var(--green-dark);
+}
+table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 12px;
+}
+th {
+    background: var(--green-dark);
+    color: var(--green);
+    padding: 12px 15px;
+    text-align: left;
+    font-weight: normal;
+    text-transform: uppercase;
+    font-size: 11px;
+    letter-spacing: 1px;
+    cursor: pointer;
+    user-select: none;
+}
+th.sortable::after { content: ' \21C5'; color: var(--gray); font-size: 10px; }
+th.sort-asc::after { content: ' \25B2'; color: var(--green); }
+th.sort-desc::after { content: ' \25BC'; color: var(--green); }
+td {
+    padding: 10px 15px;
+    border-bottom: 1px solid var(--green-dark);
+}
+tr:hover td { background: rgba(0, 143, 17, 0.1); }
+.badge {
+    display: inline-block;
+    padding: 2px 8px;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    border: 1px solid;
+}
+.badge.active { color: var(--green); border-color: var(--green); }
+.badge.draft { color: var(--yellow); border-color: var(--yellow); }
+.badge.archived { color: var(--gray); border-color: var(--gray); }
+.pagination {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 20px;
+    padding: 15px;
+    border-top: 1px solid var(--green-dark);
+}
+.page-info { color: var(--gray); font-size: 11px; }
+.page-buttons { display: flex; gap: 5px; }
+.page-btn {
+    background: transparent;
+    border: 1px solid var(--green-dark);
+    color: var(--green);
+    padding: 5px 12px;
+    font-family: inherit;
+    font-size: 11px;
+    cursor: pointer;
+}
+.page-btn:hover { border-color: var(--green); }
+.page-btn.active { background: var(--green-dark); border-color: var(--green); }
+.page-btn:disabled { color: var(--gray); border-color: var(--gray); cursor: not-allowed; }
+.empty {
+    text-align: center;
+    padding: 60px 20px;
+    color: var(--gray);
+}
+</style>
+{% endblock %}
+
+{% block body %}
+<header>
+    <div class="logo">MDVIEWER://DATATABLE</div>
+    <div class="stats">
+        <span>TOTAL: <span id="total-count">0</span></span>
+        <span>DISPLAYED: <span id="displayed-count">0</span></span>
+        <span>FILTERED: <span id="filtered-count">0</span></span>
+    </div>
+</header>
+
+<div class="controls">
+    <div class="control-group">
+        <label>Search</label>
+        <input type="text" id="search" placeholder="type to search...">
+    </div>
+    <div class="control-group">
+        <label>Status</label>
+        <select id="filter-status">
+            <option value="">ALL</option>
+            <option value="active">ACTIVE</option>
+            <option value="draft">DRAFT</option>
+            <option value="archived">ARCHIVED</option>
+        </select>
+    </div>
+    <div class="control-group">
+        <label>Category</label>
+        <select id="filter-category">
+            <option value="">ALL</option>
+            <option value="docs">DOCS</option>
+            <option value="api">API</option>
+            <option value="config">CONFIG</option>
+        </select>
+    </div>
+    <div class="control-group">
+        <label>Per Page</label>
+        <select id="per-page">
+            <option value="10">10</option>
+            <option value="25" selected>25</option>
+            <option value="50">50</option>
+            <option value="100">100</option>
+        </select>
+    </div>
+</div>
+
+<div class="table-container">
+    <table id="data-table">
+        <thead>
+            <tr>
+                <th class="sortable" data-col="id">ID</th>
+                <th class="sortable" data-col="title">TITLE</th>
+                <th class="sortable" data-col="status">STATUS</th>
+                <th class="sortable" data-col="category">CATEGORY</th>
+                <th class="sortable" data-col="modified">MODIFIED</th>
+                <th class="sortable" data-col="size">SIZE</th>
+                <th>ACTIONS</th>
+            </tr>
+        </thead>
+        <tbody id="table-body">
+        </tbody>
+    </table>
+    <div class="empty" id="empty-state" style="display: none;">NO RECORDS FOUND</div>
+</div>
+
+<div class="pagination">
+    <div class="page-info">
+        SHOWING <span id="page-start">0</span> TO <span id="page-end">0</span> OF <span id="page-total">0</span>
+    </div>
+    <div class="page-buttons" id="pagination"></div>
+</div>
+{% endblock %}
+
+{% block javascripts %}
+<script>
+let state = {
+    data: [],
+    total: 0,
+    filtered: 0,
+    page: 1,
+    perPage: 25,
+    totalPages: 1,
+    sortCol: 'id',
+    sortDir: 'asc'
+};
+
+const els = {
+    search: document.getElementById('search'),
+    status: document.getElementById('filter-status'),
+    category: document.getElementById('filter-category'),
+    perPage: document.getElementById('per-page'),
+    tbody: document.getElementById('table-body'),
+    empty: document.getElementById('empty-state'),
+    total: document.getElementById('total-count'),
+    displayed: document.getElementById('displayed-count'),
+    filtered: document.getElementById('filtered-count'),
+    pageStart: document.getElementById('page-start'),
+    pageEnd: document.getElementById('page-end'),
+    pageTotal: document.getElementById('page-total'),
+    pagination: document.getElementById('pagination')
+};
+
+async function fetchData() {
+    const params = new URLSearchParams({
+        search: els.search.value,
+        status: els.status.value,
+        category: els.category.value,
+        page: state.page,
+        perPage: state.perPage,
+        sort: state.sortCol,
+        dir: state.sortDir
+    });
+
+    const res = await fetch('/api/mdviewer/data?' + params);
+    const json = await res.json();
+
+    state.data = json.data;
+    state.total = json.total;
+    state.filtered = json.filtered;
+    state.totalPages = json.totalPages;
+
+    updateUI();
+}
+
+function updateUI() {
+    els.total.textContent = state.total;
+    els.displayed.textContent = state.filtered;
+    els.filtered.textContent = state.total - state.filtered;
+
+    if (state.data.length === 0) {
+        els.tbody.innerHTML = '';
+        els.empty.style.display = 'block';
+    } else {
+        els.empty.style.display = 'none';
+        els.tbody.innerHTML = state.data.map(item => `
+            <tr>
+                <td>#${item.id}</td>
+                <td>${item.title}</td>
+                <td><span class="badge ${item.status}">${item.status}</span></td>
+                <td>${item.category.toUpperCase()}</td>
+                <td>${item.modified}</td>
+                <td>${item.size}</td>
+                <td><button class="page-btn" onclick="viewDoc('${item.id}')">VIEW</button></td>
+            </tr>
+        `).join('');
+    }
+
+    const start = state.filtered ? ((state.page - 1) * state.perPage) + 1 : 0;
+    const end = Math.min(start + state.data.length - 1, state.filtered);
+    els.pageStart.textContent = start;
+    els.pageEnd.textContent = end;
+    els.pageTotal.textContent = state.filtered;
+
+    renderPagination();
+    updateSortIndicators();
+}
+
+function renderPagination() {
+    let html = `
+        <button class="page-btn" onclick="goToPage(1)" ${state.page === 1 ? 'disabled' : ''}>|<</button>
+        <button class="page-btn" onclick="goToPage(${state.page - 1})" ${state.page === 1 ? 'disabled' : ''}><</button>
+    `;
+
+    for (let i = Math.max(1, state.page - 2); i <= Math.min(state.totalPages, state.page + 2); i++) {
+        html += `<button class="page-btn ${i === state.page ? 'active' : ''}" onclick="goToPage(${i})">${i}</button>`;
+    }
+
+    html += `
+        <button class="page-btn" onclick="goToPage(${state.page + 1})" ${state.page === state.totalPages ? 'disabled' : ''}>></button>
+        <button class="page-btn" onclick="goToPage(${state.totalPages})" ${state.page === state.totalPages ? 'disabled' : ''}>|></button>
+    `;
+
+    els.pagination.innerHTML = html;
+}
+
+function updateSortIndicators() {
+    document.querySelectorAll('th').forEach(th => th.classList.remove('sort-asc', 'sort-desc'));
+    const th = document.querySelector(`th[data-col="${state.sortCol}"]`);
+    if (th) th.classList.add(state.sortDir === 'asc' ? 'sort-asc' : 'sort-desc');
+}
+
+window.goToPage = (page) => {
+    if (page >= 1 && page <= state.totalPages) {
+        state.page = page;
+        fetchData();
+    }
+};
+
+window.viewDoc = (id) => console.log('View doc:', id);
+
+els.search.addEventListener('input', () => { state.page = 1; fetchData(); });
+els.status.addEventListener('change', () => { state.page = 1; fetchData(); });
+els.category.addEventListener('change', () => { state.page = 1; fetchData(); });
+els.perPage.addEventListener('change', (e) => { state.perPage = parseInt(e.target.value); state.page = 1; fetchData(); });
+
+document.querySelectorAll('th.sortable').forEach(th => {
+    th.addEventListener('click', () => {
+        const col = th.dataset.col;
+        if (state.sortCol === col) {
+            state.sortDir = state.sortDir === 'asc' ? 'desc' : 'asc';
+        } else {
+            state.sortCol = col;
+            state.sortDir = 'asc';
+        }
+        fetchData();
+    });
+});
+
+fetchData();
+</script>
+{% endblock %}

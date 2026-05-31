@@ -1,5 +1,5 @@
 services:
-  # GŁÓWNA APLIKACJA - PHP + Nginx
+  # GŁÓWNA APLIKACJA - PHP + Nginx (Symfony)
   php:
     build:
       context: .
@@ -10,9 +10,17 @@ services:
     volumes:
       - ./logs:/var/www/html/logs
       - ./data:/var/www/html/data
-      - ./app:/var/www/html/app:ro
+      - ./var:/var/www/html/var
+      - ./app/public:/var/www/html/public:ro
+      - ./app/config:/var/www/html/config:ro
+      - ./src:/var/www/html/src:ro
+      - ./app/templates:/var/www/html/templates:ro
+      - ./vendor:/var/www/html/vendor:ro
+      - ./composer.json:/var/www/html/composer.json:ro
+      - ./composer.lock:/var/www/html/composer.lock:ro
     environment:
-      - APP_ENV=development
+      - APP_ENV=dev
+      - APP_DEBUG=1
       - LOG_DIR=/var/www/html/logs
       - DB_PATH=/var/www/html/data/devbox.sqlite
       - DB_HOST=mysql
@@ -45,7 +53,7 @@ services:
 
   # PORTAINER - zarządzanie Docker
   portainer:
-    image: portainer/portainer-ce:latest
+    image: portainer/portainer-ce@sha256:8d2f5c9fbc5b8490fb3a12efadbad74978e22991911e1db611d8a45871775112
     container_name: portainer
     ports:
       - "9090:9000"
@@ -58,7 +66,7 @@ services:
 
   # ADMINER - bazy danych (SQLite/MySQL)
   adminer:
-    image: adminer:latest
+    image: adminer@sha256:cc64d253db4f016cbcff2ff2f01e60ed07e74f38b4398f84d3c4fae4b5ce0e07
     container_name: adminer
     ports:
       - "8081:8080"
@@ -73,7 +81,7 @@ services:
 
   # MAILPIT - testowy SMTP
   mailpit:
-    image: axllent/mailpit:latest
+    image: axllent/mailpit@sha256:3bd7c2f2696deb35a4780d152b404dceec99cb041b942c0877b3b22384714f85
     container_name: mailpit
     ports:
       - "8025:8025"   # Web UI
@@ -88,11 +96,19 @@ services:
   proxy:
     image: nginx:alpine
     container_name: proxy
-    network_mode: host
+    ports:
+      - "80:80"
     volumes:
       - ./docker/proxy.conf:/etc/nginx/nginx.conf:ro
       - proxy_run:/run/nginx
+    networks:
+      - devbox-net
     restart: unless-stopped
+    depends_on:
+      - php
+      - portainer
+      - adminer
+      - mailpit
 
 volumes:
   mysql_data:

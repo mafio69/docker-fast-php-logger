@@ -300,10 +300,104 @@
             border-color: var(--red);
             color: var(--red);
         }
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+        }
+        .checkbox-label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 11px;
+            color: var(--green);
+            cursor: pointer;
+        }
+        .checkbox-label input[type="checkbox"] {
+            accent-color: var(--green);
+        }
         
         ::-webkit-scrollbar { width: 8px; height: 8px; }
         ::-webkit-scrollbar-track { background: var(--bg); }
         ::-webkit-scrollbar-thumb { background: var(--green-dark); }
+
+        /* Saved Connections List */
+        .saved-connections {
+            margin-top: 15px;
+            border-top: 1px solid var(--green-dark);
+            padding-top: 10px;
+        }
+        .saved-connections-title {
+            font-size: 10px;
+            color: var(--gray);
+            text-transform: uppercase;
+            margin-bottom: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .saved-connections-count {
+            color: var(--green);
+        }
+        .saved-connections-count.limit {
+            color: var(--red);
+        }
+        .saved-conn-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 6px 8px;
+            margin-bottom: 5px;
+            border: 1px solid var(--green-dark);
+            cursor: pointer;
+            font-size: 11px;
+        }
+        .saved-conn-item:hover {
+            border-color: var(--green);
+            background: var(--green-dark);
+        }
+        .saved-conn-info {
+            flex: 1;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        .saved-conn-name {
+            color: var(--green);
+            font-weight: bold;
+        }
+        .saved-conn-host {
+            color: var(--gray);
+            font-size: 9px;
+        }
+        .saved-conn-actions {
+            display: flex;
+            gap: 5px;
+        }
+        .saved-conn-btn {
+            background: transparent;
+            border: 1px solid var(--green-dark);
+            color: var(--green);
+            padding: 2px 6px;
+            font-size: 10px;
+            cursor: pointer;
+        }
+        .saved-conn-btn:hover {
+            border-color: var(--green);
+            background: var(--green-dim);
+            color: var(--bg);
+        }
+        .saved-conn-btn.delete:hover {
+            border-color: var(--red);
+            background: var(--red);
+            color: var(--bg);
+        }
+        .no-connections {
+            font-size: 10px;
+            color: var(--gray);
+            font-style: italic;
+            padding: 8px;
+            text-align: center;
+        }
     </style>
 </head>
 <body>
@@ -396,6 +490,11 @@
             <!-- SSH Form (hidden by default) -->
             <div class="remote-form hidden" id="ssh-form">
                 <div class="form-group">
+                    <label class="form-label">Connection name</label>
+                    <input type="text" class="form-input" id="ssh-name" placeholder="np. Produkcja, VPS-01">
+                    <span class="form-hint">💡 Nazwa do wyświetlenia na liście zapisanych</span>
+                </div>
+                <div class="form-group">
                     <label class="form-label">SSH Host</label>
                     <input type="text" class="form-input" id="ssh-host" placeholder="user@server.com:22">
                     <span class="form-hint">💡 user@host:port (domyślnie 22)</span>
@@ -403,18 +502,40 @@
                 <div class="form-group">
                     <label class="form-label">SSH Key path</label>
                     <input type="text" class="form-input" id="ssh-key" placeholder="~/.ssh/id_rsa">
-                    <span class="form-hint">💡 Ścieżka do klucza prywatnego</span>
+                    <span class="form-hint">💡 Ścieżka do klucza prywatnego (opcjonalnie)</span>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">SSH Password</label>
+                    <input type="password" class="form-input" id="ssh-pass" placeholder="••••••••">
+                    <span class="form-hint">💡 Hasło SSH (lub użyj klucza powyżej)</span>
                 </div>
                 <div class="form-group">
                     <label class="form-label">Remote log path</label>
                     <input type="text" class="form-input" id="ssh-path" placeholder="/var/log/app/app.log">
                     <span class="form-hint">💡 Pełna ścieżka na serwerze</span>
                 </div>
+                <div class="form-group checkbox-group">
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="ssh-save" checked>
+                        <span>💾 Zapisz to połączenie</span>
+                    </label>
+                </div>
                 <button class="btn connect-btn" onclick="connectSSH()">🔗 Connect SSH</button>
             </div>
             
             <!-- Status -->
             <div class="connection-status" id="conn-status"></div>
+
+            <!-- Saved SSH Connections -->
+            <div class="saved-connections" id="saved-connections">
+                <div class="saved-connections-title">
+                    <span>💾 Zapisane połączenia</span>
+                    <span class="saved-connections-count" id="conn-count">0/5</span>
+                </div>
+                <div id="saved-connections-list">
+                    <div class="no-connections">Brak zapisanych połączeń</div>
+                </div>
+            </div>
         </div>
     </aside>
     
@@ -563,7 +684,9 @@
         async function connectSSH() {
             const hostInput = document.getElementById('ssh-host').value.trim();
             const key = document.getElementById('ssh-key').value.trim();
+            const pass = document.getElementById('ssh-pass').value.trim();
             const path = document.getElementById('ssh-path').value.trim();
+            const saveConn = document.getElementById('ssh-save').checked;
             
             if (!hostInput) {
                 showStatus('❌ Podaj host SSH (user@host:port)', true);
@@ -571,6 +694,10 @@
             }
             if (!path) {
                 showStatus('❌ Podaj ścieżkę do logu na serwerze', true);
+                return;
+            }
+            if (!pass && !key) {
+                showStatus('❌ Podaj hasło lub ścieżkę do klucza SSH', true);
                 return;
             }
             
@@ -588,15 +715,8 @@
             
             showStatus('🔐 Testuję połączenie SSH... ' + user + '@' + host + ':' + port);
             
-            // Get password from user (prompt)
-            const pass = prompt('Wprowadź hasło SSH dla ' + user + '@' + host + ':\n\n(UWAGA: Tylko 2 próby przed banem!)');
-            if (!pass) {
-                showStatus('❌ Anulowano - hasło wymagane', true);
-                return;
-            }
-            
             try {
-                const response = await fetch('/app/api/ssh-test.php', {
+                const response = await fetch('/api/ssh-test.php', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
@@ -613,6 +733,14 @@
                 
                 if (result.success) {
                     showStatus('✅ ' + result.message + '\n📁 ' + result.note);
+
+                    // Save connection to database if requested
+                    if (saveConn) {
+                        const saved = await saveConnectionToDb(host, port, user, pass, key, path);
+                        if (saved) {
+                            showStatus('✅ ' + result.message + '\n📁 ' + result.note + '\n💾 Zapisano w bazie');
+                        }
+                    }
                 } else {
                     showStatus('❌ ' + result.error + '\n' + (result.details || ''), true);
                 }
@@ -621,6 +749,17 @@
             }
         }
         
+        // Load last used SSH connection (placeholder for future enhancement)
+        function loadSavedSSH() {
+            // Connections are now loaded from database via loadSavedConnections()
+        }
+        
+        // Load on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            loadSavedSSH();
+            loadSavedConnections();
+        });
+
         // Quick commands helper
         document.getElementById('docker-container').addEventListener('focus', () => {
             showStatus('💡 Wskazówka: Użyj "docker ps" aby zobaczyć nazwy kontenerów');
@@ -628,6 +767,141 @@
         document.getElementById('ssh-host').addEventListener('focus', () => {
             showStatus('💡 Format: user@hostname:22 (port opcjonalny, domyślnie 22)');
         });
+
+        // Load saved connections from database
+        async function loadSavedConnections() {
+            try {
+                const response = await fetch('/api/ssh-connections.php');
+                const result = await response.json();
+
+                if (result.success) {
+                    renderSavedConnections(result.connections, result.limit, result.count, result.can_add);
+                }
+            } catch (err) {
+                console.error('Failed to load connections', err);
+            }
+        }
+
+        // Render saved connections list
+        function renderSavedConnections(connections, limit, count, canAdd) {
+            const countEl = document.getElementById('conn-count');
+            const listEl = document.getElementById('saved-connections-list');
+
+            countEl.textContent = `${count}/${limit}`;
+            countEl.classList.toggle('limit', count >= limit);
+
+            if (connections.length === 0) {
+                listEl.innerHTML = '<div class="no-connections">Brak zapisanych połączeń</div>';
+                return;
+            }
+
+            listEl.innerHTML = connections.map(conn => `
+                <div class="saved-conn-item" onclick="loadConnection(${conn.id})">
+                    <div class="saved-conn-info">
+                        <div class="saved-conn-name">${escapeHtml(conn.name)}</div>
+                        <div class="saved-conn-host">${escapeHtml(conn.username)}@${escapeHtml(conn.host)}:${conn.port}</div>
+                    </div>
+                    <div class="saved-conn-actions" onclick="event.stopPropagation()">
+                        <button class="saved-conn-btn" onclick="loadConnection(${conn.id})" title="Wczytaj">📂</button>
+                        <button class="saved-conn-btn delete" onclick="deleteConnection(${conn.id})" title="Usuń">🗑</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Escape HTML to prevent XSS
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // Load connection into form
+        async function loadConnection(id) {
+            try {
+                const response = await fetch('/api/ssh-connections.php');
+                const result = await response.json();
+
+                if (result.success) {
+                    const conn = result.connections.find(c => c.id == id);
+                    if (conn) {
+                        document.getElementById('ssh-name').value = conn.name || '';
+                        document.getElementById('ssh-host').value = `${conn.username}@${conn.host}:${conn.port}`;
+                        document.getElementById('ssh-key').value = conn.key_path || '';
+                        document.getElementById('ssh-pass').value = conn.password || '';
+                        document.getElementById('ssh-path').value = conn.log_path;
+                        showStatus(`💾 Wczytano połączenie: ${conn.name}`);
+                    }
+                }
+            } catch (err) {
+                showStatus('❌ Błąd wczytywania: ' + err.message, true);
+            }
+        }
+
+        // Delete connection
+        async function deleteConnection(id) {
+            if (!confirm('Czy na pewno chcesz usunąć to połączenie?')) {
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/ssh-connections.php', {
+                    method: 'DELETE',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ id: id })
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    showStatus('✅ Połączenie usunięte');
+                    loadSavedConnections();
+                } else {
+                    showStatus('❌ ' + result.error, true);
+                }
+            } catch (err) {
+                showStatus('❌ Błąd usuwania: ' + err.message, true);
+            }
+        }
+
+        // Save connection to database
+        async function saveConnectionToDb(host, port, username, password, keyPath, logPath) {
+            const name = document.getElementById('ssh-name').value.trim();
+            if (!name) {
+                showStatus('❌ Podaj nazwę połączenia', true);
+                return false;
+            }
+
+            try {
+                const response = await fetch('/api/ssh-connections.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        name: name,
+                        host: host,
+                        port: port,
+                        username: username,
+                        password: password,
+                        key_path: keyPath,
+                        log_path: logPath
+                    })
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    showStatus('✅ Połączenie zapisane w bazie');
+                    loadSavedConnections();
+                    return true;
+                } else {
+                    showStatus('❌ ' + result.error, true);
+                    return false;
+                }
+            } catch (err) {
+                showStatus('❌ Błąd zapisu: ' + err.message, true);
+                return false;
+            }
+        }
     </script>
 </body>
 </html>

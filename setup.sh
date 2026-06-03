@@ -8,10 +8,8 @@ set -e
 echo "🚀 Konfiguracja docker-fast-php-logger..."
 
 PROJECT_DIR="$(cd "$(dirname "$0")" && pwd)"
-source "$PROJECT_DIR/bin/lib/common.sh"
-
 IS_WSL=false
-if detect_wsl; then
+if grep -qi microsoft /proc/version 2>/dev/null || grep -qi wsl /proc/version 2>/dev/null; then
     IS_WSL=true
     echo "🪟 Wykryto WSL2 – konfiguracja pod Windows 11"
 fi
@@ -62,7 +60,11 @@ fi
 # ── 4. Zwolnij port 80 ────────────────────────────────────────
 echo ""
 echo "📌 Sprawdzam port 80..."
-free_port_80
+PORT80=$(docker ps --filter "publish=80" --format "{{.ID}}" | head -1)
+if [ -n "$PORT80" ]; then
+    echo "   ⚠ Port 80 zajęty przez kontener $PORT80 — zatrzymuję..."
+    docker stop "$PORT80"
+fi
 
 # ── 5. Docker build & up ──────────────────────────────────────
 echo ""

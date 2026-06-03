@@ -1,0 +1,19 @@
+#!/usr/bin/env bash
+# Local Composer wrapper - ensures PHP 8.4 compatibility
+# Downloads composer.phar if not present
+
+cd "$(dirname "$0")"
+
+COMPOSER_PHAR="composer.phar"
+COMPOSER_URL="https://getcomposer.org/download/latest-stable/composer.phar"
+
+# Download composer.phar if missing
+if [ ! -f "$COMPOSER_PHAR" ]; then
+    echo "📦 Downloading Composer..."
+    curl -sS "$COMPOSER_URL" -o "$COMPOSER_PHAR" || wget -q "$COMPOSER_URL" -O "$COMPOSER_PHAR"
+    chmod +x "$COMPOSER_PHAR"
+    echo "✅ Composer downloaded"
+fi
+
+# Run composer with all arguments
+php "$COMPOSER_PHAR" "$@"

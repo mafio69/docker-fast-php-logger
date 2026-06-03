@@ -1,0 +1,28 @@
+#!/bin/bash
+# Git pre-commit hook - sprawdza czy nie commitujemy sekretów
+
+echo "🔒 Pre-commit Security Check"
+echo "=============================="
+
+# Sprawdź czy PHP jest dostępny
+if ! command -v php &> /dev/null; then
+    echo "❌ PHP nie jest dostępny - pomijam check"
+    exit 0
+fi
+
+# Uruchom checker
+php bin/check-env-security
+
+if [ $? -ne 0 ]; then
+    echo ""
+    echo "❌ COMMIT ZABLOKOWANY - wykryto poufne dane"
+    echo ""
+    echo "Napraw powyższe problemy i spróbuj ponownie:"
+    echo "  git add ."
+    echo "  git commit -m 'twoja wiadomość'"
+    echo ""
+    exit 1
+fi
+
+echo "✅ Security check passed"
+exit 0

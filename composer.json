@@ -8,10 +8,6 @@
             "url": "./time-agent"
         },
         {
-            "type": "path",
-            "url": "./mcp-server"
-        },
-        {
             "type": "vcs",
             "url": "https://github.com/mafio69/fast-php-log-viewer"
         }
@@ -20,16 +16,14 @@
         "php": ">=8.1",
         "mafio69/fast-php-logger": "^0.9",
         "mafio69/fast-php-log-viewer": "^1.0",
-        "mafio69/time-agent": "@dev",
-        "mafio69/enhanced-php-mcp-server": "@dev"
+        "mafio69/time-agent": "@dev"
     },
     "require-dev": {
         "laravel/pint": "^1.10"
     },
     "scripts": {
         "post-install-cmd": [
-            "@composer install -d time-agent",
-            "@composer install -d mcp-server"
+            "@composer install -d time-agent"
         ],
         "start": [
             "docker-compose up -d"

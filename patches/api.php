@@ -28,6 +28,8 @@ unset($_autoload);
 use Mariusz\LogViewer\LogFinder;
 use Mariusz\LogViewer\LogParser;
 
+require_once dirname(__DIR__) . '/app/shared/JsonResponse.php';
+
 header('Content-Type: application/json');
 header('X-Content-Type-Options: nosniff');
 
@@ -90,6 +92,5 @@ function respondEntries(): void
 
 function respondError(string $message, int $code): void
 {
-    http_response_code($code);
-    echo json_encode(['error' => $message]);
+    JsonResponse::error($message, $code);
 }

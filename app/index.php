@@ -2,24 +2,22 @@
 
 declare(strict_types=1);
 
-set_error_handler(static function (int $severity, string $message, string $file, int $line): bool {
-    throw new ErrorException($message, 0, $severity, $file, $line);
-});
-
+require_once __DIR__ . '/shared/bootstrap.php';
+require_once __DIR__ . '/shared/JsonResponse.php';
+require_once __DIR__ . '/shared/ConfigStore.php';
 require_once __DIR__ . '/../vendor/autoload.php';
 
 use Mariusz\Logger\DualLogger;
 use Psr\Log\LogLevel;
 
 // ── Config persistence ────────────────────────────────────────────────────────
-$configFile = __DIR__ . '/../config.json';
+$configStore = new ConfigStore(__DIR__ . '/../config.json');
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_GET['action'])) {
-    header('Content-Type: application/json');
     try {
         $raw = file_get_contents('php://input');
         $input = json_decode($raw, true) ?? throw new RuntimeException('Invalid JSON input');
-        $config = file_exists($configFile) ? json_decode(file_get_contents($configFile), true) ?? [] : [];
+        $config = $configStore->load();
 
         match ($_GET['action']) {
             'save_hosts' => $config['hosts'] = $input,
@@ -27,28 +25,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_GET['action'])) {
             default => throw new RuntimeException("Unknown action: {$_GET['action']}"),
         };
 
-        if (file_put_contents($configFile, json_encode($config, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES)) === false) {
-            throw new RuntimeException("Failed to write config: {$configFile}");
-        }
-        echo json_encode(['ok' => true]);
+        $configStore->save($config);
+        JsonResponse::send(['ok' => true]);
     } catch (Throwable $e) {
-        http_response_code(500);
-        echo json_encode([
-            'error'  => $e->getMessage(),
-            'file'   => basename($e->getFile()) . ':' . $e->getLine(),
+        JsonResponse::error($e->getMessage(), 500, [
+            'file' => basename($e->getFile()) . ':' . $e->getLine(),
         ]);
     }
     exit;
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'GET' && ($_GET['action'] ?? '') === 'config') {
-    header('Content-Type: application/json');
     try {
-        $config = file_exists($configFile) ? json_decode(file_get_contents($configFile), true) ?? [] : [];
-        echo json_encode($config);
+        JsonResponse::send($configStore->load());
     } catch (Throwable $e) {
-        http_response_code(500);
-        echo json_encode(['error' => $e->getMessage()]);
+        JsonResponse::error($e->getMessage(), 500);
     }
     exit;
 }

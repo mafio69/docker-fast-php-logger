@@ -1,0 +1,8 @@
+log_viewer:
+    path: /logviewer
+    controller: App\Controller\LogController::index
+
+api_ssh_connections:
+    path: /api/ssh-connections
+    controller: App\Controller\LogController::saveSshConnection
+    methods: [POST]

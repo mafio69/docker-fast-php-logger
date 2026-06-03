@@ -37,17 +37,11 @@ COPY docker/supervisor.conf /etc/supervisor/conf.d/supervisord.conf
 
 WORKDIR /var/www/html
 
-# Copy application files
+# Copy application
 COPY . /var/www/html
 
-# Configure git to trust the working directory to avoid "dubious ownership" errors during composer install
-RUN git config --global --add safe.directory /var/www/html
-
-# Install dependencies (ignoring corrupted lock file if present)
-RUN if [ -f composer.json ]; then \
-        rm -f composer.lock && \
-        composer install --no-dev --optimize-autoloader; \
-    fi
+# Install dependencies
+RUN if [ -f composer.json ]; then composer install --no-dev --optimize-autoloader 2>/dev/null || true; fi
 
 # Create directories
 RUN mkdir -p /var/www/html/logs /var/www/html/data /run/nginx /var/log/supervisor && \

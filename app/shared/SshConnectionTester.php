@@ -2,11 +2,21 @@
 
 declare(strict_types=1);
 
+require_once __DIR__ . '/bootstrap.php';
 require_once __DIR__ . '/JsonResponse.php';
 
 final class SshConnectionTester
 {
     public static function handleRequest(): void
+    {
+        try {
+            self::doHandle();
+        } catch (\Throwable $e) {
+            JsonResponse::error($e->getMessage(), 500);
+        }
+    }
+
+    private static function doHandle(): void
     {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             JsonResponse::error('Method not allowed', 405);
@@ -26,7 +36,17 @@ final class SshConnectionTester
             exit;
         }
 
-        $input = json_decode(file_get_contents('php://input'), true);
+        $raw = file_get_contents('php://input');
+        if ($raw === false) {
+            JsonResponse::error('Failed to read request body', 400);
+            exit;
+        }
+
+        $input = json_decode($raw, true);
+        if (!is_array($input)) {
+            JsonResponse::error('Invalid JSON input', 400);
+            exit;
+        }
 
         $host = $input['host'] ?? '';
         $user = $input['user'] ?? '';

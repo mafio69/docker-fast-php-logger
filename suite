@@ -33,10 +33,15 @@ show_help() {
 case "$1" in
     install)
         echo "📦 Instalacja komponentów..."
-        composer install
-        composer install -d time-agent
-        composer install -d mcp-server
-        echo "✅ Gotowe!"
+        failed=0
+        composer install || { echo "ERROR: composer install failed (root)" >&2; failed=1; }
+        composer install -d time-agent || { echo "ERROR: composer install failed (time-agent)" >&2; failed=1; }
+        composer install -d mcp-server || { echo "ERROR: composer install failed (mcp-server)" >&2; failed=1; }
+        if [ "$failed" -ne 0 ]; then
+            echo "Some components failed to install" >&2
+            exit 1
+        fi
+        echo "Gotowe!"
         ;;
     
     start)

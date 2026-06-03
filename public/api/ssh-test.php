@@ -1,4 +1,7 @@
 <?php
+
+declare(strict_types=1);
+
 /**
  * SSH Connection Test Endpoint (public alias)
  */

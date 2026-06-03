@@ -1,6 +1,12 @@
 <?php
 declare(strict_types=1);
 
+set_error_handler(static function (int $severity, string $message, string $file, int $line): bool {
+    throw new ErrorException($message, 0, $severity, $file, $line);
+});
+
+try {
+
 $logsDir = __DIR__ . '/../logs';
 
 $days = [
@@ -27,11 +33,14 @@ foreach ($days as $day => $times) {
     $dir  = "$logsDir/$year/$month";
     $file = "$dir/$day.log";
 
-    if (!is_dir($dir)) {
-        mkdir($dir, 0775, true);
+    if (!is_dir($dir) && !mkdir($dir, 0775, true)) {
+        throw new RuntimeException("Failed to create directory: {$dir}");
     }
 
     $fp = fopen($file, 'a');
+    if ($fp === false) {
+        throw new RuntimeException("Failed to open log file: {$file}");
+    }
     foreach ($times as $i => $time) {
         $e = $entries[$i % count($entries)];
         [$level, $msg, $ctx] = $e;
@@ -47,3 +56,8 @@ foreach ($days as $day => $times) {
 }
 
 echo "Done.\n";
+
+} catch (Throwable $e) {
+    fwrite(STDERR, 'Error: ' . $e->getMessage() . ' in ' . basename($e->getFile()) . ':' . $e->getLine() . PHP_EOL);
+    exit(1);
+}

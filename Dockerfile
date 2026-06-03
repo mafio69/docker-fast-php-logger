@@ -41,7 +41,7 @@ WORKDIR /var/www/html
 COPY . /var/www/html
 
 # Install dependencies
-RUN if [ -f composer.json ]; then composer install --no-dev --optimize-autoloader 2>/dev/null || true; fi
+RUN if [ -f composer.json ]; then composer install --no-dev --optimize-autoloader; fi
 
 # Create directories
 RUN mkdir -p /var/www/html/logs /var/www/html/data /run/nginx /var/log/supervisor && \

@@ -45,13 +45,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && ($_GET['action'] ?? '') === 'config'
 }
 
 // ── Logger demo ───────────────────────────────────────────────────────────────
-$logger = DualLogger::create(
-    logDir: __DIR__ . '/../logs',
-    minLevel: LogLevel::DEBUG,
-    timezone: $_ENV['APP_TIMEZONE'] ?? 'Europe/Warsaw',
-);
-
-$logger->debug('Dashboard loaded', ['php' => PHP_VERSION]);
+$loggerError = null;
+try {
+    $logger = DualLogger::create(
+        logDir: __DIR__ . '/../logs',
+        minLevel: LogLevel::DEBUG,
+        timezone: $_ENV['APP_TIMEZONE'] ?? 'Europe/Warsaw',
+    );
+    $logger->debug('Dashboard loaded', ['php' => PHP_VERSION]);
+} catch (Throwable $e) {
+    $loggerError = $e->getMessage();
+}
 
 // ── DB check ──────────────────────────────────────────────────────────────────
 $dbStatus = 'not connected';
@@ -165,6 +169,7 @@ $dbOk = str_starts_with($dbStatus, 'connected');
                 <div class="stat"><span class="key">PHP</span><span class="val ok"><?= PHP_VERSION ?></span></div>
                 <div class="stat"><span class="key">ENV</span><span class="val"><?= htmlspecialchars($_ENV['APP_ENV'] ?? 'unknown') ?></span></div>
                 <div class="stat"><span class="key">DB</span><span class="val <?= $dbOk ? 'ok' : 'err' ?>"><?= htmlspecialchars($dbStatus) ?></span></div>
+                <div class="stat"><span class="key">Logger</span><span class="val <?= $loggerError ? 'err' : 'ok' ?>"><?= $loggerError ? htmlspecialchars($loggerError) : 'ok' ?></span></div>
                 <div class="stat"><span class="key">Logs</span><span class="val">/var/www/html/logs</span></div>
             </div>
         </div>

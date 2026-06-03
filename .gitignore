@@ -6,3 +6,5 @@ logs/*
 .idea/
 identifier.db
 docker-compose.override.yml
+phpunit.phar
+.phpunit.cache/

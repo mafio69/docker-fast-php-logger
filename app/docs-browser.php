@@ -40,7 +40,11 @@ if ($requested && in_array($requested, $files, true)) {
         $code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
         curl_close($ch);
         if ($code === 200 && $result) {
-            $html = '<div style="max-width:900px;margin:0 auto;padding:40px" class="markdown-body">' . $result . '</div>';
+            // Strip dangerous tags from the API response to prevent XSS
+            $allowedTags = '<h1><h2><h3><h4><h5><h6><p><a><ul><ol><li><br><em><strong>'
+                . '<code><pre><blockquote><table><thead><tbody><tr><th><td><img><hr><div><span><del><sup><sub><dl><dt><dd>';
+            $sanitized = strip_tags($result, $allowedTags);
+            $html = '<div style="max-width:900px;margin:0 auto;padding:40px" class="markdown-body">' . $sanitized . '</div>';
         }
     }
     ?><!DOCTYPE html><html><head><meta charset="utf-8"><title><?= htmlspecialchars($requested) ?></title>

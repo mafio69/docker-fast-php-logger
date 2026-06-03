@@ -621,9 +621,10 @@
             showStatus('🔐 Testuję połączenie SSH... ' + user + '@' + host + ':' + port);
             
             try {
+                const sshToken = localStorage.getItem('ssh_test_token') || '';
                 const response = await fetch('/api/ssh-test.php', {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: { 'Content-Type': 'application/json', 'X-SSH-Token': sshToken },
                     body: JSON.stringify({
                         host: host,
                         user: user,

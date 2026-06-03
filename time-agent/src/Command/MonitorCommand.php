@@ -25,7 +25,11 @@ class MonitorCommand extends Command
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $this->logFile = __DIR__ . '/../../var/agent.log';
-        @mkdir(dirname($this->logFile), 0777, true);
+        $logDir = dirname($this->logFile);
+        if (!is_dir($logDir) && !mkdir($logDir, 0777, true)) {
+            $output->writeln('<error>Failed to create log directory: ' . $logDir . '</error>');
+            return Command::FAILURE;
+        }
         
         $this->log('=== Time Agent START (Symfony) ===');
         
@@ -51,7 +55,6 @@ class MonitorCommand extends Command
     private function initializeMode(): void
     {
         if (!file_exists('/tmp/timedoctor-session-mode')) {
-            // Pytaj przez zenity
             $process = new Process([
                 'zenity', '--list', '--radiolist',
                 '--title=🕐 Time Agent',
@@ -62,10 +65,17 @@ class MonitorCommand extends Command
                 '--width=400', '--height=250'
             ]);
             $process->run();
+
+            if (!$process->isSuccessful()) {
+                $this->log('zenity dialog failed: ' . $process->getErrorOutput());
+            }
+
             $result = trim($process->getOutput());
             
             $this->mode = $result === 'private' ? 'private' : 'work';
-            file_put_contents('/tmp/timedoctor-session-mode', $this->mode);
+            if (file_put_contents('/tmp/timedoctor-session-mode', $this->mode) === false) {
+                $this->log('Failed to persist session mode');
+            }
             
             if ($this->mode === 'private') {
                 touch('/tmp/timedoctor-bypass');
@@ -73,7 +83,13 @@ class MonitorCommand extends Command
             
             $this->log("Tryb: {$this->mode}");
         } else {
-            $this->mode = trim(file_get_contents('/tmp/timedoctor-session-mode'));
+            $content = file_get_contents('/tmp/timedoctor-session-mode');
+            if ($content === false) {
+                $this->log('Failed to read session mode file, defaulting to work');
+                $this->mode = 'work';
+            } else {
+                $this->mode = trim($content);
+            }
         }
     }
     
@@ -81,6 +97,12 @@ class MonitorCommand extends Command
     {
         $process = new Process(['loginctl', 'show-session', '--property=IdleHint', '--value']);
         $process->run();
+
+        if (!$process->isSuccessful()) {
+            $this->log('loginctl failed: ' . trim($process->getErrorOutput()));
+            return;
+        }
+
         $isLocked = trim($process->getOutput()) === 'yes';
         
         if ($isLocked && !$this->wasLocked) {
@@ -145,7 +167,6 @@ class MonitorCommand extends Command
         
         $tomorrow6am = strtotime('tomorrow 06:00');
         
-        // Uruchom zenity w tle
         $process = new Process([
             'zenity', "--{$style}",
             '--title', $title,
@@ -154,7 +175,13 @@ class MonitorCommand extends Command
             '--extra-button', '🔕 Wyłącz do jutra 6:00',
             '--width', '520', '--height', '320'
         ]);
-        $process->start();
+
+        try {
+            $process->start();
+        } catch (\Throwable $e) {
+            $this->log('Failed to show alert dialog: ' . $e->getMessage());
+            return;
+        }
         
         $this->log('Pokazano okno alertu');
     }

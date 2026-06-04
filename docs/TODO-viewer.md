@@ -1,16 +1,16 @@
-# TODO: app.local/logs — fast-php-log-viewer
+# TODO: app.local/logs — log-viewer
 
 ## Co robimy
 
 Refaktor / rozwój przeglądarki logów serwowanej pod `http://app.local/logs`.  
-Entry point: `viewer/index.php` → deleguje do `vendor/mafio69/fast-php-log-viewer`.
+Entry point: `viewer/index.php` → deleguje do `vendor/mafio69/log-viewer`.
 
 ## Obecny stan
 
 - `viewer/index.php` — 10 linii, definiuje `LOG_DIR`, ładuje autoloader, routuje `?action=` do API albo renderuje UI
-- API: `vendor/mafio69/fast-php-log-viewer/src/api.php` (patch w `patches/api.php`)
-- UI: `vendor/mafio69/fast-php-log-viewer/index.php`
-- Dev override volume: `../PhpstormProjects/fast-php-log-viewer` montowany w docker-compose
+- API: `vendor/mafio69/log-viewer/src/api.php` (patch w `patches/api.php`)
+- UI: `vendor/mafio69/log-viewer/index.php`
+- Dev override volume: `../PhpstormProjects/log-viewer` montowany w docker-compose
 
 ## Z audytu — problemy do rozwiązania
 
@@ -30,4 +30,4 @@ Entry point: `viewer/index.php` → deleguje do `vendor/mafio69/fast-php-log-vie
 ## Kontekst
 
 - `app/logs.php` — ZROBIONE (09.05) — osobny prosty viewer w app/
-- Ten task dotyczy oficjalnego pakietu `fast-php-log-viewer`
+- Ten task dotyczy oficjalnego pakietu `log-viewer`

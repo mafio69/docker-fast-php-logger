@@ -14,8 +14,8 @@ class LogViewerService
     {
         $projectDir = $kernel->getProjectDir();
         $this->logDir = $projectDir . '/logs';
-        $this->viewerPath = $projectDir . '/vendor/mafio69/fast-php-log-viewer/index.php';
-        $this->apiPath = $projectDir . '/vendor/mafio69/fast-php-log-viewer/src/api.php';
+        $this->viewerPath = $projectDir . '/vendor/mafio69/log-viewer/index.php';
+        $this->apiPath = $projectDir . '/vendor/mafio69/log-viewer/src/api.php';
     }
 
     public function getLogDirs(): array

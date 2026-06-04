@@ -23,7 +23,7 @@ try {
     require_once $autoloader;
 
     if (isset($_GET['action'])) {
-        $apiPath = dirname(__DIR__) . '/vendor/mafio69/fast-php-log-viewer/src/api.php';
+        $apiPath = dirname(__DIR__) . '/vendor/mafio69/log-viewer/src/api.php';
         if (!file_exists($apiPath)) {
             throw new RuntimeException('Log viewer API not found. Run: composer install');
         }
@@ -31,7 +31,7 @@ try {
         exit;
     }
 
-    $viewerPath = dirname(__DIR__) . '/vendor/mafio69/fast-php-log-viewer/index.php';
+    $viewerPath = dirname(__DIR__) . '/vendor/mafio69/log-viewer/index.php';
     if (!file_exists($viewerPath)) {
         throw new RuntimeException('Log viewer not found. Run: composer install');
     }

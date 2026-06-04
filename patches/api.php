@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 /**
- * fast-php-log-viewer API endpoint.
+ * log-viewer API endpoint.
  *
  * GET ?action=files              → list of log files
  * GET ?action=entries&file=path  → parsed entries from a file

@@ -4,7 +4,7 @@ Kompletne środowisko deweloperskie: Logger + MCP Server + Time Agent
 
 ## docker-fast-logger
 
-Docker environment that bundles `fast-php-logger` and `fast-php-log-viewer` into a ready-to-use PHP + Nginx + MySQL container.
+Docker environment that bundles `fast-php-logger` and `log-viewer` into a ready-to-use PHP + Nginx + MySQL container.
 
 Both packages are pulled from GitHub via Composer during `docker build` — no local copies needed.
 
@@ -24,7 +24,7 @@ Both packages are pulled from GitHub via Composer during `docker build` — no l
 |---|---|
 | `Dockerfile` | PHP 8.4 + Nginx, installs Composer deps from GitHub |
 | `docker-compose.yml` | All services: PHP, MySQL, Adminer, Portainer, Mailpit, Proxy |
-| `composer.json` | Requires `mafio69/fast-php-logger` and `mafio69/fast-php-log-viewer` from GitHub VCS |
+| `composer.json` | Requires `mafio69/fast-php-logger` and `mafio69/log-viewer` from GitHub VCS |
 | `viewer/index.php` | Entry point for log viewer (accessible via `/logs`) |
 | `docker/nginx.conf` | Nginx configuration |
 | `docker/php.ini` | Dev PHP config (error reporting, etc.) |
@@ -34,7 +34,7 @@ Both packages are pulled from GitHub via Composer during `docker build` — no l
 
 `composer install` runs during `docker build`. Both packages are fetched from GitHub:
 - `mafio69/fast-php-logger` — from Packagist
-- `mafio69/fast-php-log-viewer` — from GitHub VCS (not yet on Packagist)
+- `mafio69/log-viewer` — from GitHub VCS (not yet on Packagist)
 
 `vendor/` lives inside the Docker image at `/var/www/html/vendor/`.
 It is NOT mounted as a volume — changes require `docker compose build`.
@@ -51,7 +51,7 @@ It is NOT mounted as a volume — changes require `docker compose build`.
 | Repo | Role |
 |---|---|
 | `mafio69/fast-php-logger` | PSR-3 logger, writes log files |
-| `mafio69/fast-php-log-viewer` | Viewer UI, reads log files |
+| `mafio69/log-viewer` | Viewer UI, reads log files |
 | `mafio69/docker-fast-logger` | This repo — Docker environment using both |
 
 ### Conventions

@@ -403,11 +403,20 @@
                 const line = document.createElement('div');
                 line.className = 'log-line';
                 const time = new Date().toLocaleTimeString('pl-PL');
-                line.innerHTML = `
-                    <span class="timestamp">${time}</span>
-                    <span class="level-info">[CMD]</span>
-                    <span class="msg">${e.target.value}</span>
-                `;
+
+                const ts = document.createElement('span');
+                ts.className = 'timestamp';
+                ts.textContent = time;
+
+                const lvl = document.createElement('span');
+                lvl.className = 'level-info';
+                lvl.textContent = '[CMD]';
+
+                const msg = document.createElement('span');
+                msg.className = 'msg';
+                msg.textContent = e.target.value;
+
+                line.append(ts, lvl, msg);
                 logs.appendChild(line);
                 logs.scrollTop = logs.scrollHeight;
                 e.target.value = '';

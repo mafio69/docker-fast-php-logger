@@ -15,6 +15,7 @@ RUN apk add --no-cache \
     supervisor \
     linux-headers \
     openssh-client \
+    openssh-server \
     sshpass \
     && docker-php-ext-install pdo pdo_sqlite pdo_mysql sockets pcntl
 
@@ -44,8 +45,15 @@ COPY . /var/www/html
 RUN if [ -f composer.json ]; then composer install --no-dev --optimize-autoloader 2>/dev/null || true; fi
 
 # Create directories
-RUN mkdir -p /var/www/html/logs /var/www/html/data /run/nginx /var/log/supervisor && \
-    chown -R www-data:www-data /var/www/html/logs /var/www/html/data
+RUN mkdir -p /var/www/html/logs /var/www/html/data /var/www/html/viewer /var/www/.ssh /run/nginx /var/log/supervisor /run/sshd && \
+    chown -R www-data:www-data /var/www/html/logs /var/www/html/data /var/www/html/viewer /var/www/.ssh && \
+    chmod 700 /var/www/.ssh
+
+# Configure SSH server for password authentication
+RUN ssh-keygen -A && \
+    sed -i 's/#PasswordAuthentication yes/PasswordAuthentication yes/' /etc/ssh/sshd_config && \
+    sed -i 's/#PermitRootLogin prohibit-password/PermitRootLogin yes/' /etc/ssh/sshd_config && \
+    sed -i 's/#PubkeyAuthentication yes/PubkeyAuthentication yes/' /etc/ssh/sshd_config
 
 EXPOSE 80
 

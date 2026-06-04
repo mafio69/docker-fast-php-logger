@@ -45,7 +45,6 @@
         .logo { font-size: 20px; font-weight: bold; letter-spacing: 3px; }
         .stats { display: flex; gap: 20px; font-size: 11px; color: var(--gray); }
         
-        /* Controls */
         .controls {
             display: flex;
             gap: 15px;
@@ -78,7 +77,6 @@
         }
         input::placeholder { color: var(--green-dark); }
         
-        /* Table */
         .table-container {
             overflow-x: auto;
             border: 1px solid var(--green-dark);
@@ -122,7 +120,6 @@
             background: rgba(0, 59, 0, 0.05);
         }
         
-        /* Status badges */
         .badge {
             display: inline-block;
             padding: 2px 8px;
@@ -135,7 +132,6 @@
         .badge.draft { color: var(--yellow); border-color: var(--yellow); }
         .badge.archived { color: var(--gray); border-color: var(--gray); }
         
-        /* Pagination */
         .pagination {
             display: flex;
             justify-content: space-between;
@@ -169,14 +165,12 @@
             cursor: not-allowed;
         }
         
-        /* Empty state */
         .empty {
             text-align: center;
             padding: 60px 20px;
             color: var(--gray);
         }
         
-        /* Scrollbar */
         ::-webkit-scrollbar { width: 10px; height: 10px; }
         ::-webkit-scrollbar-track { background: var(--bg); }
         ::-webkit-scrollbar-thumb { background: var(--green-dark); border: 1px solid var(--green-dim); }
@@ -241,190 +235,122 @@
                 </tr>
             </thead>
             <tbody id="table-body">
-                <!-- Data inserted via JS -->
+                <tr>
+                    <td colspan="7" class="empty">No data available</td>
+                </tr>
             </tbody>
         </table>
-        <div class="empty" id="empty-state" style="display: none;">
-            NO RECORDS FOUND
-        </div>
     </div>
     
     <div class="pagination">
         <div class="page-info">
-            SHOWING <span id="page-start">0</span> TO <span id="page-end">0</span> OF <span id="page-total">0</span>
+            Showing <span id="showing-start">0</span>-<span id="showing-end">0</span> of <span id="total-items">0</span>
         </div>
-        <div class="page-buttons" id="pagination">
-            <!-- Pagination buttons -->
+        <div class="page-buttons">
+            <button class="page-btn" id="prev-btn" disabled>← PREV</button>
+            <button class="page-btn active" id="page-1">1</button>
+            <button class="page-btn" id="next-btn" disabled>NEXT →</button>
         </div>
     </div>
-    
+
     <script>
-        // Mock data
-        const generateData = () => {
-            const statuses = ['active', 'draft', 'archived'];
-            const categories = ['docs', 'api', 'config'];
-            const data = [];
-            for (let i = 1; i <= 150; i++) {
-                data.push({
-                    id: String(i).padStart(3, '0'),
-                    title: `document_${String(i).padStart(3, '0')}.md`,
-                    status: statuses[Math.floor(Math.random() * statuses.length)],
-                    category: categories[Math.floor(Math.random() * categories.length)],
-                    modified: new Date(Date.now() - Math.random() * 86400000 * 30).toISOString().split('T')[0],
-                    size: Math.floor(Math.random() * 50 + 1) + ' KB'
-                });
-            }
-            return data;
-        };
-        
-        let allData = generateData();
-        let filteredData = [...allData];
+        const data = [];
         let currentPage = 1;
         let perPage = 25;
-        let sortCol = 'id';
-        let sortDir = 'asc';
-        
-        const tableBody = document.getElementById('table-body');
-        const searchInput = document.getElementById('search');
-        const statusFilter = document.getElementById('filter-status');
-        const categoryFilter = document.getElementById('filter-category');
-        const perPageSelect = document.getElementById('per-page');
-        
-        function updateStats() {
-            document.getElementById('total-count').textContent = allData.length;
-            document.getElementById('displayed-count').textContent = filteredData.length;
-            document.getElementById('filtered-count').textContent = allData.length - filteredData.length;
-        }
-        
-        function sortData() {
-            filteredData.sort((a, b) => {
-                let valA = a[sortCol];
-                let valB = b[sortCol];
-                
-                if (sortCol === 'size') {
-                    valA = parseInt(valA);
-                    valB = parseInt(valB);
-                }
-                
-                if (valA < valB) return sortDir === 'asc' ? -1 : 1;
-                if (valA > valB) return sortDir === 'asc' ? 1 : -1;
-                return 0;
-            });
-        }
-        
-        function filterData() {
-            const search = searchInput.value.toLowerCase();
-            const status = statusFilter.value;
-            const category = categoryFilter.value;
-            
-            filteredData = allData.filter(item => {
-                const matchesSearch = !search || 
-                    item.title.toLowerCase().includes(search) ||
-                    item.id.includes(search);
-                const matchesStatus = !status || item.status === status;
-                const matchesCategory = !category || item.category === category;
-                
-                return matchesSearch && matchesStatus && matchesCategory;
-            });
-            
-            sortData();
-            currentPage = 1;
-            renderTable();
-            updateStats();
-        }
-        
+        let filteredData = [...data];
+        let sortCol = null;
+        let sortAsc = true;
+
         function renderTable() {
+            const tbody = document.getElementById('table-body');
             const start = (currentPage - 1) * perPage;
             const end = Math.min(start + perPage, filteredData.length);
             const pageData = filteredData.slice(start, end);
-            
+
             if (pageData.length === 0) {
-                tableBody.innerHTML = '';
-                document.getElementById('empty-state').style.display = 'block';
-            } else {
-                document.getElementById('empty-state').style.display = 'none';
-                tableBody.innerHTML = pageData.map(item => `
-                    <tr>
-                        <td>#${item.id}</td>
-                        <td>${item.title}</td>
-                        <td><span class="badge ${item.status}">${item.status}</span></td>
-                        <td>${item.category.toUpperCase()}</td>
-                        <td>${item.modified}</td>
-                        <td>${item.size}</td>
-                        <td><button class="page-btn" onclick="viewDoc('${item.id}')">VIEW</button></td>
-                    </tr>
-                `).join('');
+                tbody.innerHTML = '<tr><td colspan="7" class="empty">No data available</td></tr>';
+                updateStats(0, 0, 0);
+                return;
             }
-            
-            document.getElementById('page-start').textContent = filteredData.length ? start + 1 : 0;
-            document.getElementById('page-end').textContent = end;
-            document.getElementById('page-total').textContent = filteredData.length;
-            
-            renderPagination();
+
+            tbody.innerHTML = pageData.map(row => `
+                <tr>
+                    <td>${row.id}</td>
+                    <td>${row.title}</td>
+                    <td><span class="badge ${row.status}">${row.status}</span></td>
+                    <td>${row.category}</td>
+                    <td>${row.modified}</td>
+                    <td>${row.size}</td>
+                    <td><button class="page-btn">View</button></td>
+                </tr>
+            `).join('');
+
+            updateStats(data.length, pageData.length, filteredData.length);
+            updatePagination();
         }
-        
-        function renderPagination() {
-            const totalPages = Math.ceil(filteredData.length / perPage);
-            let html = `
-                <button class="page-btn" onclick="goToPage(1)" ${currentPage === 1 ? 'disabled' : ''}>|<</button>
-                <button class="page-btn" onclick="goToPage(${currentPage - 1})" ${currentPage === 1 ? 'disabled' : ''}><</button>
-            `;
-            
-            for (let i = Math.max(1, currentPage - 2); i <= Math.min(totalPages, currentPage + 2); i++) {
-                html += `<button class="page-btn ${i === currentPage ? 'active' : ''}" onclick="goToPage(${i})">${i}</button>`;
-            }
-            
-            html += `
-                <button class="page-btn" onclick="goToPage(${currentPage + 1})" ${currentPage === totalPages ? 'disabled' : ''}>></button>
-                <button class="page-btn" onclick="goToPage(${totalPages})" ${currentPage === totalPages ? 'disabled' : ''}>|></button>
-            `;
-            
-            document.getElementById('pagination').innerHTML = html;
+
+        function updateStats(total, displayed, filtered) {
+            document.getElementById('total-count').textContent = total;
+            document.getElementById('displayed-count').textContent = displayed;
+            document.getElementById('filtered-count').textContent = filtered;
         }
-        
-        window.goToPage = (page) => {
+
+        function updatePagination() {
             const totalPages = Math.ceil(filteredData.length / perPage);
-            if (page >= 1 && page <= totalPages) {
-                currentPage = page;
-                renderTable();
-            }
-        };
-        
-        window.viewDoc = (id) => {
-            console.log('View doc:', id);
-        };
-        
-        // Sort handlers
-        document.querySelectorAll('th.sortable').forEach(th => {
-            th.addEventListener('click', () => {
-                const col = th.dataset.col;
-                if (sortCol === col) {
-                    sortDir = sortDir === 'asc' ? 'desc' : 'asc';
-                } else {
-                    sortCol = col;
-                    sortDir = 'asc';
-                }
-                
-                document.querySelectorAll('th').forEach(h => h.classList.remove('sort-asc', 'sort-desc'));
-                th.classList.add(sortDir === 'asc' ? 'sort-asc' : 'sort-desc');
-                
-                sortData();
-                renderTable();
-            });
-        });
-        
-        // Filter handlers
-        searchInput.addEventListener('input', filterData);
-        statusFilter.addEventListener('change', filterData);
-        categoryFilter.addEventListener('change', filterData);
-        perPageSelect.addEventListener('change', (e) => {
+            const start = (currentPage - 1) * perPage + 1;
+            const end = Math.min(currentPage * perPage, filteredData.length);
+
+            document.getElementById('showing-start').textContent = filteredData.length > 0 ? start : 0;
+            document.getElementById('showing-end').textContent = end;
+            document.getElementById('total-items').textContent = filteredData.length;
+
+            document.getElementById('prev-btn').disabled = currentPage === 1;
+            document.getElementById('next-btn').disabled = currentPage === totalPages || totalPages === 0;
+        }
+
+        document.getElementById('search').addEventListener('input', filterData);
+        document.getElementById('filter-status').addEventListener('change', filterData);
+        document.getElementById('filter-category').addEventListener('change', filterData);
+        document.getElementById('per-page').addEventListener('change', (e) => {
             perPage = parseInt(e.target.value);
             currentPage = 1;
             renderTable();
         });
-        
-        // Init
-        filterData();
+
+        document.getElementById('prev-btn').addEventListener('click', () => {
+            if (currentPage > 1) {
+                currentPage--;
+                renderTable();
+            }
+        });
+
+        document.getElementById('next-btn').addEventListener('click', () => {
+            const totalPages = Math.ceil(filteredData.length / perPage);
+            if (currentPage < totalPages) {
+                currentPage++;
+                renderTable();
+            }
+        });
+
+        function filterData() {
+            const search = document.getElementById('search').value.toLowerCase();
+            const status = document.getElementById('filter-status').value;
+            const category = document.getElementById('filter-category').value;
+
+            filteredData = data.filter(row => {
+                const matchSearch = !search || 
+                    row.title.toLowerCase().includes(search) ||
+                    row.id.toString().includes(search);
+                const matchStatus = !status || row.status === status;
+                const matchCategory = !category || row.category === category;
+                return matchSearch && matchStatus && matchCategory;
+            });
+
+            currentPage = 1;
+            renderTable();
+        }
+
+        renderTable();
     </script>
 </body>
 </html>

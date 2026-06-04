@@ -37,7 +37,7 @@ Wieloetapowe: plan + weryfikacja:
 Środowisko deweloperskie Docker dla PHP 8.3 + Apache + MySQL 8.
 Bundluje dwa pakiety Composer:
 - `mafio69/fast-php-logger` — PSR-3 logger z rotacją plików i anonimizacją
-- `mafio69/fast-php-log-viewer` — UI do przeglądania logów
+- `mafio69/log-viewer` — UI do przeglądania logów
 
 ## Struktura katalogów
 

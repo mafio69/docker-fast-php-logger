@@ -1,5 +1,5 @@
 {
-    "name": "mafio69/developer-suite",
+    "name": "mafio69/suite-dev",
     "description": "Developer Suite: Logger + Log Viewer (Symfony)",
     "type": "project",
     "repositories": [
@@ -15,7 +15,7 @@
     "require": {
         "php": ">=8.2",
         "ext-pdo": "*",
-        "mafio69/fast-php-log-viewer": "^1.0",
+        "mafio69/log-viewer": "^1.0",
         "mafio69/fast-php-logger": "^0.9",
         "mafio69/time-agent": "@dev",
         "symfony/asset": "^7.0",

@@ -7,7 +7,7 @@
     "content-hash": "987fb757402a111c822b053d30e97485",
     "packages": [
         {
-            "name": "mafio69/fast-php-log-viewer",
+            "name": "mafio69/log-viewer",
             "version": "1.0.4",
             "source": {
                 "type": "git",

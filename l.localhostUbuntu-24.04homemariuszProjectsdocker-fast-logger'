@@ -90,4 +90,79 @@ Date:   Thu Jun 4 15:50:05 2026 +0200
 [31m-                "issues": "https://github.com/mafio69/fast-php-log-viewer/issues"[m
 [31m-            },[m
 [31m-            "time": "2026-05-10T11:16:33+00:00"[m
-[31m-        
+[31m-        },[m
+         {[m
+             "name": "mafio69/fast-php-logger",[m
+             "version": "v0.9.1",[m
+[36m@@ -124,6 +68,62 @@[m
+             },[m
+             "time": "2026-05-02T13:20:19+00:00"[m
+         },[m
+[32m+[m[32m        {[m
+[32m+[m[32m            "name": "mafio69/log-viewer",[m
+[32m+[m[32m            "version": "dev-master",[m
+[32m+[m[32m            "source": {[m
+[32m+[m[32m                "type": "git",[m
+[32m+[m[32m                "url": "https://github.com/mafio69/fast-php-log-viewer.git",[m
+[32m+[m[32m                "reference": "904402fe886fde5dbc71694d64447628df37cf7d"[m
+[32m+[m[32m            },[m
+[32m+[m[32m            "dist": {[m
+[32m+[m[32m                "type": "zip",[m
+[32m+[m[32m                "url": "https://api.github.com/repos/mafio69/fast-php-log-viewer/zipball/904402fe886fde5dbc71694d64447628df37cf7d",[m
+[32m+[m[32m                "reference": "904402fe886fde5dbc71694d64447628df37cf7d",[m
+[32m+[m[32m                "shasum": ""[m
+[32m+[m[32m            },[m
+[32m+[m[32m            "require": {[m
+[32m+[m[32m                "php": ">=8.1"[m
+[32m+[m[32m            },[m
+[32m+[m[32m            "require-dev": {[m
+[32m+[m[32m                "phpunit/phpunit": "^11.0"[m
+[32m+[m[32m            },[m
+[32m+[m[32m            "default-branch": true,[m
+[32m+[m[32m            "type": "library",[m
+[32m+[m[32m            "autoload": {[m
+[32m+[m[32m                "psr-4": {[m
+[32m+[m[32m                    "Mariusz\\LogViewer\\": "src/"[m
+[32m+[m[32m                }[m
+[32m+[m[32m            },[m
+[32m+[m[32m            "autoload-dev": {[m
+[32m+[m[32m                "psr-4": {[m
+[32m+[m[32m                    "Mariusz\\LogViewer\\Tests\\": "tests/"[m
+[32m+[m[32m                }[m
+[32m+[m[32m            },[m
+[32m+[m[32m            "scripts": {[m
+[32m+[m[32m                "build": [[m
+[32m+[m[32m                    "php bin/build.php"[m
+[32m+[m[32m                ],[m
+[32m+[m[32m                "test": [[m
+[32m+[m[32m                    "vendor/bin/phpunit"[m
+[32m+[m[32m                ][m
+[32m+[m[32m            },[m
+[32m+[m[32m            "license": [[m
+[32m+[m[32m                "MIT"[m
+[32m+[m[32m            ],[m
+[32m+[m[32m            "authors": [[m
+[32m+[m[32m                {[m
+[32m+[m[32m                    "name": "Mariusz",[m
+[32m+[m[32m                    "role": "Developer"[m
+[32m+[m[32m                }[m
+[32m+[m[32m            ],[m
+[32m+[m[32m            "description": "Standalone log viewer for fast-php-logger. Drop-in single file or Composer package.",[m
+[32m+[m[32m            "support": {[m
+[32m+[m[32m                "source": "https://github.com/mafio69/fast-php-log-viewer/tree/master",[m
+[32m+[m[32m                "issues": "https://github.com/mafio69/fast-php-log-viewer/issues"[m
+[32m+[m[32m            },[m
+[32m+[m[32m            "time": "2026-06-04T13:48:00+00:00"[m
+[32m+[m[32m        },[m
+         {[m
+             "name": "mafio69/time-agent",[m
+             "version": "dev-feature/duckdb-statistics",[m
+[36m@@ -5757,7 +5757,7 @@[m
+     "aliases": [],[m
+     "minimum-stability": "stable",[m
+     "stability-flags": {[m
+[31m-        "mafio69/fast-php-log-viewer": 20,[m
+[32m+[m[32m        "mafio69/log-viewer": 20,[m
+         "mafio69/time-agent": 20[m
+     },[m
+     "prefer-stable": false,[m

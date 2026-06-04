@@ -15,6 +15,7 @@
     "require": {
         "php": ">=8.2",
         "ext-pdo": "*",
+        "mafio69/log-viewer": "^1.0",
         "mafio69/fast-php-logger": "^0.9",
         "mafio69/log-viewer": "@dev",
         "mafio69/time-agent": "@dev",

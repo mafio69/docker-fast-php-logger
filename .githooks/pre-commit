@@ -10,12 +10,12 @@ if ! command -v php &> /dev/null; then
     exit 0
 fi
 
-# Uruchom checker
-php bin/check-env-security
+# Uruchom checker tylko na staged files
+php bin/check-env-security --staged-only
 
 if [ $? -ne 0 ]; then
     echo ""
-    echo "❌ COMMIT ZABLOKOWANY - wykryto poufne dane"
+    echo "❌ COMMIT ZABLOKOWANY - wykryto poufne danych"
     echo ""
     echo "Napraw powyższe problemy i spróbuj ponownie:"
     echo "  git add ."

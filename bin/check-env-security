@@ -5,6 +5,8 @@
  * Sprawdza czy poufne dane nie wyciekły do commitowalnych plików .env
  */
 
+$stagedOnly = in_array('--staged-only', $argv);
+
 $exitCode = 0;
 $errors = [];
 
@@ -38,6 +40,16 @@ $checkedFiles = [
     '.env.example',
 ];
 
+// Jeśli --staged-only, sprawdź tylko staged files
+if ($stagedOnly) {
+    $stagedFiles = [];
+    exec('git diff --cached --name-only', $output, $returnCode);
+    if ($returnCode === 0 && is_string($output)) {
+        $stagedFiles = array_filter(explode("\n", trim($output)));
+    }
+    $checkedFiles = array_intersect($checkedFiles, $stagedFiles);
+}
+
 echo "🔍 Symfony Env Security Checker\n";
 echo "================================\n\n";
 
@@ -51,10 +63,11 @@ foreach ($checkedFiles as $file) {
 
     foreach ($secretPatterns as $pattern => $description) {
         if (preg_match($pattern, $content, $matches)) {
+            $match = is_array($matches[0]) ? $matches[0][0] : $matches[0];
             $fileErrors[] = [
                 'type' => $description,
-                'line' => findLineNumber($content, $matches[0]),
-                'match' => trim($matches[0]),
+                'line' => findLineNumber($content, $match),
+                'match' => trim($match),
             ];
         }
     }

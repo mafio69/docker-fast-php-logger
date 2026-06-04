@@ -38,6 +38,9 @@ COPY docker/supervisor.conf /etc/supervisor/conf.d/supervisord.conf
 
 WORKDIR /var/www/html
 
+# Tell Git that this directory is safe to bypass the dubious ownership error
+RUN git config --global --add safe.directory /var/www/html
+
 # Copy application
 COPY . /var/www/html
 

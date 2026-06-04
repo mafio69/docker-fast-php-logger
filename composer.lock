@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "987fb757402a111c822b053d30e97485",
+    "content-hash": "78cb9d85728fdf3a05905d537a786d6d",
     "packages": [
         {
             "name": "mafio69/log-viewer",

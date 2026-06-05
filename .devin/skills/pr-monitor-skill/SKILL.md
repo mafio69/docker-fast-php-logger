@@ -1,14 +1,13 @@
 # PR Monitor Skill
 
-Monitoruje i reaguje na Pull Requests w trzech repozytoriach projektu:
+Monitoruje i reaguje na Pull Requests w dwóch repozytoriach projektu:
 - suite (docker-fast-logger)
 - log-viewer (fast-php-log-viewer)
-- docker-env (repo z konfiguracją Dockera)
 
 ## Kiedy się aktywuje
 
 Skill aktywuje się automatycznie gdy:
-1. Utworzony zostanie nowy Pull Request w dowolnym z trzech repozytoriów
+1. Utworzony zostanie nowy Pull Request w dowolnym z dwóch repozytoriów
 2. Zmieniony zostanie status istniejącego PR (review, comment, update)
 
 ## Co robi
@@ -28,25 +27,20 @@ Skill aktywuje się automatycznie gdy:
 
 ### 1. Suite (docker-fast-logger)
 Główna aplikacja Symfony z log-viewer
-- **Trigger**: zmiany w src/, templates/, config/
+- **Trigger**: zmiany w src/, templates/, config/, composer.json
 - **Impact**: może wymagać aktualizacji log-viewer
 
 ### 2. Log-Viewer (fast-php-log-viewer)
 Samodzielna biblioteka do przeglądania logów
-- **Trigger**: zmiany w public/, src/
+- **Trigger**: zmiany w public/, src/, composer.json
 - **Impact**: może wymagać aktualizacji suite
-
-### 3. Docker Env
-Konfiguracja środowiska Docker
-- **Trigger**: zmiany w docker-compose.yml, Dockerfile
-- **Impact**: może wymagać rebuild kontenerów
 
 ## Konfiguracja
 
 Skill wymaga dostępu do GitHub API z odpowiednimi permissions:
 - `pull_requests: read`
 - `pull_requests: write` (do komentarzy)
-- `repos: read` (dla wszystkich trzech repo)
+- `repos: read` (dla obu repo)
 
 ## Przykład użycia
 
@@ -56,7 +50,7 @@ Agent automatycznie:
 → Oznaczy PR w suite jako "zależny od log-viewer#123"
 → Sugeruje aktualizację composer require
 
-# Gdy PR w docker-env zmienia Dockerfile
-→ Oznaczy wszystkie PR-y wymagające rebuild
-→ Sugeruje testy integracyjne
+# Gdy PR w suite zmienia LogViewerService
+→ Sugeruje testy jednostkowe dla log-viewer
+→ Oznaczy jako wymagające aktualizacji log-viewer
 ```

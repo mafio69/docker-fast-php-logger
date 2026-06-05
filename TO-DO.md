@@ -60,10 +60,10 @@
 
 ### 🟡 MEDIUM Priority:
 
-2. **Wyczyścić legacy files**
-   - [ ] Usunąć `app_old/` (cały katalog)
-   - [ ] Usunąć `public/mdviewer.html` (stary plik)
-   - [ ] Sprawdzić czy `app/docs-browser.php`, `app/index.php`, `app/logs.php` są używane
+2. ~~**Wyczyścić legacy files**~~ ✅
+   - ~~[ ] Usunąć `app_old/` (cały katalog)~~ ✅
+   - ~~[ ] Usunąć `public/mdviewer.html` (stary plik)~~ ✅
+   - ~~[ ] Sprawdzić czy `app/docs-browser.php`, `app/index.php`, `app/logs.php` są używane~~ ✅
 
 3. **Poprawić MdViewer template path**
    - [ ] Sprawdzić czy templates ładują się poprawnie w kontenerze

@@ -51,6 +51,10 @@ jobs:
           echo "No changes in log viewer version"
         fi
     
+    - name: Clear Symfony cache
+      if: steps.check-changes.outputs.changed == 'true'
+      run: php bin/console cache:clear --no-warmup || true
+    
     - name: Commit and push changes
       if: steps.check-changes.outputs.changed == 'true'
       run: |

@@ -68,6 +68,16 @@
         ],
         "test:integration": [
             "phpunit -c phpunit.xml.dist --testsuite Integration"
+        ],
+        "cache:clear": [
+            "php bin/console cache:clear"
+        ],
+        "cache:warmup": [
+            "php bin/console cache:warmup"
+        ],
+        "cache:clear-warmup": [
+            "@cache:clear",
+            "@cache:warmup"
         ]
     },
     "autoload": {

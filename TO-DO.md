@@ -69,9 +69,9 @@
    - [ ] Sprawdzić czy templates ładują się poprawnie w kontenerze
    - [ ] Jeśli nie - poprawić ścieżkę w MdViewerController
 
-4. **Dodać cache clearing do workflow**
-   - [ ] Opcjonalnie: dodać `cache:clear` do composer scripts
-   - [ ] Lub: dokumentacja w README jak czyścić cache
+4. ~~**Dodać cache clearing do workflow**~~ ✅
+   - ~~[ ] Opcjonalnie: dodać `cache:clear` do composer scripts~~ ✅
+   - ~~[ ] Lub: dokumentacja w README jak czyścić cache~~ ✅
 
 ### 🟢 LOW Priority:
 
@@ -131,6 +131,11 @@ composer test
 - Log viewer używa teraz `dev-master` - może wymagać ręcznego update czasem
 - PR Monitor agent jest skonfigurowany ale nie aktywny (wymaga dodatkowej konfiguracji GitHub)
 - Wszystkie legacy files usunięte - czysta struktura Symfony
+- **Nowe composer scripts dla cache:**
+  - `composer cache:clear` - czyści cache
+  - `composer cache:warmup` - nagrzewa cache
+  - `composer cache:clear-warmup` - czyści i nagrzewa cache
+- **GitHub Actions automatycznie czyści cache** po aktualizacji log-viewer
 
 ---
 Ocena

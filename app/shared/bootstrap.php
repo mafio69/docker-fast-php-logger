@@ -1,7 +1,0 @@
-<?php
-
-declare(strict_types=1);
-
-set_error_handler(static function (int $severity, string $message, string $file, int $line): bool {
-    throw new ErrorException($message, 0, $severity, $file, $line);
-});

@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "c0bcb4649066d5ac3e85795cdae6ddb9",
+    "content-hash": "8871661a75d787aa3f2f6b23061abeda",
     "packages": [
         {
             "name": "mafio69/fast-php-logger",
@@ -74,15 +74,18 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/mafio69/fast-php-log-viewer.git",
-                "reference": "904402fe886fde5dbc71694d64447628df37cf7d"
+                "reference": "9830607c36bdd94699ad7ff59157f5eb0bfd515f"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/mafio69/fast-php-log-viewer/zipball/904402fe886fde5dbc71694d64447628df37cf7d",
-                "reference": "904402fe886fde5dbc71694d64447628df37cf7d",
+                "url": "https://api.github.com/repos/mafio69/fast-php-log-viewer/zipball/9830607c36bdd94699ad7ff59157f5eb0bfd515f",
+                "reference": "9830607c36bdd94699ad7ff59157f5eb0bfd515f",
                 "shasum": ""
             },
             "require": {
+                "ext-pdo": "*",
+                "ext-pdo_sqlite": "*",
+                "ext-ssh2": "*",
                 "php": ">=8.1"
             },
             "require-dev": {
@@ -92,7 +95,10 @@
             "type": "library",
             "autoload": {
                 "psr-4": {
-                    "Mariusz\\LogViewer\\": "src/"
+                    "Mariusz\\LogViewer\\Controller\\": "src/Controller/",
+                    "Mariusz\\LogViewer\\Service\\": "src/Service/",
+                    "Mariusz\\LogViewer\\Repository\\": "src/Repository/",
+                    "Mariusz\\LogViewer\\Config\\": "src/Config/"
                 }
             },
             "autoload-dev": {
@@ -122,7 +128,7 @@
                 "source": "https://github.com/mafio69/fast-php-log-viewer/tree/master",
                 "issues": "https://github.com/mafio69/fast-php-log-viewer/issues"
             },
-            "time": "2026-06-04T13:48:00+00:00"
+            "time": "2026-06-05T07:35:00+00:00"
         },
         {
             "name": "mafio69/time-agent",

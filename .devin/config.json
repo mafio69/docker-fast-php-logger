@@ -1,0 +1,33 @@
+{
+  "agent": {
+    "name": "Suite PR Monitor",
+    "description": "Monitoruje PR w repozytoriach suite i log-viewer",
+    "skills": ["pr-monitor-skill"],
+    "triggers": {
+      "github": {
+        "events": ["pull_request", "pull_request_review"],
+        "repositories": [
+          "mafio69/docker-fast-php-logger",
+          "mafio69/fast-php-log-viewer"
+        ]
+      }
+    },
+    "actions": {
+      "on_pr_created": "analyze_dependencies",
+      "on_pr_updated": "check_impact",
+      "on_pr_approved": "prepare_merge"
+    }
+  },
+  "repositories": {
+    "suite": {
+      "name": "docker-fast-php-logger",
+      "url": "https://github.com/mafio69/docker-fast-php-logger",
+      "branch": "feature/duckdb-statistics"
+    },
+    "log-viewer": {
+      "name": "fast-php-log-viewer",
+      "url": "https://github.com/mafio69/fast-php-log-viewer",
+      "branch": "master"
+    }
+  }
+}

@@ -60,10 +60,10 @@
 
 ### 🟡 MEDIUM Priority:
 
-2. **Wyczyścić legacy files**
-   - [ ] Usunąć `app_old/` (cały katalog)
-   - [ ] Usunąć `public/mdviewer.html` (stary plik)
-   - [ ] Sprawdzić czy `app/docs-browser.php`, `app/index.php`, `app/logs.php` są używane
+2. ~~**Wyczyścić legacy files**~~ ✅
+   - ~~[ ] Usunąć `app_old/` (cały katalog)~~ ✅
+   - ~~[ ] Usunąć `public/mdviewer.html` (stary plik)~~ ✅
+   - ~~[ ] Sprawdzić czy `app/docs-browser.php`, `app/index.php`, `app/logs.php` są używane~~ ✅
 
 3. **Poprawić MdViewer template path**
    - [ ] Sprawdzić czy templates ładują się poprawnie w kontenerze
@@ -82,7 +82,57 @@
 
 ---
 
-Problem
+## KONTYNUACJA PRACY PO PRZERWIE 🔄
+
+### Aktualny status (2026-06-05):
+- **Branch**: `feature/duckdb-statistics`
+- **Ostatnie commit**: `2d1278e` (wszystko pushed)
+- **Aplikacja**: Działa poprawnie (localhost:8082)
+- **Testy**: 11/11 przechodzą
+- **Log Viewer**: Zaktualizowany do dev-master, zielona skórka CRT działa
+
+### Co zrobione w ostatniej sesji:
+1. ✅ Log Viewer - pełna naprawa i aktualizacja
+2. ✅ Czyszczenie legacy files (app/, viewer/, home/, patches/)
+3. ✅ Testy dla LogController i LogViewerService
+4. ✅ GitHub Actions do auto-update log-viewer
+5. ✅ PR Monitor skill/config (dla przyszłego wykorzystania)
+6. ✅ Dokumentacja zaktualizowana
+
+### Pierwsze kroki po powrocie:
+```bash
+# 1. Sprawdź status
+git status
+git pull origin feature/duckdb-statistics
+
+# 2. Uruchom kontener
+docker-compose up -d
+
+# 3. Sprawdź czy działa
+curl http://localhost:8082/logs
+
+# 4. Uruchom testy
+composer test
+```
+
+### Następne zadania (priorytet):
+1. **Poprawić MdViewer template path** (jeśli potrzebne)
+2. **Dodać cache clearing do workflow** (opcjonalne)
+3. **Code Review / PR** - merge do master
+
+### Ważne pliki:
+- `TO-DO.md` - ten plik
+- `composer.json` - zaktualizowany do dev-master log-viewer
+- `src/Service/LogViewerService.php` - nowe ścieżki log-viewer
+- `.github/workflows/update-log-viewer.yml` - auto-update
+- `.devin/config.json` - PR Monitor agent
+
+### Uwagi:
+- Log viewer używa teraz `dev-master` - może wymagać ręcznego update czasem
+- PR Monitor agent jest skonfigurowany ale nie aktywny (wymaga dodatkowej konfiguracji GitHub)
+- Wszystkie legacy files usunięte - czysta struktura Symfony
+
+---
 Ocena
 Komentarz
 React vs. Vue.js prioritet

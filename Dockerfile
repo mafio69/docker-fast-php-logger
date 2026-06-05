@@ -1,30 +1,5 @@
-FROM php:8.4-fpm-alpine
-
-# Install dependencies
-RUN apk add --no-cache \
-    nginx \
-    bash \
-    curl \
-    git \
-    unzip \
-    sqlite \
-    sqlite-dev \
-    oniguruma-dev \
-    libzip-dev \
-    tzdata \
-    supervisor \
-    linux-headers \
-    openssh-client \
-    openssh-server \
-    sshpass \
-    && docker-php-ext-install pdo pdo_sqlite pdo_mysql sockets pcntl
-
-# Timezone
-ENV TZ=Europe/Warsaw
-RUN cp /usr/share/zoneinfo/Europe/Warsaw /etc/localtime
-
-# Install Composer
-COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
+ARG BASE_IMAGE=mafio69/php-env:8.4-fpm-alpine
+FROM ${BASE_IMAGE}
 
 # Nginx config
 COPY docker/nginx.conf /etc/nginx/nginx.conf
@@ -37,6 +12,9 @@ RUN mkdir -p /etc/supervisor/conf.d
 COPY docker/supervisor.conf /etc/supervisor/conf.d/supervisord.conf
 
 WORKDIR /var/www/html
+
+# Tell Git that this directory is safe to bypass the dubious ownership error
+RUN git config --global --add safe.directory /var/www/html
 
 # Copy application
 COPY . /var/www/html

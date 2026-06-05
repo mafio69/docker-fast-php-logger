@@ -15,7 +15,7 @@
     "require": {
         "php": ">=8.2",
         "ext-pdo": "*",
-        "mafio69/log-viewer": "^1.0",
+        "mafio69/log-viewer": "dev-master",
         "mafio69/fast-php-logger": "^0.9",
         "mafio69/time-agent": "@dev",
         "symfony/asset": "^7.0",
@@ -34,6 +34,7 @@
     "require-dev": {
         "laravel/pint": "^1.10",
         "phpunit/phpunit": "^11.0",
+        "symfony/browser-kit": "^8.1",
         "symfony/debug-bundle": "^7.0",
         "symfony/phpunit-bridge": "^7.0",
         "symfony/web-profiler-bundle": "^7.0"

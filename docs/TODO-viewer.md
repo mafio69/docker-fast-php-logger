@@ -10,7 +10,7 @@ Entry point: `viewer/index.php` → deleguje do `vendor/mafio69/log-viewer`.
 - `viewer/index.php` — 10 linii, definiuje `LOG_DIR`, ładuje autoloader, routuje `?action=` do API albo renderuje UI
 - API: `vendor/mafio69/log-viewer/src/api.php` (patch w `patches/api.php`)
 - UI: `vendor/mafio69/log-viewer/index.php`
-- Dev override volume: `../PhpstormProjects/fast-php-log-viewer` montowany w docker-compose
+- Dev override volume: `../PhpstormProjects/log-viewer` montowany w docker-compose
 
 ## Z audytu — problemy do rozwiązania
 

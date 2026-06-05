@@ -1,16 +1,21 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/11.0/phpunit.xsd"
-         bootstrap="vendor/autoload.php"
+         bootstrap="tests/bootstrap.php"
          colors="true"
          cacheDirectory=".phpunit.cache"
 >
+    <php>
+        <env name="KERNEL_CLASS" value="App\Kernel"/>
+        <env name="APP_ENV" value="test"/>
+        <env name="SYMFONY_PHPUNIT_REMOVE" value=""/>
+        <env name="SYMFONY_PHPUNIT_VERSION" value="11.5"/>
+    </php>
     <testsuites>
         <testsuite name="Unit">
             <directory>tests/Unit</directory>
-        </testsuite>
-        <testsuite name="Integration">
-            <directory>tests/Integration</directory>
+            <directory>tests/Controller</directory>
+            <directory>tests/Service</directory>
         </testsuite>
     </testsuites>
 
@@ -19,10 +24,4 @@
             <directory>src</directory>
         </include>
     </source>
-
-    <coverage>
-        <report>
-            <text outputFile="php://stdout"/>
-        </report>
-    </coverage>
 </phpunit>

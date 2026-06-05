@@ -1,0 +1,13 @@
+# Common exclusions
+.git
+.gitignore
+.gitattributes
+.github
+.idea
+.vscode
+.phpunit.cache
+node_modules
+tests
+*.md
+.env.local
+.env.*.local

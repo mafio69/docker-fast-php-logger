@@ -1,5 +1,5 @@
 # TO-DO — docker-fast-logger
-
+Bardzo ważne fast-php-log-viewer to inna aplikacja z innego repo niż docker-fast-logger. I tak ma działać - zmiany w viewer robimy w repo viewer a docker-fast-logger. samą przegladarkę logów instaluje się przez composer-a
 ## Completed Issues ✅
 
 ### nginx Configuration

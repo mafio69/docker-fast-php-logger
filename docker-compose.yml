@@ -23,7 +23,7 @@ services:
       - DB_PORT=${DB_PORT:-3306}
       - DB_DATABASE=${DB_DATABASE:-devbox}
       - DB_USERNAME=${DB_USERNAME:-devbox}
-      - DB_PASSWORD=${DB_PASSWORD:-devbox}
+      - DB_PASSWORD=${DB_PASSWORD:-changeme}
     networks:
       - devbox-net
     restart: unless-stopped
@@ -37,10 +37,10 @@ services:
     env_file:
       - .env
     environment:
-      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD:-root}
+      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD:-changeme}
       - MYSQL_DATABASE=${DB_DATABASE:-devbox}
       - MYSQL_USER=${DB_USERNAME:-devbox}
-      - MYSQL_PASSWORD=${DB_PASSWORD:-devbox}
+      - MYSQL_PASSWORD=${DB_PASSWORD:-changeme}
     volumes:
       - mysql_data:/var/lib/mysql
     networks:

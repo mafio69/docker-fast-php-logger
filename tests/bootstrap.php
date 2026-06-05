@@ -2,20 +2,16 @@
 
 declare(strict_types=1);
 
-// Autoload time-agent vendor (Symfony Console etc.)
-$timeAgentAutoload = __DIR__ . '/../time-agent/vendor/autoload.php';
-if (file_exists($timeAgentAutoload)) {
-    require_once $timeAgentAutoload;
+use Symfony\Component\Dotenv\Dotenv;
+
+require dirname(__DIR__).'/vendor/autoload.php';
+
+if (file_exists(dirname(__DIR__).'/config/bootstrap.php')) {
+    require dirname(__DIR__).'/config/bootstrap.php';
+} elseif (method_exists(Dotenv::class, 'bootEnv')) {
+    (new Dotenv())->bootEnv(dirname(__DIR__).'/.env');
 }
 
-// Register PSR-4 autoloader for app/src classes
-spl_autoload_register(function (string $class): void {
-    $prefix = 'App\\Logger\\';
-    if (str_starts_with($class, $prefix)) {
-        $relative = substr($class, strlen($prefix));
-        $file = __DIR__ . '/../app/src/' . str_replace('\\', '/', $relative) . '.php';
-        if (file_exists($file)) {
-            require_once $file;
-        }
-    }
-});
+if ($_SERVER['APP_DEBUG']) {
+    umask(0000);
+}

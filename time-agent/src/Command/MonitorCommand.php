@@ -1,5 +1,5 @@
 <?php
-namespace App\Command;
+namespace Mafio69\TimeAgent\Command;
 
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;

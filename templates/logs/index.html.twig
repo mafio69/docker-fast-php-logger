@@ -1,0 +1,539 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Log Viewer{% endblock %}
+
+{% block stylesheets %}
+<style>
+:root {
+    --bg: #0a0a0a;
+    --green: #00ff41;
+    --green-dim: #008f11;
+    --green-dark: #003b00;
+    --red: #ff0040;
+    --yellow: #ffee00;
+    --cyan: #00ffff;
+    --gray: #666;
+    --white: #e0e0e0;
+}
+body {
+    background: var(--bg);
+    color: var(--green);
+    font-family: 'JetBrains Mono', 'Consolas', monospace;
+    font-size: 13px;
+    line-height: 1.6;
+    min-height: 100vh;
+    padding: 20px;
+    margin: 0;
+}
+header {
+    border-bottom: 1px solid var(--green-dim);
+    padding-bottom: 15px;
+    margin-bottom: 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+.logo { font-size: 20px; font-weight: bold; letter-spacing: 3px; }
+.stats { display: flex; gap: 20px; font-size: 11px; color: var(--gray); }
+.controls {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+    align-items: center;
+    padding: 15px;
+    border: 1px solid var(--green-dark);
+    background: rgba(0, 59, 0, 0.1);
+}
+.control-group { display: flex; align-items: center; gap: 8px; }
+.control-group label {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--green-dim);
+}
+input, select {
+    background: var(--bg);
+    border: 1px solid var(--green-dim);
+    color: var(--green);
+    padding: 6px 12px;
+    font-family: inherit;
+    font-size: 12px;
+    outline: none;
+}
+input:focus, select:focus { border-color: var(--green); box-shadow: 0 0 8px var(--green-dim); }
+.log-container {
+    border: 1px solid var(--green-dark);
+    background: rgba(0, 0, 0, 0.5);
+    max-height: 70vh;
+    overflow-y: auto;
+}
+.log-line {
+    padding: 8px 15px;
+    border-bottom: 1px solid var(--green-dark);
+    font-size: 12px;
+    display: flex;
+    gap: 15px;
+}
+.log-date { color: var(--gray); min-width: 160px; }
+.log-level {
+    min-width: 70px;
+    text-align: center;
+    padding: 2px 8px;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    border: 1px solid;
+}
+.log-location { color: var(--cyan); min-width: 150px; }
+.log-message { flex: 1; color: var(--white); }
+.log-raw { color: var(--gray); font-style: italic; }
+.level-DEBUG { color: #6a9fb5; border-color: #6a9fb5; }
+.level-INFO { color: #90a959; border-color: #90a959; }
+.level-WARNING { color: #f4bf75; border-color: #f4bf75; }
+.level-ERROR { color: #ac4142; border-color: #ac4142; }
+.level-CRITICAL { color: #ff5f5f; border-color: #ff5f5f; }
+.empty {
+    text-align: center;
+    padding: 60px 20px;
+    color: var(--gray);
+}
+.json-block {
+    background: rgba(0, 0, 0, 0.8);
+    border-left: 2px solid var(--green-dim);
+    padding: 10px;
+    margin-top: 5px;
+    font-size: 11px;
+    color: var(--gray);
+    white-space: pre-wrap;
+    word-break: break-all;
+}
+
+/* Toggle Switches */
+.toggle-switch {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+.toggle-switch input {
+    display: none;
+}
+.toggle-slider {
+    padding: 4px 12px;
+    border: 1px solid;
+    border-radius: 3px;
+    opacity: 0.4;
+    transition: all 0.2s;
+    user-select: none;
+}
+.toggle-switch input:checked + .toggle-slider {
+    opacity: 1;
+    box-shadow: 0 0 8px currentColor;
+}
+.toggle-slider.level-DEBUG { color: #6a9fb5; border-color: #6a9fb5; }
+.toggle-slider.level-INFO { color: #90a959; border-color: #90a959; }
+.toggle-slider.level-WARNING { color: #f4bf75; border-color: #f4bf75; }
+.toggle-slider.level-ERROR { color: #ac4142; border-color: #ac4142; }
+.toggle-slider.level-CRITICAL { color: #ff5f5f; border-color: #ff5f5f; }
+
+/* Hint icon */
+.hint-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: var(--green-dark);
+    color: var(--green);
+    font-size: 12px;
+    cursor: pointer;
+    margin-left: 5px;
+    border: 1px solid var(--green-dim);
+}
+.hint-icon:hover {
+    background: var(--green-dim);
+    color: var(--bg);
+}
+
+/* DataTable Styling Enhancements */
+.log-line { transition: background 0.1s; }
+.log-line:hover { background: rgba(0, 143, 17, 0.15); }
+.log-line.hidden { display: none; }
+.log-date { font-family: 'JetBrains Mono', monospace; font-size: 11px; }
+.log-level { border-radius: 2px; font-weight: bold; }
+.log-location { font-family: 'JetBrains Mono', monospace; font-size: 11px; }
+.log-message { font-family: 'JetBrains Mono', monospace; font-size: 11px; word-break: break-word; }
+.log-raw { flex: 1; font-family: 'JetBrains Mono', monospace; font-size: 11px; }
+.level-DEBUG { background: rgba(106, 159, 181, 0.1); }
+.level-INFO { background: rgba(144, 169, 89, 0.1); }
+.level-WARNING { background: rgba(244, 191, 117, 0.1); }
+.level-ERROR { background: rgba(172, 65, 66, 0.1); }
+.level-CRITICAL { background: rgba(255, 95, 95, 0.1); }
+
+/* Table Header */
+.log-header {
+    display: flex;
+    gap: 15px;
+    padding: 10px 15px;
+    background: var(--green-dark);
+    border-bottom: 2px solid var(--green-dim);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--green);
+    font-weight: bold;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+}
+.log-header .col-date { min-width: 160px; }
+.log-header .col-level { min-width: 70px; text-align: center; }
+.log-header .col-location { min-width: 150px; }
+.log-header .col-message { flex: 1; }
+</style>
+{% endblock %}
+
+{% block body %}
+<header>
+    <div class="logo">LOG VIEWER {% if ssh_connection %}<span style="color: var(--cyan);">[SSH: {{ ssh_connection.name }}]</span>{% endif %}</div>
+    <div class="stats">
+        <span>DATE RANGE: {{ date_range }}</span>
+        <span>FILES: {{ loaded_files|length }}</span>
+        <span>LINES: {{ lines|length }}</span>
+    </div>
+</header>
+
+<form method="get" class="controls">
+    <div class="control-group">
+        <label>SSH Connection</label>
+        <select name="ssh" onchange="this.form.submit()">
+            <option value="">-- Local --</option>
+            {% for conn in ssh_connections %}
+                <option value="{{ conn.id }}" {% if conn.id == ssh_id %}selected{% endif %}>{{ conn.name }} ({{ conn.username }}@{{ conn.host }})</option>
+            {% else %}
+                <option value="" disabled>(brak zapisanych połączeń)</option>
+            {% endfor %}
+        </select>
+    </div>
+
+    {% if not ssh_connection %}
+    <div class="control-group">
+        <label>Directory</label>
+        <select name="dir" onchange="this.form.submit()">
+            {% for key, path in directories %}
+                <option value="{{ key }}" {% if key == dir_key %}selected{% endif %}>{{ key }}</option>
+            {% endfor %}
+        </select>
+    </div>
+    {% endif %}
+
+    <div class="control-group" style="margin-left: auto;">
+        <button type="button" class="page-btn" onclick="toggleSshForm()">+ Dodaj SSH</button>
+    </div>
+    <div class="control-group">
+        <label>Date From</label>
+        <input type="date" name="from" value="{{ date_from }}" min="{{ min_date }}" max="{{ max_date }}">
+    </div>
+    <div class="control-group">
+        <label>Date To</label>
+        <input type="date" name="to" value="{{ date_to }}" min="{{ min_date }}" max="{{ max_date }}">
+    </div>
+    <div class="control-group">
+        <label>File</label>
+        <select name="file" onchange="this.form.submit()" style="max-width: 300px;">
+            <option value="">-- All date files --</option>
+            <optgroup label="PHP files">
+                {% for rel, file in all_files %}
+                    {% if rel ends with '.php' %}
+                        <option value="{{ rel }}" {% if rel == selected_file %}selected{% endif %}>{{ rel }}</option>
+                    {% endif %}
+                {% endfor %}
+            </optgroup>
+            <optgroup label="Log files">
+                {% for rel, file in all_files %}
+                    {% if rel ends with '.log' %}
+                        <option value="{{ rel }}" {% if rel == selected_file %}selected{% endif %}>{{ rel }}</option>
+                    {% endif %}
+                {% endfor %}
+            </optgroup>
+            <optgroup label="Other">
+                {% for rel, file in all_files %}
+                    {% if not (rel ends with '.php' or rel ends with '.log') %}
+                        <option value="{{ rel }}" {% if rel == selected_file %}selected{% endif %}>{{ rel }}</option>
+                    {% endif %}
+                {% endfor %}
+            </optgroup>
+        </select>
+    </div>
+    <div class="control-group">
+        <button type="submit" class="page-btn">Filter</button>
+    </div>
+</form>
+
+<!-- SSH Connection Form -->
+<div id="ssh-form" class="controls" style="display: none; border-color: var(--cyan); flex-wrap: wrap;">
+    <h3 style="margin: 0 0 15px 0; color: var(--cyan); font-size: 14px; text-transform: uppercase; letter-spacing: 2px; width: 100%;">Nowe połączenie SSH</h3>
+    <div class="control-group">
+        <label>Adres (user@host)</label>
+        <input type="text" id="ssh-address" placeholder="mariusz@server.pl" style="width: 200px;">
+    </div>
+    <div class="control-group">
+        <label>Typ auth</label>
+        <select id="ssh-auth-type" onchange="toggleAuthFields()" style="width: 100px;">
+            <option value="key">Klucz</option>
+            <option value="password">Hasło</option>
+        </select>
+        <span class="hint-icon" onclick="toggleAuthHint()" title="Co wybrać?">ⓘ</span>
+    </div>
+
+    <!-- Auth Type Hint -->
+    <div id="auth-hint" class="controls" style="display: none; border-color: var(--yellow); background: rgba(255, 238, 0, 0.05); width: 100%; margin-top: -10px;">
+        <div style="font-size: 11px; line-height: 1.5;">
+            <div style="margin-bottom: 8px;"><strong style="color: var(--cyan);">KLUCZ SSH (zalecany)</strong></div>
+            <div style="color: var(--green);">✓ Bezpieczniejszy - klucz nie jest przesyłany przez sieć</div>
+            <div style="color: var(--green);">✓ Automatyczne logowanie bez wpisywania hasła</div>
+            <div style="color: var(--green);">✓ Można go wyłączyć/usunąć w każdej chwili</div>
+            <div style="color: var(--yellow);">⚠ Wymaga wygenerowania pary kluczy (ssh-keygen)</div>
+            <div style="color: var(--yellow);">⚠ Klucz prywatny musi być w ~/.ssh na serwerze</div>
+            <div style="margin-top: 10px; margin-bottom: 8px;"><strong style="color: var(--cyan);">HASŁO</strong></div>
+            <div style="color: var(--green);">✓ Prostsze w użyciu - działa od razu</div>
+            <div style="color: var(--green);">✓ Nie wymaga konfiguracji na serwerze</div>
+            <div style="color: var(--red);">✗ Mniej bezpieczne - hasło przesyłane przez sieć</div>
+            <div style="color: var(--red);">✗ Musi być przechowywane w bazie danych (zaszyfrowane)</div>
+            <div style="color: var(--red);">✗ Niektóre serwery wyłączają logowanie hasłem</div>
+        </div>
+    </div>
+    <div class="control-group" id="ssh-key-group">
+        <label>Ścieżka klucza</label>
+        <input type="text" id="ssh-key-path" placeholder="~/.ssh/id_rsa" value="~/.ssh/id_rsa" style="width: 180px;">
+        <span class="hint-icon" onclick="toggleKeyHint()" title="Jak to działa?">ⓘ</span>
+    </div>
+
+    <!-- Key Path Hint -->
+    <div id="key-hint" class="controls" style="display: none; border-color: var(--cyan); background: rgba(0, 255, 255, 0.05); width: 100%; margin-top: -10px;">
+        <div style="font-size: 11px; line-height: 1.5; color: var(--cyan);">
+            <strong>Jak to działa z Dockerem:</strong><br>
+            Twój katalog <code>~/.ssh</code> z hosta jest montowany do kontenera.<br>
+            Ścieżka <code>~/.ssh/id_rsa</code> zostanie automatycznie zamieniona na ścieżkę w kontenerze.<br><br>
+            <strong>Wymagania:</strong><br>
+            • Klucz musi istnieć w <code>~/.ssh/</code> na Twoim komputerze<br>
+            • Uprawnienia klucza: <code>chmod 600 ~/.ssh/id_rsa</code><br>
+            • Klucz publiczny musi być dodany do <code>~/.ssh/authorized_keys</code> na serwerze zdalnym<br>
+            • Jeśli nie masz klucza: <code>ssh-keygen -t rsa -b 4096</code>
+        </div>
+    </div>
+    <div class="control-group" id="ssh-password-group" style="display: none;">
+        <label>Hasło</label>
+        <input type="password" id="ssh-password" placeholder="hasło" style="width: 150px;">
+    </div>
+    <div class="control-group">
+        <label>Ścieżka logów</label>
+        <input type="text" id="ssh-path" placeholder="/var/log" value="/var/log" style="width: 150px;">
+    </div>
+    <div class="control-group">
+        <label>Port</label>
+        <input type="number" id="ssh-port" value="22" style="width: 60px;">
+    </div>
+    <div class="control-group">
+        <button type="button" class="page-btn" onclick="saveSshConnection()" style="border-color: var(--cyan); color: var(--cyan);">Zapisz</button>
+        <button type="button" class="page-btn" onclick="toggleSshForm()">Anuluj</button>
+    </div>
+    <div id="ssh-status" style="width: 100%; margin-top: 10px; font-size: 11px;"></div>
+</div>
+
+{% if ssh_connection %}
+<div style="margin-bottom: 15px; font-size: 11px; color: var(--cyan);">
+    SSH: {{ ssh_connection.username }}@{{ ssh_connection.host }}<br>
+    Log path: {{ ssh_connection.log_path }}<br>
+    {% if ssh_connection.key_path %}
+    Key: {{ ssh_connection.key_path }}<br>
+    {% endif %}
+    Files found: <strong>{{ all_files|length }}</strong>
+</div>
+{% endif %}
+
+{% if loaded_files %}
+<div style="margin-bottom: 15px; font-size: 11px; color: var(--gray);">
+    LOADED: {{ loaded_files|join(', ') }}
+</div>
+{% endif %}
+
+{% if ssh_connection and all_files is empty %}
+<div style="margin-bottom: 15px; padding: 15px; border: 1px solid var(--red); color: var(--red); font-size: 12px;">
+    <strong>No files found via SSH</strong><br>
+    Check:<br>
+    1. SSH connection works (user@host: {{ ssh_connection.username }}@{{ ssh_connection.host }})<br>
+    2. Log path exists on remote server: {{ ssh_connection.log_path }}<br>
+    3. SSH key permissions (chmod 600)<br>
+    4. Try running manually:<br>
+    <code style="background: rgba(0,0,0,0.3); padding: 2px 5px; display: inline-block; margin-top: 5px;">
+        ssh -i ~/.ssh/{{ ssh_connection.key_path|default('id_rsa')|split('/')|last }} {{ ssh_connection.username }}@{{ ssh_connection.host }} "ls -la {{ ssh_connection.log_path }}"
+    </code><br><br>
+    <strong style="color: var(--yellow);">Note:</strong> Use full paths like <code>/home/username/logs</code> instead of <code>~/logs</code>
+</div>
+{% endif %}
+
+<!-- Level Filters -->
+<div class="controls" style="justify-content: flex-start; gap: 20px;">
+    <span style="font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: var(--green-dim);">Filtry poziomów:</span>
+    {% for level in ['DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL'] %}
+    <label class="toggle-switch">
+        <input type="checkbox" class="level-filter" value="{{ level }}" checked onchange="applyLevelFilters()">
+        <span class="toggle-slider level-{{ level }}">{{ level }}</span>
+    </label>
+    {% endfor %}
+</div>
+
+<div class="log-container">
+    {% if lines is empty %}
+        <div class="empty">NO LOG ENTRIES FOUND</div>
+    {% else %}
+        <div class="log-header">
+            <div class="col-date">Datetime</div>
+            <div class="col-level">Level</div>
+            <div class="col-location">Location</div>
+            <div class="col-message">Message</div>
+        </div>
+        {% for line in lines %}
+            <div class="log-line" data-level="{{ line.level|default('RAW') }}">
+                {% if line.raw is defined %}
+                    <span class="log-raw">{{ line.raw }}</span>
+                {% else %}
+                    <span class="log-date">{{ line.date }}</span>
+                    <span class="log-level level-{{ line.level }}">{{ line.level }}</span>
+                    <span class="log-location">{{ line.location }}</span>
+                    <span class="log-message">{{ line.message }}</span>
+                {% endif %}
+            </div>
+            {% if line.json is defined and line.json %}
+                <div class="json-block">{{ line.json }}</div>
+            {% endif %}
+        {% endfor %}
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block javascripts %}
+<script>
+document.querySelectorAll('input[type="date"]').forEach(input => {
+    input.addEventListener('change', () => input.closest('form').submit());
+});
+
+function toggleSshForm() {
+    const form = document.getElementById('ssh-form');
+    form.style.display = form.style.display === 'none' ? 'flex' : 'none';
+}
+
+function toggleAuthFields() {
+    const authType = document.getElementById('ssh-auth-type').value;
+    document.getElementById('ssh-key-group').style.display = authType === 'key' ? 'flex' : 'none';
+    document.getElementById('ssh-password-group').style.display = authType === 'password' ? 'flex' : 'none';
+}
+
+function toggleAuthHint() {
+    const hint = document.getElementById('auth-hint');
+    hint.style.display = hint.style.display === 'none' ? 'flex' : 'none';
+}
+
+function toggleKeyHint() {
+    const hint = document.getElementById('key-hint');
+    hint.style.display = hint.style.display === 'none' ? 'flex' : 'none';
+}
+
+function applyLevelFilters() {
+    const checkboxes = document.querySelectorAll('.level-filter');
+    const enabledLevels = Array.from(checkboxes)
+        .filter(cb => cb.checked)
+        .map(cb => cb.value);
+
+    let visibleCount = 0;
+    document.querySelectorAll('.log-line').forEach(line => {
+        const level = line.dataset.level || 'RAW';
+        if (enabledLevels.includes(level)) {
+            line.classList.remove('hidden');
+            visibleCount++;
+        } else {
+            line.classList.add('hidden');
+        }
+    });
+
+    // Update stats if visible
+    const stats = document.querySelector('.stats');
+    if (stats && !stats.querySelector('.filtered-count')) {
+        stats.innerHTML += ' | <span class="filtered-count" style="color: var(--cyan);">FILTERED: ' + visibleCount + '</span>';
+    } else if (stats) {
+        const filteredSpan = stats.querySelector('.filtered-count');
+        if (filteredSpan) filteredSpan.textContent = 'FILTERED: ' + visibleCount;
+    }
+}
+
+async function saveSshConnection() {
+    const address = document.getElementById('ssh-address').value.trim();
+    const authType = document.getElementById('ssh-auth-type').value;
+    const password = document.getElementById('ssh-password').value;
+    const keyPath = document.getElementById('ssh-key-path').value.trim();
+    const path = document.getElementById('ssh-path').value.trim() || '/var/log';
+    const port = parseInt(document.getElementById('ssh-port').value) || 22;
+    const status = document.getElementById('ssh-status');
+
+    if (!address) {
+        status.innerHTML = '<span style="color: var(--red);">Adres jest wymagany</span>';
+        return;
+    }
+
+    if (authType === 'password' && !password) {
+        status.innerHTML = '<span style="color: var(--red);">Hasło jest wymagane</span>';
+        return;
+    }
+
+    if (authType === 'key' && !keyPath) {
+        status.innerHTML = '<span style="color: var(--red);">Ścieżka klucza jest wymagana</span>';
+        return;
+    }
+
+    // Parse user@host
+    const match = address.match(/^([^@]+)@(.+)$/);
+    if (!match) {
+        status.innerHTML = '<span style="color: var(--red);">Nieprawidłowy format. Użyj: user@host</span>';
+        return;
+    }
+
+    const username = match[1];
+    const host = match[2];
+    const name = host.split('.')[0]; // Use first part of hostname as name
+
+    status.innerHTML = '<span style="color: var(--cyan);">Zapisywanie...</span>';
+
+    try {
+        const response = await fetch('/api/ssh-connections', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                name: name,
+                host: host,
+                username: username,
+                password: authType === 'password' ? password : '',
+                key_path: authType === 'key' ? keyPath : '',
+                log_path: path,
+                port: port
+            })
+        });
+
+        const data = await response.json();
+
+        if (response.ok && data.success) {
+            status.innerHTML = '<span style="color: var(--green);">Zapisano! Odświeżam...</span>';
+            setTimeout(() => window.location.reload(), 1000);
+        } else {
+            status.innerHTML = '<span style="color: var(--red);">Błąd: ' + (data.error || 'Nieznany błąd') + '</span>';
+        }
+    } catch (e) {
+        status.innerHTML = '<span style="color: var(--red);">Błąd połączenia: ' + e.message + '</span>';
+    }
+}
+</script>
+{% endblock %}

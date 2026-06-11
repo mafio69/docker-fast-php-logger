@@ -1,0 +1,23 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Dashboard{% endblock %}
+
+{% block body %}
+<h1>Developer Suite Dashboard</h1>
+
+<div class="stats">
+    <p>PHP: {{ php_version }}</p>
+    <p>Environment: {{ env }}</p>
+    <p>Database: {{ db_status }}</p>
+    <p>Date: {{ date }}</p>
+</div>
+
+<div class="links">
+    <h2>Services:</h2>
+    <ul>
+        <li><a href="/mdviewer">MD Viewer</a></li>
+        <li><a href="/logviewer">Log Viewer</a></li>
+        <li><a href="http://localhost:8025" target="_blank">Mailpit</a></li>
+    </ul>
+</div>
+{% endblock %}

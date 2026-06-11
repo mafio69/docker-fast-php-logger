@@ -6,3 +6,23 @@
 controllers:
     resource: ../src/Controller/
     type: attribute
+
+# Explicit routes for controllers without #[Route] attributes
+dashboard:
+    path: /
+    controller: App\Controller\DashboardController::index
+
+api_config:
+    path: /api/config
+    controller: App\Controller\ApiController::config
+    methods: [GET]
+
+api_save_hosts:
+    path: /api/config/hosts
+    controller: App\Controller\ApiController::saveHosts
+    methods: [POST]
+
+api_save_app:
+    path: /api/config/app
+    controller: App\Controller\ApiController::saveApp
+    methods: [POST]

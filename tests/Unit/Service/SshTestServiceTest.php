@@ -16,10 +16,10 @@ class SshTestServiceTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->service = new SshTestService();
+        $this->service = new SshTestService;
     }
 
-    public function testTestConnectionReturnsErrorWhenHostIsEmpty(): void
+    public function test_test_connection_returns_error_when_host_is_empty(): void
     {
         $result = $this->service->testConnection('', 'user', 'pass');
 
@@ -27,7 +27,7 @@ class SshTestServiceTest extends TestCase
         $this->assertSame('Host and user are required', $result['error']);
     }
 
-    public function testTestConnectionReturnsErrorWhenUserIsEmpty(): void
+    public function test_test_connection_returns_error_when_user_is_empty(): void
     {
         $result = $this->service->testConnection('host', '', 'pass');
 
@@ -35,7 +35,7 @@ class SshTestServiceTest extends TestCase
         $this->assertSame('Host and user are required', $result['error']);
     }
 
-    public function testTestConnectionReturnsErrorWhenNoPasswordOrKey(): void
+    public function test_test_connection_returns_error_when_no_password_or_key(): void
     {
         $result = $this->service->testConnection('host', 'user', null, null);
 
@@ -43,7 +43,7 @@ class SshTestServiceTest extends TestCase
         $this->assertSame('Password or key required', $result['error']);
     }
 
-    public function testTestConnectionWithPasswordAttemptsConnection(): void
+    public function test_test_connection_with_password_attempts_connection(): void
     {
         // Using invalid host to get connection failure (testing command building)
         $result = $this->service->testConnection('invalid.test.host', 'user', 'password123');
@@ -56,7 +56,7 @@ class SshTestServiceTest extends TestCase
         $this->assertStringNotContainsString('password123', $result['details']);
     }
 
-    public function testTestConnectionWithKeyAttemptsConnection(): void
+    public function test_test_connection_with_key_attempts_connection(): void
     {
         $result = $this->service->testConnection('invalid.test.host', 'user', null, '/path/to/key');
 
@@ -66,12 +66,42 @@ class SshTestServiceTest extends TestCase
         $this->assertArrayHasKey('details', $result);
     }
 
-    public function testCustomPortIsUsed(): void
+    public function test_custom_port_is_used(): void
     {
         $result = $this->service->testConnection('host', 'user', 'pass', null, 2222);
 
         // Just verify it runs without error - actual connection will fail
         $this->assertIsArray($result);
         $this->assertArrayHasKey('success', $result);
+    }
+
+    public function test_build_command_uses_password_auth_for_password(): void
+    {
+        $cmd = $this->callBuildCommand('host', 'user', 'secret', null, 22);
+
+        $this->assertStringContainsString('PreferredAuthentications=password', $cmd);
+        $this->assertStringNotContainsString('PreferredAuthentications=publickey', $cmd);
+        $this->assertStringContainsString('sshpass', $cmd);
+    }
+
+    public function test_build_command_uses_publickey_auth_for_key(): void
+    {
+        $cmd = $this->callBuildCommand('host', 'user', null, '/path/to/key', 22);
+
+        $this->assertStringContainsString('PreferredAuthentications=publickey', $cmd);
+        $this->assertStringNotContainsString('PreferredAuthentications=password', $cmd);
+        $this->assertStringContainsString('-i', $cmd);
+    }
+
+    private function callBuildCommand(
+        string $host,
+        string $user,
+        ?string $password,
+        ?string $keyPath,
+        int $port,
+    ): string {
+        $method = new \ReflectionMethod(SshTestService::class, 'buildCommand');
+
+        return $method->invoke($this->service, $host, $user, $password, $keyPath, $port);
     }
 }

@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "d1575b34ece1c7028b8706a544f66092",
+    "content-hash": "8871661a75d787aa3f2f6b23061abeda",
     "packages": [
         {
             "name": "mafio69/fast-php-logger",
@@ -132,11 +132,11 @@
         },
         {
             "name": "mafio69/time-agent",
-            "version": "1.0.0",
+            "version": "dev-feature/duckdb-statistics",
             "dist": {
                 "type": "path",
                 "url": "./time-agent",
-                "reference": "5f9a03ef41be55c7ac65bc933743324d5c918046"
+                "reference": "0b2a26cb3987a8ba7345c89a46fa55a0fa0ea53f"
             },
             "require": {
                 "php": ">=8.1",
@@ -150,7 +150,7 @@
             "type": "project",
             "autoload": {
                 "psr-4": {
-                    "Mafio69\\TimeAgent\\": "src/"
+                    "App\\": "src/"
                 }
             },
             "description": "Time Doctor monitor - Symfony Console agent with GUI",
@@ -5905,7 +5905,8 @@
     "aliases": [],
     "minimum-stability": "stable",
     "stability-flags": {
-        "mafio69/log-viewer": 20
+        "mafio69/log-viewer": 20,
+        "mafio69/time-agent": 20
     },
     "prefer-stable": false,
     "prefer-lowest": false,
@@ -5914,5 +5915,5 @@
         "ext-pdo": "*"
     },
     "platform-dev": {},
-    "plugin-api-version": "2.9.0"
+    "plugin-api-version": "2.6.0"
 }

@@ -1,5 +1,6 @@
 {
     "name": "mafio69/time-agent",
+    "version": "1.0.0",
     "description": "Time Doctor monitor - Symfony Console agent with GUI",
     "type": "project",
     "require": {

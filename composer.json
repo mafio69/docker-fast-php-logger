@@ -17,7 +17,7 @@
         "ext-pdo": "*",
         "mafio69/log-viewer": "dev-master",
         "mafio69/fast-php-logger": "^0.9",
-        "mafio69/time-agent": "@dev",
+        "mafio69/time-agent": "^1.0",
         "symfony/asset": "^7.0",
         "symfony/console": "^7.0",
         "symfony/dotenv": "^7.0",

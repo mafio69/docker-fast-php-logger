@@ -26,12 +26,12 @@ class SSHController extends AbstractController
         }
 
         // Build SSH command
-        $sshOpts = '-o StrictHostKeyChecking=no -o PreferredAuthentications=password -p ' . escapeshellarg($port);
+        $baseOpts = '-o StrictHostKeyChecking=no -p ' . escapeshellarg($port);
         $target = escapeshellarg($user . '@' . $host);
 
         // Test connection with sshpass
         if (!empty($pass)) {
-            // Using password
+            $sshOpts = $baseOpts . ' -o PreferredAuthentications=password';
             $cmd = sprintf(
                 'SSHPASS=%s sshpass -e ssh %s %s echo "SSH_OK" 2>&1',
                 escapeshellarg($pass),
@@ -39,7 +39,7 @@ class SSHController extends AbstractController
                 $target
             );
         } elseif (!empty($keyPath)) {
-            // Using key
+            $sshOpts = $baseOpts . ' -o PreferredAuthentications=publickey';
             $cmd = sprintf(
                 'ssh %s -i %s %s echo "SSH_OK" 2>&1',
                 $sshOpts,

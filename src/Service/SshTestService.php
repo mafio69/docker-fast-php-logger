@@ -57,13 +57,15 @@ readonly class SshTestService
         ?string $keyPath,
         int $port,
     ): string {
-        $sshOpts = sprintf(
-            '-o StrictHostKeyChecking=no -o PreferredAuthentications=password -p %s',
+        $baseOpts = sprintf(
+            '-o StrictHostKeyChecking=no -p %s',
             escapeshellarg((string) $port)
         );
-        $target = escapeshellarg($user . '@' . $host);
+        $target = escapeshellarg($user.'@'.$host);
 
-        if (!empty($password)) {
+        if (! empty($password)) {
+            $sshOpts = $baseOpts.' -o PreferredAuthentications=password';
+
             return sprintf(
                 'SSHPASS=%s sshpass -e ssh %s %s echo "SSH_OK" 2>&1',
                 escapeshellarg($password),
@@ -71,6 +73,8 @@ readonly class SshTestService
                 $target
             );
         }
+
+        $sshOpts = $baseOpts.' -o PreferredAuthentications=publickey';
 
         return sprintf(
             'ssh %s -i %s %s echo "SSH_OK" 2>&1',

@@ -39,7 +39,7 @@ jobs:
       # --ignore-platform-req=ext-ssh2: mafio69/log-viewer wymaga ext-ssh2 (PECL),
       # niedostępnego na CI runner — potrzebne tylko w runtime Docker
       run: |
-        composer update mafio69/time-agent --no-interaction --no-scripts --ignore-platform-reqs
+        composer update mafio69/time-agent --no-interaction --no-scripts --no-install --ignore-platform-req=ext-ssh2
         composer install -q --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist --ignore-platform-req=ext-ssh2
     - name: Create Database
       run: |

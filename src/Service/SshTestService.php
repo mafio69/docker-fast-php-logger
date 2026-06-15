@@ -24,6 +24,10 @@ readonly class SshTestService
             return ['success' => false, 'error' => 'Host and user are required'];
         }
 
+        if ($port < 1 || $port > 65535) {
+            return ['success' => false, 'error' => 'Port must be between 1 and 65535'];
+        }
+
         if (empty($password) && empty($keyPath)) {
             return ['success' => false, 'error' => 'Password or key required'];
         }

@@ -75,6 +75,30 @@ class SshTestServiceTest extends TestCase
         $this->assertArrayHasKey('success', $result);
     }
 
+    public function test_port_zero_returns_validation_error(): void
+    {
+        $result = $this->service->testConnection('host', 'user', 'pass', null, 0);
+
+        $this->assertFalse($result['success']);
+        $this->assertSame('Port must be between 1 and 65535', $result['error']);
+    }
+
+    public function test_port_above_65535_returns_validation_error(): void
+    {
+        $result = $this->service->testConnection('host', 'user', 'pass', null, 99999);
+
+        $this->assertFalse($result['success']);
+        $this->assertSame('Port must be between 1 and 65535', $result['error']);
+    }
+
+    public function test_negative_port_returns_validation_error(): void
+    {
+        $result = $this->service->testConnection('host', 'user', 'pass', null, -1);
+
+        $this->assertFalse($result['success']);
+        $this->assertSame('Port must be between 1 and 65535', $result['error']);
+    }
+
     public function test_build_command_uses_password_auth_for_password(): void
     {
         $cmd = $this->callBuildCommand('host', 'user', 'secret', null, 22);

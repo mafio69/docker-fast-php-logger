@@ -25,8 +25,10 @@ jobs:
       with:
         php-version: '8.4'
     - uses: actions/checkout@v4
-    - name: Copy .env.test.local
-      run: php -r "file_exists('.env.test.local') || copy('.env.test.example', '.env.test.local');"
+    - name: Create .env for Symfony bootstrap
+      run: |
+        cp .env.example .env
+        echo "APP_ENV=test" >> .env
     - name: Cache Composer packages
       id: composer-cache
       uses: actions/cache@v4

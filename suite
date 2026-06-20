@@ -17,17 +17,11 @@ show_help() {
     echo "  logs        - Pokaż logi (follow)"
     echo "  shell       - Wejdź do kontenera PHP"
     echo ""
-    echo "Komponenty indywidualnie:"
+    echo     "Komponenty indywidualnie:"
     echo "  mcp:start   - Uruchom MCP Server"
     echo "  mcp:stop    - Zatrzymaj MCP Server"
     echo "  mcp:logs    - Logi MCP Server"
-    echo "  agent:start - Uruchom Time Agent"
-    echo "  agent:stop  - Zatrzymaj Time Agent"
-    echo "  agent:logs  - Logi Time Agent"
     echo ""
-    echo "Narzędzia:"
-    echo "  snooze      - Wyłącz Time Agent do jutra 6:00"
-    echo "  bypass      - Przełącz bypass Time Agent"
 }
 
 case "$1" in
@@ -35,7 +29,6 @@ case "$1" in
         echo "📦 Instalacja komponentów..."
         failed=0
         composer install || { echo "ERROR: composer install failed (root)" >&2; failed=1; }
-        composer install -d time-agent || { echo "ERROR: composer install failed (time-agent)" >&2; failed=1; }
         composer install -d mcp-server || { echo "ERROR: composer install failed (mcp-server)" >&2; failed=1; }
         if [ "$failed" -ne 0 ]; then
             echo "Some components failed to install" >&2
@@ -54,7 +47,6 @@ case "$1" in
         echo "  📊 Logger:      http://logs.local"
         echo "  📱 App:         http://app.local"
         echo "  🔧 MCP Server:  http://localhost:8080"
-        echo "  ⏱️  Time Agent:  (GUI na hoście)"
         echo "  🗄️  phpMyAdmin:  http://pma.local"
         echo "  📧 Mailpit:     http://mail.local"
         ;;
@@ -101,30 +93,23 @@ case "$1" in
         ;;
     
     agent:start)
-        docker compose up -d time-agent
-        echo "✅ Time Agent uruchomiony"
+        echo "Time Agent został usunięty z projektu"
         ;;
     
     agent:stop)
-        docker compose stop time-agent
+        echo "Time Agent został usunięty z projektu"
         ;;
     
     agent:logs)
-        docker compose logs -f time-agent
+        echo "Time Agent został usunięty z projektu"
         ;;
     
     snooze)
-        docker compose exec time-agent sh -c 'date -d "tomorrow 06:00" +%s > /tmp/timedoctor-snooze-until && echo "🔕 Wyłączone do jutra 6:00"'
+        echo "Time Agent został usunięty z projektu"
         ;;
     
     bypass)
-        if docker compose exec time-agent test -f /tmp/timedoctor-bypass 2>/dev/null; then
-            docker compose exec time-agent rm /tmp/timedoctor-bypass
-            echo "▶️  Bypass wyłączony - monitoring aktywny"
-        else
-            docker compose exec time-agent touch /tmp/timedoctor-bypass
-            echo "⏸️  Bypass włączony - alarmy wyłączone"
-        fi
+        echo "Time Agent został usunięty z projektu"
         ;;
     
     *)

@@ -4,10 +4,6 @@
     "type": "project",
     "repositories": [
         {
-            "type": "path",
-            "url": "./time-agent"
-        },
-        {
             "type": "vcs",
             "url": "https://github.com/mafio69/fast-php-log-viewer"
         }
@@ -17,7 +13,6 @@
         "ext-pdo": "*",
         "mafio69/log-viewer": "dev-master",
         "mafio69/fast-php-logger": "^0.9",
-        "mafio69/time-agent": "@dev",
         "symfony/asset": "^7.0",
         "symfony/console": "^7.0",
         "symfony/dotenv": "^7.0",
@@ -41,7 +36,6 @@
     },
     "scripts": {
         "post-install-cmd": [
-            "@composer install -d time-agent",
             "@install-hooks"
         ],
         "auto-scripts": {
@@ -80,8 +74,7 @@
             "App\\Tests\\": "tests/"
         },
         "exclude-from-classmap": [
-            "vendor/laravel/pint/app/",
-            "vendor/mafio69/time-agent/src/"
+            "vendor/laravel/pint/app/"
         ]
     },
     "config": {

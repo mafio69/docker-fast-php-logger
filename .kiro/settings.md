@@ -4,7 +4,7 @@
 
 Na starcie połącz się z MotherDuck i zapoznaj się z danymi w `my_db`.
 
-Dane połączenia w pliku: `/home/m.franciszczak@sellasist.pl/docker-fast-php-logger/.env`
+Dane połączenia w pliku: `.env` (w katalogu projektu)
 
 Komenda:
 

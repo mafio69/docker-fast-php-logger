@@ -25,7 +25,9 @@ RUN if [ -f composer.json ]; then composer install --no-dev --optimize-autoloade
 # Create directories
 RUN mkdir -p /var/www/html/logs /var/www/html/data /var/www/html/viewer /var/www/.ssh /run/nginx /var/log/supervisor /run/sshd && \
     chown -R www-data:www-data /var/www/html/logs /var/www/html/data /var/www/html/viewer /var/www/.ssh && \
-    chmod 700 /var/www/.ssh
+    chmod 700 /var/www/.ssh && \
+    chmod -R 777 /var/www/html/logs
+
 
 # Configure SSH server for password authentication
 RUN ssh-keygen -A && \

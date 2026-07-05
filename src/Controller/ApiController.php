@@ -6,6 +6,8 @@ namespace App\Controller;
 
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
+use RuntimeException;
+use Throwable;
 
 class ApiController
 {
@@ -30,7 +32,7 @@ class ApiController
         try {
             $input = json_decode($request->getContent(), true);
             if ($input === null) {
-                throw new \RuntimeException('Invalid JSON input');
+                throw new RuntimeException('Invalid JSON input');
             }
 
             $config = file_exists($this->configFile)
@@ -40,11 +42,11 @@ class ApiController
             $config['hosts'] = $input;
 
             if (file_put_contents($this->configFile, json_encode($config, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES)) === false) {
-                throw new \RuntimeException("Failed to write config: {$this->configFile}");
+                throw new RuntimeException("Failed to write config: $this->configFile");
             }
 
             return new JsonResponse(['ok' => true]);
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             return new JsonResponse(['error' => $e->getMessage()], 500);
         }
     }
@@ -54,7 +56,7 @@ class ApiController
         try {
             $input = json_decode($request->getContent(), true);
             if ($input === null) {
-                throw new \RuntimeException('Invalid JSON input');
+                throw new RuntimeException('Invalid JSON input');
             }
 
             $config = file_exists($this->configFile)
@@ -64,11 +66,11 @@ class ApiController
             $config['app'] = $input;
 
             if (file_put_contents($this->configFile, json_encode($config, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES)) === false) {
-                throw new \RuntimeException("Failed to write config: {$this->configFile}");
+                throw new RuntimeException("Failed to write config: $this->configFile");
             }
 
             return new JsonResponse(['ok' => true]);
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             return new JsonResponse(['error' => $e->getMessage()], 500);
         }
     }
@@ -78,7 +80,7 @@ class ApiController
         try {
             $data = json_decode($request->getContent(), true);
             if ($data === null) {
-                throw new \RuntimeException('Invalid JSON input');
+                throw new RuntimeException('Invalid JSON input');
             }
 
             $host = $data['host'] ?? '';
@@ -123,10 +125,10 @@ class ApiController
                 'success' => true,
                 'message' => 'SSH connection successful',
                 'note' => $fileExists
-                    ? "Log file found: {$logPath}"
-                    : "Log file not found: {$logPath} (will be created when logs are written)"
+                    ? "Log file found: $logPath"
+                    : "Log file not found: $logPath (will be created when logs are written)"
             ]);
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             return new JsonResponse([
                 'success' => false,
                 'error' => $e->getMessage()

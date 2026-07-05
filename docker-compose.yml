@@ -90,6 +90,19 @@ services:
       - devbox-net
     restart: unless-stopped
 
+  # MCP SERVER - Panel Administracyjny
+  mcp-server:
+    image: php:8.2-cli
+    container_name: mcp-server
+    command: php -S 0.0.0.0:8000 -t /var/www/html/vendor/mafio69/enhanced-php-mcp-server/public
+    ports:
+      - "${MCP_PORT:-8000}:8000"
+    volumes:
+      - .:/var/www/html
+    networks:
+      - devbox-net
+    restart: unless-stopped
+
   # REVERSE PROXY - wszystkie domeny .local na porcie 80
   proxy:
     image: nginx:alpine

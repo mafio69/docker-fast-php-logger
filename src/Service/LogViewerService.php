@@ -3,6 +3,8 @@
 namespace App\Service;
 
 use Symfony\Component\HttpKernel\KernelInterface;
+use ErrorException;
+use Throwable;
 
 class LogViewerService
 {
@@ -47,10 +49,10 @@ class LogViewerService
         return $this->getLogDirs();
     }
 
-    public function renderViewer(string $type = null): void
+    public function renderViewer(?string $type = null): void
     {
         set_error_handler(static function (int $severity, string $message, string $file, int $line): bool {
-            throw new \ErrorException($message, 0, $severity, $file, $line);
+            throw new ErrorException($message, 0, $severity, $file, $line);
         });
 
         try {
@@ -67,7 +69,7 @@ class LogViewerService
             if (file_exists($this->viewerPath)) {
                 require_once $this->viewerPath;
             }
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             http_response_code(500);
             echo $e->getMessage();
         }

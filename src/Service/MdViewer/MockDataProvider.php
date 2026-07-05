@@ -38,7 +38,10 @@ final class MockDataProvider implements DataProviderInterface
         ];
     }
 
-    /** @return list<object> */
+    /** 
+     * @return list<object> 
+     * @throws \Exception
+     */
     private function generateData(): array
     {
         $statuses = ['active', 'draft', 'archived'];

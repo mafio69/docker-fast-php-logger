@@ -8,14 +8,15 @@ use App\Service\SshTestService;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Attribute\Route;
+use Throwable;
 
 /**
  * SSH connection test endpoint - migrated from app_old/api/ssh-test.php
  */
-class SshTestController
+readonly class SshTestController
 {
     public function __construct(
-        private readonly SshTestService $sshService,
+        private SshTestService $sshService,
     ) {
     }
 
@@ -36,7 +37,7 @@ class SshTestController
             $statusCode = $result['success'] ? 200 : 400;
 
             return new JsonResponse($result, $statusCode);
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             return new JsonResponse([
                 'success' => false,
                 'error' => 'Internal error: ' . $e->getMessage(),

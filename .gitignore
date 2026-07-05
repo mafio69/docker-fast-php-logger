@@ -37,3 +37,12 @@ script.js
 styles.css
 package.xml
 ###< ide/jetbrains ###
+
+###> kiro ide ###
+.kiro/
+###< kiro ide ###
+
+###> node.js ###
+node_modules/
+package-lock.json
+###< node.js ###

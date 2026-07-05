@@ -12,7 +12,7 @@
 
 ## Start rano
 ```bash
-cd /home/m.franciszczak@sellasist.pl/Projects/docker-fast-php-logger
+cd /path/to/docker-fast-php-logger
 docker compose up -d
 echo "DevBox ready at http://localhost:8794"
 ```

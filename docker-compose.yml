@@ -103,6 +103,20 @@ services:
       - devbox-net
     restart: unless-stopped
 
+  # PLAYWRIGHT - Serwer do testów E2E
+  playwright:
+    image: mcr.microsoft.com/playwright:v1.44.0-jammy
+    container_name: playwright
+    command: tail -f /dev/null
+    working_dir: /var/www/html
+    volumes:
+      - .:/var/www/html
+    networks:
+      - devbox-net
+    depends_on:
+      - php
+    restart: "no" # Testy odpalamy na życzenie, lub serwer może działać jako node
+
   # REVERSE PROXY - wszystkie domeny .local na porcie 80
   proxy:
     image: nginx:alpine

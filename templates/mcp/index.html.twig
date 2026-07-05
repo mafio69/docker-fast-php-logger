@@ -1,0 +1,74 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}MCP Server - Narzędzia Demo{% endblock %}
+
+{% block body %}
+    <style>
+        .mcp-container {
+            margin-top: 20px;
+        }
+        .mcp-header {
+            border-bottom: 2px solid #0066cc;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+        }
+        .mcp-card {
+            background: #fff;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 15px;
+            margin-bottom: 15px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+        .mcp-instructions {
+            background: #f9f9f9;
+            border-left: 4px solid #0066cc;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+        .mcp-link {
+            display: inline-block;
+            background: #0066cc;
+            color: #fff;
+            padding: 10px 15px;
+            text-decoration: none;
+            border-radius: 4px;
+            font-weight: bold;
+        }
+        .mcp-link:hover {
+            background: #004499;
+            text-decoration: none;
+        }
+    </style>
+
+    <div class="mcp-container">
+        <div class="mcp-header">
+            <h1>MCP Server - Narzędzia Demo</h1>
+            <p>Zintegrowane środowisko dla Model Context Protocol.</p>
+        </div>
+
+        <div class="mcp-instructions">
+            <h2>Instrukcja obsługi</h2>
+            <p>Ten serwer MCP (Model Context Protocol) udostępnia narzędzia (Tools) gotowe do integracji z AI lub innymi usługami. Traktujemy te narzędzia jako aplikacje demo pokazujące możliwości protokołu MCP.</p>
+            <ul>
+                <li><strong>Połączenie:</strong> Serwer działa lokalnie pod adresem <code>{{ mcp_url }}</code>.</li>
+                <li><strong>Endpointy:</strong> Możesz odpytywać API zgodnie ze specyfikacją MCP HTTP.</li>
+                <li><strong>Testowanie:</strong> Uruchom zapytanie POST na główny endpoint, by zobaczyć dostępne narzędzia (np. log_viewer, db_query).</li>
+            </ul>
+        </div>
+
+        <div class="mcp-card">
+            <h3>Dostęp do panelu MCP</h3>
+            <p>Aplikacja <code>enhanced-php-mcp-server</code> działa w tle. Możesz uzyskać do niej bezpośredni dostęp, klikając w poniższy link:</p>
+            <br>
+            <a href="{{ mcp_url }}" target="_blank" class="mcp-link">Otwórz MCP Server</a>
+        </div>
+        
+        <div class="mcp-card">
+            <h3>Testy E2E (Playwright)</h3>
+            <p>Cały zestaw zawiera kontener <strong>playwright</strong> gotowy do wykonywania testów End-to-End.</p>
+            <p>Aby uruchomić testy z poziomu hosta wpisz:</p>
+            <code>docker-compose exec playwright npx playwright test</code>
+        </div>
+    </div>
+{% endblock %}

@@ -6,6 +6,7 @@ namespace App\Controller;
 
 use Mariusz\Logger\DualLogger;
 use PDO;
+use PDOException;
 use Psr\Log\LogLevel;
 use Symfony\Component\HttpFoundation\Response;
 use Twig\Environment;
@@ -51,7 +52,7 @@ class DashboardController
             );
             $dbStatus = 'connected';
             $dbOk = true;
-        } catch (\PDOException $e) {
+        } catch (PDOException $e) {
             $dbStatus = 'error: ' . $e->getMessage();
         }
 

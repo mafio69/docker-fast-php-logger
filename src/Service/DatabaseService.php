@@ -20,6 +20,9 @@ class DatabaseService
         $this->initDatabase();
     }
 
+    /**
+     * @throws \Exception
+     */
     private function getOrCreateKey(): string
     {
         $keyFile = __DIR__ . '/../../data/.dbkey';
@@ -74,6 +77,9 @@ class DatabaseService
         ');
     }
 
+    /**
+     * @throws \Exception
+     */
     public function encrypt(string $data): string
     {
         if (empty($data)) {

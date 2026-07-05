@@ -23,7 +23,6 @@ class LogViewerServiceTest extends TestCase
     {
         $logDirs = $this->logViewerService->getLogDirs();
         
-        $this->assertIsArray($logDirs);
         $this->assertArrayHasKey('Container PHP Errors', $logDirs);
         $this->assertArrayHasKey('Docker Container Logs', $logDirs);
         $this->assertArrayHasKey('Host PHP Errors', $logDirs);
@@ -41,7 +40,6 @@ class LogViewerServiceTest extends TestCase
     {
         $logDirs = $this->logViewerService->getLogDirsByType('container');
         
-        $this->assertIsArray($logDirs);
         $this->assertCount(2, $logDirs);
         $this->assertArrayHasKey('Container PHP Errors', $logDirs);
         $this->assertArrayHasKey('Docker Container Logs', $logDirs);
@@ -52,7 +50,6 @@ class LogViewerServiceTest extends TestCase
     {
         $logDirs = $this->logViewerService->getLogDirsByType('host');
         
-        $this->assertIsArray($logDirs);
         $this->assertCount(3, $logDirs);
         $this->assertArrayHasKey('Host PHP Errors', $logDirs);
         $this->assertArrayHasKey('App logs', $logDirs);
@@ -64,7 +61,6 @@ class LogViewerServiceTest extends TestCase
     {
         $logDirs = $this->logViewerService->getLogDirsByType('invalid');
         
-        $this->assertIsArray($logDirs);
         $this->assertCount(5, $logDirs);
         $this->assertArrayHasKey('Container PHP Errors', $logDirs);
         $this->assertArrayHasKey('Host PHP Errors', $logDirs);

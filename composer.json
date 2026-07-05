@@ -6,13 +6,19 @@
         {
             "type": "vcs",
             "url": "https://github.com/mafio69/fast-php-log-viewer"
+        },
+        {
+            "type": "vcs",
+            "url": "https://github.com/mafio69/enhanced-php-mcp-server"
         }
     ],
     "require": {
         "php": ">=8.2",
+        "ext-openssl": "*",
         "ext-pdo": "*",
+        "mafio69/fast-php-logger": "^1.0.1",
         "mafio69/log-viewer": "dev-master",
-        "mafio69/fast-php-logger": "^0.9",
+        "mafio69/enhanced-php-mcp-server": "dev-main",
         "symfony/asset": "^7.0",
         "symfony/console": "^7.0",
         "symfony/dotenv": "^7.0",
@@ -22,12 +28,15 @@
         "symfony/messenger": "^7.0",
         "symfony/routing": "^7.0",
         "symfony/runtime": "^7.0",
+        "symfony/scheduler": "^8.1",
         "symfony/twig-bundle": "^7.0",
         "symfony/yaml": "^7.0",
         "twig/twig": "^3.27"
     },
     "require-dev": {
         "laravel/pint": "^1.10",
+        "phpstan/phpstan": "^2.2",
+        "phpstan/phpstan-symfony": "^2.0",
         "phpunit/phpunit": "^11.0",
         "symfony/browser-kit": "^8.1",
         "symfony/debug-bundle": "^7.0",
@@ -72,10 +81,7 @@
     "autoload-dev": {
         "psr-4": {
             "App\\Tests\\": "tests/"
-        },
-        "exclude-from-classmap": [
-            "vendor/laravel/pint/app/"
-        ]
+        }
     },
     "config": {
         "optimize-autoloader": true,

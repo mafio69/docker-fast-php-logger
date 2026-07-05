@@ -14,6 +14,7 @@ Both packages are pulled from GitHub via Composer during `docker build` — no l
 |---|---|
 | `http://localhost:8082` | PHP app (served from `/var/www/html/public`) |
 | `http://localhost:8082/logs` | Log viewer (served from `/var/www/html/viewer`) |
+| `http://localhost:8000` | Enhanced MCP Server (Control Panel) |
 | `http://localhost:8081` | Adminer - database management |
 | `http://localhost:9090` | Portainer - Docker management |
 | `http://localhost:8025` | Mailpit - test SMTP server |
@@ -23,8 +24,8 @@ Both packages are pulled from GitHub via Composer during `docker build` — no l
 | File | Purpose |
 |---|---|
 | `Dockerfile` | PHP 8.4 + Nginx, installs Composer deps from GitHub |
-| `docker-compose.yml` | All services: PHP, MySQL, Adminer, Portainer, Mailpit, Proxy |
-| `composer.json` | Requires `mafio69/fast-php-logger` and `mafio69/log-viewer` from GitHub VCS |
+| `docker-compose.yml` | All services: PHP, MySQL, Adminer, Portainer, Mailpit, Proxy, and new `mcp-server` container |
+| `composer.json` | Requires logger, viewer, and `mafio69/enhanced-php-mcp-server` from GitHub VCS |
 | `viewer/index.php` | Entry point for log viewer (accessible via `/logs`) |
 | `docker/nginx.conf` | Nginx configuration |
 | `docker/php.ini` | Dev PHP config (error reporting, etc.) |
@@ -32,9 +33,10 @@ Both packages are pulled from GitHub via Composer during `docker build` — no l
 
 ### How packages are loaded
 
-`composer install` runs during `docker build`. Both packages are fetched from GitHub:
+`composer install` runs during `docker build`. Packages fetched from GitHub:
 - `mafio69/fast-php-logger` — from Packagist
-- `mafio69/log-viewer` — from GitHub VCS (not yet on Packagist)
+- `mafio69/log-viewer` — from GitHub VCS
+- `mafio69/enhanced-php-mcp-server` — from GitHub VCS
 
 `vendor/` lives inside the Docker image at `/var/www/html/vendor/`.
 It is NOT mounted as a volume — changes require `docker compose build`.
@@ -52,7 +54,8 @@ It is NOT mounted as a volume — changes require `docker compose build`.
 |---|---|
 | `mafio69/fast-php-logger` | PSR-3 logger, writes log files |
 | `mafio69/log-viewer` | Viewer UI, reads log files |
-| `mafio69/docker-fast-logger` | This repo — Docker environment using both |
+| `mafio69/enhanced-php-mcp-server` | MCP Protocol integration and control panel |
+| `mafio69/docker-fast-logger` | This repo — Docker environment unifying all 3 repositories |
 
 ### Conventions
 
@@ -77,7 +80,7 @@ docker-fast-php-logger/
 | Komponent | Tech | Port | Opis |
 |-----------|------|------|------|
 | **Logger** | PHP 8.2 | 8794 | Fast PHP Logger + Log Viewer |
-| **MCP Server** | Slim 4 | 8080 | Model Context Protocol server |
+| **MCP Server** | PHP 8.2 | 8000 | Enhanced Model Context Protocol Server |
 | **Time Agent** | Symfony | - | Monitorowanie Time Doctor (GUI) |
 | **MySQL** | 8.0 | 3307 | Baza danych |
 | **Mailpit** | - | 1025 | Testowy SMTP |
@@ -140,7 +143,7 @@ docker-fast-php-logger/
 
 - **http://logs.local** - Log Viewer
 - **http://app.local** - Główna aplikacja
-- **http://localhost:8080** - MCP Server
+- **http://localhost:8000** - MCP Server (Panel)
 - **http://pma.local** - phpMyAdmin
 - **http://mail.local** - Mailpit
 

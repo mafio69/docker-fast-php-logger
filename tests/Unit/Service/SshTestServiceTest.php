@@ -71,7 +71,7 @@ class SshTestServiceTest extends TestCase
         $result = $this->service->testConnection('host', 'user', 'pass', null, 2222);
 
         // Just verify it runs without error - actual connection will fail
-        $this->assertIsArray($result);
+
         $this->assertArrayHasKey('success', $result);
     }
 

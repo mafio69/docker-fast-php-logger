@@ -504,21 +504,18 @@ async function saveSshConnection() {
 
     const username = match[1];
     const host = match[2];
-    const name = host.split('.')[0]; // Use first part of hostname as name
 
-    status.innerHTML = '<span style="color: var(--cyan);">Zapisywanie...</span>';
+    status.innerHTML = '<span style="color: var(--cyan);">Testowanie połączenia...</span>';
 
     try {
-        const response = await fetch('/api/ssh-connections', {
+        const response = await fetch('/api/ssh-test', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-                name: name,
                 host: host,
-                username: username,
-                password: authType === 'password' ? password : '',
-                key_path: authType === 'key' ? keyPath : '',
-                log_path: path,
+                user: username,
+                pass: authType === 'password' ? password : null,
+                key: authType === 'key' ? keyPath : null,
                 port: port
             })
         });
@@ -526,8 +523,7 @@ async function saveSshConnection() {
         const data = await response.json();
 
         if (response.ok && data.success) {
-            status.innerHTML = '<span style="color: var(--green);">Zapisano! Odświeżam...</span>';
-            setTimeout(() => window.location.reload(), 1000);
+            status.innerHTML = '<span style="color: var(--green);">Połączenie OK!</span>';
         } else {
             status.innerHTML = '<span style="color: var(--red);">Błąd: ' + (data.error || 'Nieznany błąd') + '</span>';
         }

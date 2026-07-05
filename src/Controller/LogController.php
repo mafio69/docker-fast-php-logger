@@ -1,12 +1,15 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Controller;
 
 use App\Service\LogViewerService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
+use Throwable;
 
 class LogController extends AbstractController
 {
@@ -25,7 +28,11 @@ class LogController extends AbstractController
         }
 
         $type = $request->query->get('type'); // 'container' or 'host'
-        $this->logViewerService->renderViewer($type);
+        try {
+            $this->logViewerService->renderViewer($type);
+        } catch (Throwable $e) {
+            return new Response('Error rendering logs: ' . $e->getMessage(), 500);
+        }
         
         return new Response('');
     }

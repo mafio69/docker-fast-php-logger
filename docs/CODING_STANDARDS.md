@@ -3,21 +3,19 @@
   <a href="#en" style="display:inline-block;padding:6px 10px;margin-right:8px;background:#0a84ff;color:#fff;border-radius:6px;text-decoration:none;font-weight:600">EN</a>
   <a href="#pl" style="display:inline-block;padding:6px 10px;background:#2ea44f;color:#fff;border-radius:6px;text-decoration:none;font-weight:600">PL</a>
 </div>
-   
 
 
-# Our Engineering Manifesto
-<a id="en"></a>
-This document is more than just a set of rules; it's our manifesto. It defines who we are as engineers, what we value, and how we build software. It is a living document that evolves with us, but its core principles remain our guiding light.
-
-We believe in **craftsmanship**, **pragmatism**, and **continuous improvement**. We build software that is not only functional but also elegant, maintainable, and a joy to work on.
-
+<a id="en"></a>  
+## Our Engineering Manifesto   
 ---
 
+This is more than just a set of rules — it is my manifesto. It defines who I am as a programmer, what I value, and how I build software. It is a living document that evolves with me, but its core principles remain my guide. 
+
+ I believe in craftsmanship, pragmatism, and continuous improvement. I strive to create software that is not only functional, but also elegant, maintainable, and genuinely pleasant to work with and read. That matters to me, and it should not be forgotten.
 ## 1. Security First: A Non-Negotiable Principle
-
+ I also believe that imperfection is part of being human — and, in my view, that is a strength, not a flaw.
 Before any line of code is written, we acknowledge that security is our highest priority. It is not a feature or an afterthought; it is the foundation upon which we build everything.
-
+ I write this for myself, and maybe it will be useful to someone else too.
 *   **No Hardcoded Secrets:** We have a zero-tolerance policy for sensitive data (API keys, passwords, tokens) in our codebase. Such credentials must never be committed to version control.
 *   **Configuration via Environment:** All configuration, especially secrets, must be loaded from environment variables (e.g., via `.env` files). We ensure that our `.gitignore` files are always configured to exclude these files.
 *   **Data Masking:** We are vigilant about protecting data in logs and error reports. All sensitive information must be masked or omitted to prevent accidental exposure.
@@ -115,6 +113,9 @@ We anticipate failure and design for it. Our users will never see an unhandled e
 *   **JavaScript:** We use modern ES6+ with pragmatic linting.
 
 ### 6.2 Commit Message Format
+
+Stosujemy [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/). To zapewnia czytelną i maszynowo przetwarzalną historię.
+
 *Allowed Types:* `feat`, `fix`, `docs`, `style`, `refactor`, `perf`, `test`, `chore`, `revert`.
 
 ### 6.3 Code Review Process
@@ -232,12 +233,73 @@ By embracing AI, we are not just coding faster; we are coding smarter. We are au
 *   **Onboarding Docs:** New team members can get productive in 1-2 days.
 *   **Architecture Diagrams:** Key systems documented with decision records.
 
----
+## 11. Principles for Working with AI: Think, Simplify, Execute with Precision
 
+We work with AI assistants daily. These principles ensure our collaboration is efficient, safe, and focused.        
+_**It's worth adding them to AI guidelines**_
+
+### 11.1 Think Before Coding
+
+**Don't assume. Don't hide confusion. Surface tradeoffs.**
+
+When working with AI, force explicit reasoning:
+
+*   **State assumptions explicitly:** If uncertain, ask rather than guess. Ambiguity creates bugs.
+*   **Present multiple interpretations:** Don't let AI pick silently when options exist. Discuss tradeoffs.
+*   **Push back when warranted:** If a simpler approach exists, say so. Don't accept overengineered solutions.
+*   **Stop when confused:** Name what's unclear and ask for clarification. Confusion now saves rework later.
+
+### 11.2 Simplicity First
+
+**Minimum code that solves the problem. Nothing speculative.**
+
+Combat overengineering:
+
+*   No features beyond what was asked
+*   No abstractions for single-use code
+*   No "flexibility" or "configurability" that wasn't requested
+*   No error handling for impossible scenarios
+*   If 200 lines could be 50, rewrite it
+
+**The test:** Would a senior engineer say this is overcomplicated? If yes, simplify.
+
+### 11.3 Surgical Changes
+
+**Touch only what you must. Clean up only your own mess.**
+
+When editing existing code:
+
+*   Don't "improve" adjacent code, comments, or formatting
+*   Don't refactor things that aren't broken
+*   Match existing style, even if you'd do it differently
+*   If you notice unrelated dead code, mention it — don't delete it
+
+When changes create orphans:
+
+*   Remove imports/variables/functions that YOUR changes made unused
+*   Don't remove pre-existing dead code unless asked
+
+**The test:** Every changed line should trace directly to the requirement.
+
+### 11.4 Goal-Driven Execution
+
+**Define success criteria. Loop until verified.**
+
+Transform vague requirements into verifiable goals:
+
+| Instead of... | Transform to... |
+|--------------|-----------------|
+| "Add validation" | "Write tests for invalid inputs, then make them pass" |
+| "Fix the bug" | "Write a test that reproduces it, then make it pass" |
+| "Refactor X" | "Ensure tests pass before and after" |
+
+For multi-step tasks, state a brief plan with verification:
+[Step] → verify: [check]
+[Step] → verify: [check]---
+[Step] → verify: [check]
 **This document is a living manifesto, created and refined with the assistance of AI tools. It evolves with our team's growth and learning.**
 
 *Last updated: 2026-05-24*
-We use [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/). This creates a clean, understandable, and machine-readable history.
 <hr>  
   
 <!-- Language selector -->
@@ -249,11 +311,10 @@ We use [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/). T
 # Po polsku 
 # Manifest inżynieryjny
 
-Ten dokument to więcej niż zbiór zasad — to nasz manifest. Definiuje kim jesteśmy jako inżynierowie, co cenimy i jak budujemy oprogramowanie. To dokument żywy, który ewoluuje razem z nami, ale jego podstawowe zasady pozostają naszym drogowskazem.
+To nie jest tylko zbiór zasad — to mój sposób myślenia o programowaniu. Zapisuję to dla siebie, ale jeśli komuś też pomoże, tym lepiej.
 
-Wierzymy w **rzemiosło**, **pragmatyzm** i **ciągłe doskonalenie**. Tworzymy oprogramowanie, które jest nie tylko funkcjonalne, ale też eleganckie, łatwe w utrzymaniu i przyjemne do pracy.
-
----
+Cenię rzemiosło, pragmatyzm i ciągłe doskonalenie. Chcę tworzyć oprogramowanie, które działa dobrze, jest łatwe w utrzymaniu i po prostu przyjemne w codziennej pracy. Ważne jest dla mnie też, żeby kod był czytelny i miał sens dla innych ludzi, nie tylko dla kompilatora czy AI.
+Ten dokument ma żyć razem ze mną. Będzie się zmieniał, ale jego rdzeń zostaje ten sam: robić rzeczy porządnie, bez zbędnej komplikacji i z szacunkiem do czasu własnego oraz innych.
 
 ## 1. Bezpieczeństwo przede wszystkim (zasada niepodlegająca negocjacjom)
 
@@ -470,10 +531,76 @@ Aktywnie integrujemy asystentów AI w nasz workflow. AI nie zastępuje inżynier
 *   **Runbooki:** Standardowe procedury dla typowych problemów.
 *   **Dokumentacja onboardingu:** Nowa osoba powinna być produktywna w 1–2 dni.
 *   **Diagramy architektury:** Kluczowe systemy dokumentowane wraz z rejestrami decyzji.
+    Strong success criteria let AI work independently. Weak criteria ("make it work") require constant clarification.
 
+---
+
+## 11. Zasady pracy z AI: myśl, uprości, wykonaj precyzyjnie
+
+Pracujemy z asystentami AI każdego dnia. Te zasady...p       
+_**Warto je dodać do wytycznych dla AI** AI**_ 
+
+### 11.1 Myśl przed kodowaniem
+
+**Nie assumption. Nie chowaj zamieszania. Surfujuj tradeoff'y.**
+
+Pracując z AI, wymuszaj jawne rozumowanie:
+
+*   **Mów założenia jawnie:** Jeśli nie wiesz, pytaj zamiast zgadywać. Niejasność tworzy błędy.
+*   **Przedstawiaj wiele interpretacji:** Nie pozwalaj AI wybierać po cichu. Dyskutuj o kompromisach.
+*   **Sprzeciwiaj się, gdy warto:** Jeśli istnieje prostsze podejście, powiedz to. Nie akceptuj przesilonych rozwiązań.
+*   **Zatrzymaj się, gdy się mylisz:** Nazwij, co jest niejasne, i poproś o wyjaśnienie. Zamieszanie teraz oszczędza pracę potem.
+
+### 11.2 Prostota przede wszystkim
+
+**Minimum kod rozwiązujący problem. Nic spekulacyjnego.**
+
+Zwalczaj overengineering:
+
+*   Brak funkcji poza tym, co zostało poproszone
+*   Brak abstrakcji dla kodu jednorazowego użytku
+*   Brak "elastyczności" lub "konfigurowalności", która nie była wymagana
+*   Brak obsługi błędów dla niemożliwych scenariuszy
+*   Jeśli 200 linii mogłoby być 50, przepisz to
+
+**Test:** Czy senior engineer powiedziałby, że to skomplikowane? Jeśli tak — uprości.
+
+### 11.3 Chirurgiczne zmiany
+
+**Dotykaj tylko co musisz. Sprzątaj tylko swoje własne bałagan.**
+
+Edytując istniejący kod:
+
+*   Nie "ulepszaj" sąsiedni kod, komentarze czy formatowanie
+*   Nie refaktoruj rzeczy, które nie są zepsute
+*   Pasuj do istniejącego stylu, nawet jeśli byś to robił inaczej
+*   Jeśli zauważysz niezwiązany martwy kod, wspomni o tym — nie usuwaj go
+
+Gdy zmany tworzą sierotki:
+
+*   Usuń importy/zmienne/funkcje, które Twoje zmiany uczyniły nieużywane
+*   Nie usuwaj istniejącego martwego kodu, chyba że zostaniesz poproszony
+
+**Test:** Każda zmieniona linia powinna bezpośrednio odnosić się do wymagania.
+
+### 11.4 Wykonanie sterowane celem
+
+**Zdefiniuj kryteria sukcesu. Pętla aż do weryfikacji.**
+
+Przekształć niejasne wymagania w weryfikowalne cele:
+
+| Zamiast... | Przekształć na... |
+|-----------|------------------|
+| "Dodaj walidację" | "Napisz testy dla błędnych danych, potem je rozwiń" |
+| "Napraw błąd" | "Napisz test, który go reprodukuje, potem go napraw" |
+| "Refaktoruj X" | "Upewnij się, że testy przechodzą przed i po" |
+
+Dla wieloetapowych zadań, podaj krótki plan z weryfikacją:
+[Step] → verify: [check]
+[Step] → verify: [check]
+[Step] → verify: [check]
 ---
 
 Ten dokument jest żywym manifestem, tworzonym i udoskonalanym przy wsparciu narzędzi AI. Ewoluuje wraz z rozwojem i nauką zespołu.
 
 *Ostatnia aktualizacja: 2026-05-24*
-Stosujemy [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/). To zapewnia czytelną i maszynowo przetwarzalną historię zmian.

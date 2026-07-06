@@ -21,7 +21,7 @@ class DashboardController
         $loader = new FilesystemLoader(__DIR__ . '/../../templates');
         $this->twig = new Environment($loader, [
             'cache' => false,
-            'debug' => true,
+            'debug' => ($_ENV['APP_ENV'] ?? 'dev') !== 'prod',
         ]);
     }
 
@@ -53,7 +53,8 @@ class DashboardController
             $dbStatus = 'connected';
             $dbOk = true;
         } catch (PDOException $e) {
-            $dbStatus = 'error: ' . $e->getMessage();
+            $logger->error('Dashboard DB check failed', ['exception' => $e->getMessage()]);
+            $dbStatus = 'error: could not connect to database';
         }
 
         $appEnv = $_ENV['APP_ENV'] ?? 'unknown';

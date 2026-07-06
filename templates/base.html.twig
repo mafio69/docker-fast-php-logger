@@ -3,30 +3,48 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}Welcome{% endblock %}</title>
+    <title>{% block title %}Developer Suite{% endblock %}</title>
     <style>
+        :root {
+            --bg: #0a0a0a;
+            --green: #00ff41;
+            --green-dim: #008f11;
+            --green-dark: #003b00;
+            --red: #ff0040;
+            --yellow: #ffee00;
+            --cyan: #00ffff;
+            --gray: #666;
+            --white: #e0e0e0;
+        }
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
-            font-family: Arial, sans-serif;
-            background: #f5f5f5;
+            font-family: 'JetBrains Mono', 'Consolas', monospace;
+            background: var(--bg);
+            color: var(--green);
             padding: 20px;
+            min-height: 100vh;
+            line-height: 1.6;
         }
         .container {
             max-width: 1200px;
             margin: 0 auto;
-            background: white;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
-        h1 { color: #333; }
-        a { color: #0066cc; text-decoration: none; }
-        a:hover { text-decoration: underline; }
+        h1, h2, h3 { color: var(--green); margin-bottom: 15px; }
+        a { color: var(--cyan); text-decoration: none; }
+        a:hover { text-decoration: underline; color: var(--white); }
+        .card {
+            border: 1px solid var(--green-dark);
+            background: rgba(0, 59, 0, 0.1);
+            padding: 15px;
+            margin-bottom: 15px;
+        }
     </style>
+    {% block stylesheets %}{% endblock %}
 </head>
 <body>
     <div class="container">
         {% block body %}{% endblock %}
     </div>
+    {% block javascripts %}{% endblock %}
 </body>
 </html>

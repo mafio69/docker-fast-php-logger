@@ -555,12 +555,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/mafio69/enhanced-php-mcp-server.git",
-                "reference": "cdd6b899dc04ab817f65db9455b5e89030fa0304"
+                "reference": "bb142d205ce2449d2c0d30e95f31caf945a648b0"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/mafio69/enhanced-php-mcp-server/zipball/cdd6b899dc04ab817f65db9455b5e89030fa0304",
-                "reference": "cdd6b899dc04ab817f65db9455b5e89030fa0304",
+                "url": "https://api.github.com/repos/mafio69/enhanced-php-mcp-server/zipball/bb142d205ce2449d2c0d30e95f31caf945a648b0",
+                "reference": "bb142d205ce2449d2c0d30e95f31caf945a648b0",
                 "shasum": ""
             },
             "require": {
@@ -599,17 +599,20 @@
                 }
             },
             "scripts": {
-                "start": [
-                    "php index.php"
+                "mcp": [
+                    "php cli.php"
+                ],
+                "web": [
+                    "php -S localhost:8794 -t public public/index.php"
                 ],
                 "test": [
                     "phpunit -c tests/phpunit.xml"
                 ],
                 "cs-fix": [
-                    "php-cs-fixer fix"
+                    "./vendor/bin/php-cs-fixer fix"
                 ],
                 "cs-check": [
-                    "php-cs-fixer fix --dry-run --diff"
+                    "./vendor/bin/php-cs-fixer fix --dry-run --diff"
                 ]
             },
             "license": [
@@ -633,7 +636,7 @@
                 "source": "https://github.com/mafio69/enhanced-php-mcp-server/tree/main",
                 "issues": "https://github.com/mafio69/enhanced-php-mcp-server/issues"
             },
-            "time": "2026-07-04T18:38:01+00:00"
+            "time": "2026-07-05T22:14:46+00:00"
         },
         {
             "name": "mafio69/fast-php-logger",

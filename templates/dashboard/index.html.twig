@@ -5,20 +5,20 @@
 {% block body %}
 <h1>Developer Suite Dashboard</h1>
 
-<div class="stats">
+<div class="card stats">
     <p>PHP: {{ php_version }}</p>
     <p>Environment: {{ env }}</p>
     <p>Database: {{ db_status }}</p>
     <p>Date: {{ date }}</p>
 </div>
 
-<div class="links">
+<div class="card links">
     <h2>Services:</h2>
-    <ul>
-        <li><a href="/mdviewer">MD Viewer</a></li>
-        <li><a href="/logviewer">Log Viewer</a></li>
-        <li><a href="/mcp">MCP Server (Zarządzanie)</a></li>
-        <li><a href="http://localhost:8025" target="_blank">Mailpit</a></li>
+    <ul style="list-style-type: none;">
+        <li><a href="/mdviewer">▶ MD Viewer</a></li>
+        <li><a href="/logs">▶ Log Viewer</a></li>
+        <li><a href="/mcp">▶ MCP Server (Zarządzanie)</a></li>
+        <li><a href="http://localhost:8025" target="_blank">▶ Mailpit</a></li>
     </ul>
 </div>
 {% endblock %}

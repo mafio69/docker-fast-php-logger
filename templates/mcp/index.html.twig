@@ -4,41 +4,13 @@
 
 {% block body %}
     <style>
-        .mcp-container {
-            margin-top: 20px;
-        }
-        .mcp-header {
-            border-bottom: 2px solid #0066cc;
-            padding-bottom: 10px;
-            margin-bottom: 20px;
-        }
-        .mcp-card {
-            background: #fff;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            padding: 15px;
-            margin-bottom: 15px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-        }
-        .mcp-instructions {
-            background: #f9f9f9;
-            border-left: 4px solid #0066cc;
-            padding: 15px;
-            margin-bottom: 20px;
-        }
+        .mcp-container { margin-top: 20px; }
+        .mcp-header { border-bottom: 2px solid var(--green-dim); padding-bottom: 10px; margin-bottom: 20px; }
+        .mcp-instructions { background: rgba(0, 59, 0, 0.2); border-left: 4px solid var(--cyan); padding: 15px; margin-bottom: 20px; }
         .mcp-link {
-            display: inline-block;
-            background: #0066cc;
-            color: #fff;
-            padding: 10px 15px;
-            text-decoration: none;
-            border-radius: 4px;
-            font-weight: bold;
+            display: inline-block; background: var(--green-dark); color: var(--green); padding: 10px 15px; border: 1px solid var(--green-dim);
         }
-        .mcp-link:hover {
-            background: #004499;
-            text-decoration: none;
-        }
+        .mcp-link:hover { background: var(--green-dim); color: var(--bg); }
     </style>
 
     <div class="mcp-container">
@@ -57,14 +29,14 @@
             </ul>
         </div>
 
-        <div class="mcp-card">
+        <div class="card">
             <h3>Dostęp do panelu MCP</h3>
             <p>Aplikacja <code>enhanced-php-mcp-server</code> działa w tle. Możesz uzyskać do niej bezpośredni dostęp, klikając w poniższy link:</p>
             <br>
             <a href="{{ mcp_url }}" target="_blank" class="mcp-link">Otwórz MCP Server</a>
         </div>
         
-        <div class="mcp-card">
+        <div class="card">
             <h3>Testy E2E (Playwright)</h3>
             <p>Cały zestaw zawiera kontener <strong>playwright</strong> gotowy do wykonywania testów End-to-End.</p>
             <p>Aby uruchomić testy z poziomu hosta wpisz:</p>

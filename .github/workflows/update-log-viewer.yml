@@ -26,7 +26,7 @@ jobs:
     - name: Get current log-viewer version
       id: current-version
       run: |
-        CURRENT_VERSION=$(composer show mafio69/log-viewer --no-ansi | grep 'versions' | grep -oE '[^ ]+$')
+        CURRENT_VERSION=$(jq -r '.packages[] | select(.name == "mafio69/log-viewer") | .version' composer.lock)
         echo "version=$CURRENT_VERSION" >> $GITHUB_OUTPUT
         echo "Current log-viewer version: $CURRENT_VERSION"
     

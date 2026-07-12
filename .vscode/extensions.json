@@ -1,0 +1,36 @@
+{
+    "recommendations": [
+        // PHP — IntelliSense, go-to-def, refactoring
+        "bmewburn.vscode-intelephense-client",
+        // PHPStan — inline błędy statyczne (poziom 5 skonfigurowany w phpstan.neon)
+        "SanderRonde.phpstan-vscode",
+        // PHPUnit — runner testów z widokiem wyników inline
+        "recca0120.vscode-phpunit",
+        // Twig — syntax highlight, autocomplete
+        "whatwedo.twig",
+        // Symfony — autouzupełnianie routingów, serwisów, parametrów
+        "TheNouillet.symfony-vscode",
+        // Playwright — E2E test runner wbudowany w VS Code
+        "ms-playwright.playwright",
+        // Docker — UI do kontenerów, compose, obrazów
+        "ms-azuretools.vscode-docker",
+        // Dev Containers — praca wewnątrz kontenera PHP (opcja)
+        "ms-vscode-remote.remote-containers",
+        // Baza danych — MySQL + SQLite w jednym panelu
+        "cweijan.vscode-database-client2",
+        // YAML — schema validation (symfony config, github actions)
+        "redhat.vscode-yaml",
+        // .env — syntax highlighting
+        "IronGeek.vscode-env",
+        // nginx.conf — syntax highlighting
+        "william-voyek.vscode-nginx",
+        // Error Lens — błędy inline przy kodzie (nie tylko w Problems)
+        "usernamehw.errorlens",
+        // GitLens — git blame, historia, porównania
+        "eamodio.gitlens",
+        // EditorConfig — respektuje .editorconfig (jeśli jest)
+        "editorconfig.editorconfig",
+        // Prettier — formatowanie TS/JSON/CSS (dla playwright.config.ts)
+        "esbenp.prettier-vscode"
+    ]
+}

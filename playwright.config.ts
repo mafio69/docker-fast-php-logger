@@ -8,7 +8,9 @@ export default defineConfig({
   workers: process.env.CI ? 1 : undefined,
   reporter: 'html',
   use: {
-    baseURL: 'http://app.local',
+    // Override with E2E_BASE_URL when running inside the playwright container
+    // (where the app is reachable as http://php, not the host-only app.local).
+    baseURL: process.env.E2E_BASE_URL || 'http://app.local',
     trace: 'on-first-retry',
   },
   projects: [

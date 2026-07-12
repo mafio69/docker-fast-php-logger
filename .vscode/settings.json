@@ -1,0 +1,85 @@
+{
+    // --- PHP: Intelephense ---
+    "intelephense.environment.phpVersion": "8.4.0",
+    "intelephense.files.exclude": [
+        "**/vendor/**",
+        "**/var/cache/**",
+        "**/var/log/**"
+    ],
+    "intelephense.telemetry.enabled": false,
+    "intelephense.format.enable": true,
+
+    // --- PHP: PHPStan ---
+    "phpstan.configFile": "phpstan.neon",
+    "phpstan.phpPath": "php",
+    "phpstan.enabled": true,
+    "phpstan.timeout": 60000,
+
+    // --- PHP: PHPUnit (uruchamia testy wewnątrz kontenera devbox) ---
+    "phpunit.command": "docker exec devbox php /var/www/html/bin/phpunit",
+    "phpunit.args": ["--configuration", "/var/www/html/phpunit.xml"],
+    "phpunit.clearOutputOnRun": true,
+
+    // --- Symfony ---
+    "symfony-vscode.phpBinPath": "php",
+    "symfony-vscode.consoleBinPath": "bin/console",
+
+    // --- Formatowanie ---
+    "editor.formatOnSave": true,
+    // PHP formatuje Intelephense (lub ustaw na "bmewburn.vscode-intelephense-client")
+    "[php]": {
+        "editor.defaultFormatter": "bmewburn.vscode-intelephense-client"
+    },
+    "[typescript]": {
+        "editor.defaultFormatter": "esbenp.prettier-vscode"
+    },
+    "[json]": {
+        "editor.defaultFormatter": "esbenp.prettier-vscode"
+    },
+    "[yaml]": {
+        "editor.defaultFormatter": "redhat.vscode-yaml"
+    },
+
+    // --- Twig ---
+    "files.associations": {
+        "*.html.twig": "twig",
+        "*.twig": "twig",
+        "*.env": "properties",
+        "*.env.example": "properties",
+        "*.env.local": "properties",
+        "nginx.conf": "nginx",
+        "proxy.conf": "nginx",
+        "supervisor.conf": "ini"
+    },
+
+    // --- Docker ---
+    "docker.host": "unix:///var/run/docker.sock",
+
+    // --- Playwright ---
+    "playwright.reuseBrowser": false,
+    "playwright.showTrace": true,
+
+    // --- Database Client ---
+    "database-client.autoSync": false,
+
+    // --- Error Lens ---
+    "errorLens.enabledDiagnosticLevels": ["error", "warning"],
+    "errorLens.delay": 500,
+
+    // --- Editor ogólne ---
+    "editor.rulers": [120],
+    "editor.tabSize": 4,
+    "editor.insertSpaces": true,
+    "files.trimTrailingWhitespace": true,
+    "files.insertFinalNewline": true,
+    "files.exclude": {
+        "**/var/cache": true,
+        "**/var/log": true,
+        "**/.git": true
+    },
+    "search.exclude": {
+        "**/vendor/**": true,
+        "**/var/**": true,
+        "**/node_modules/**": true
+    }
+}

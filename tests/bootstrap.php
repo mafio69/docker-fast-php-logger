@@ -15,6 +15,6 @@ if (file_exists(dirname(__DIR__).'/config/bootstrap.php')) {
     }
 }
 
-if ($_SERVER['APP_DEBUG']) {
+if ($_SERVER['APP_DEBUG'] ?? $_ENV['APP_DEBUG'] ?? '1') {
     umask(0000);
 }

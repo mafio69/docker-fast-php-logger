@@ -36,4 +36,21 @@ class LogController extends AbstractController
 
         return new Response($content);
     }
+
+    #[Route('/logs-assets/{type}/{assetPath}', name: 'app_logs_assets', requirements: ['type' => 'css|js', 'assetPath' => '.+'])]
+    public function asset(string $type, string $assetPath): Response
+    {
+        $absolutePath = $this->logViewerService->getAssetAbsolutePath($type, $assetPath);
+        if ($absolutePath === null) {
+            return new Response('Asset not found', 404);
+        }
+
+        $contentType = $type === 'css' ? 'text/css; charset=UTF-8' : 'application/javascript; charset=UTF-8';
+        $content = file_get_contents($absolutePath);
+        if ($content === false) {
+            return new Response('Asset not readable', 500);
+        }
+
+        return new Response($content, 200, ['Content-Type' => $contentType]);
+    }
 }

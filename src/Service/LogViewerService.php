@@ -16,12 +16,15 @@ class LogViewerService
 
     private string $frontendBootstrapPath;
 
+    private string $publicAssetsPath;
+
     public function __construct(KernelInterface $kernel)
     {
         $projectDir = $kernel->getProjectDir();
         $this->logDir = $projectDir . '/logs';
         $this->autoloadPath = $projectDir . '/vendor/autoload.php';
         $this->frontendBootstrapPath = $projectDir . '/vendor/mafio69/log-viewer/src/Bootstrap/frontend.php';
+        $this->publicAssetsPath = $projectDir . '/vendor/mafio69/log-viewer/public';
     }
 
     public function getLogDirs(): array
@@ -87,13 +90,52 @@ class LogViewerService
             require_once $this->autoloadPath;
             require $this->frontendBootstrapPath;
 
-            return (string) ob_get_clean();
+            $content = (string) ob_get_clean();
+
+            return $this->rewriteViewerHtml($content);
         } catch (Throwable $e) {
             ob_end_clean();
             throw $e;
         } finally {
             restore_error_handler();
         }
+    }
+
+    /**
+     * templates/viewer.php linkuje css/js względnymi ścieżkami (np. "css/style.css"),
+     * które zakładają, że plik jest serwowany bezpośrednio z /public paczki.
+     * Tu jest osadzony pod /logs, więc trzeba je przepisać na trasę /logs-assets/...
+     * obsługiwaną przez getAssetAbsolutePath()/LogController::asset().
+     */
+    private function rewriteViewerHtml(string $content): string
+    {
+        $content = str_replace('href="css/', 'href="/logs-assets/css/', $content);
+        $content = str_replace('src="js/', 'src="/logs-assets/js/', $content);
+
+        return $content;
+    }
+
+    public function getAssetAbsolutePath(string $type, string $assetPath): ?string
+    {
+        if (!in_array($type, ['css', 'js'], true)) {
+            return null;
+        }
+
+        if (str_contains($assetPath, '..')) {
+            return null;
+        }
+
+        $baseDir = realpath($this->publicAssetsPath . '/' . $type);
+        if ($baseDir === false) {
+            return null;
+        }
+
+        $fullPath = realpath($baseDir . '/' . ltrim($assetPath, '/'));
+        if ($fullPath === false || !str_starts_with($fullPath, $baseDir . '/')) {
+            return null;
+        }
+
+        return is_file($fullPath) ? $fullPath : null;
     }
 
     public function isViewerAvailable(): bool

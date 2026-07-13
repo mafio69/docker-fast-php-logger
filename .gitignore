@@ -46,3 +46,13 @@ package.xml
 node_modules/
 package-lock.json
 ###< node.js ###
+
+###> playwright ###
+/test-results/
+/playwright-report/
+###< playwright ###
+
+###> local tooling (not shared) ###
+.claude/
+*.code-workspace
+###< local tooling (not shared) ###

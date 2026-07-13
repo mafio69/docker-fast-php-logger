@@ -3,6 +3,7 @@
 namespace App\Tests\Service;
 
 use App\Service\LogViewerService;
+use ErrorException;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\HttpKernel\KernelInterface;
 
@@ -72,7 +73,41 @@ class LogViewerServiceTest extends TestCase
         $kernel->method('getProjectDir')->willReturn('/tmp/non-existent');
         
         $service = new LogViewerService($kernel);
-        
+
         $this->assertFalse($service->isViewerAvailable());
+    }
+
+    /**
+     * Regresja na bug "headers already sent": stary handler konwertował
+     * KAŻDY warning na ErrorException, ignorując @-suppresję. To sprawiało,
+     * że np. @filemtime()/@filesize() w mafio69/log-viewer rzucały wyjątek
+     * zamiast być po cichu zignorowane.
+     */
+    public function testHandleErrorRespectsAtSuppression(): void
+    {
+        $originalReporting = error_reporting();
+        error_reporting($originalReporting & ~E_WARNING);
+
+        try {
+            $result = LogViewerService::handleError(E_WARNING, 'suppressed warning', __FILE__, __LINE__);
+
+            $this->assertFalse($result, 'Stłumiony (@) warning nie powinien rzucać wyjątku, tylko zwrócić false.');
+        } finally {
+            error_reporting($originalReporting);
+        }
+    }
+
+    public function testHandleErrorThrowsForUnsuppressedErrors(): void
+    {
+        $originalReporting = error_reporting(E_ALL);
+
+        try {
+            $this->expectException(ErrorException::class);
+            $this->expectExceptionMessage('boom');
+
+            LogViewerService::handleError(E_WARNING, 'boom', __FILE__, __LINE__);
+        } finally {
+            error_reporting($originalReporting);
+        }
     }
 }

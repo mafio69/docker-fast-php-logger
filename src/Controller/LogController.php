@@ -29,11 +29,11 @@ class LogController extends AbstractController
 
         $type = $request->query->get('type'); // 'container' or 'host'
         try {
-            $this->logViewerService->renderViewer($type);
+            $content = $this->logViewerService->renderViewer($type);
         } catch (Throwable $e) {
             return new Response('Error rendering logs: ' . $e->getMessage(), 500);
         }
-        
-        return new Response('');
+
+        return new Response($content);
     }
 }
